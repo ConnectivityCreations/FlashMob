@@ -60,3 +60,7 @@ the following are **bonus** features:
 * [ ] Users can share an audio stream
 * [ ] User preferences for new event notifications will be recommended based on past behavior
 * [ ] Users can identify event members automatically
+
+## Wireframes
+
+Wireframes for the project can be found [here](https://stridera.app.box.com/s/bbqp6b94msx8bql0g2i189rl8piw9cbi).
