@@ -1,6 +1,6 @@
 # FlashMob
 
-FlashMob is an android app that allows users to find others interested in participating in an activity in the immediate future. This app utilizes geolocation and interest pairing to easily match event hosts with those interested in participating.
+FlashMob is an android app that allows users to find others interested in participating in an activity in the immediate future. This app utilizes geolocation and interest pairing to easily match event hosts with those interested in participating. 
 
 ## User Stories
 
