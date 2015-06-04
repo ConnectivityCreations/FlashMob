@@ -1,7 +1,10 @@
 <resources>
   <string name="app_name">Flashmob</string>
   <string name="title_activity_login">LoginActivity</string>
-  <string name="title_activity_location">LocationActivity</string>
+  <string name="title_activity_location">Create Event</string>
 
   <string name="facebook_app_id"></string>
+  <string name="event_name">Event Name</string>
+  <string name="your_event">Your Event</string>
+  <string name="event_photo">Event Photo</string>
 </resources>
