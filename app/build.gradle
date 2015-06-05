@@ -21,24 +21,22 @@ android {
 
 repositories {
     mavenCentral()
-    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    // Required for Facebook Login functionality
-    compile 'com.facebook.android:facebook-android-sdk:4.1.0'
+
+    // Android Support Libraries
+    compile 'com.android.support:appcompat-v7:22.1.1'
+
+    // Google Play required for map Fragments
+    compile 'com.google.android.gms:play-services:7.3.0'
+
     // Picasso for remote image loading
     compile 'com.squareup.picasso:picasso:2.4.0'
-    // Android Async Http for sending async network requests
-    compile 'com.loopj.android:android-async-http:1.4.6'
-    // ActiveAndroid for simple persistence with an ORM
-    compile 'com.michaelpardo:activeandroid:3.1.0-SNAPSHOT'
-    // Pager Sliding Strip Library
-    compile 'com.astuetz:pagerslidingtabstrip:1.0.1'
-    // Google Play required for map Fragments
-    //compile 'com.google.android.gms:play-services-maps:7.3.0'
-    compile 'com.google.android.gms:play-services:7.3.0'
-    // Android Support Functionality
-    compile 'com.android.support:appcompat-v7:22.1.1'
+
+    // Parse and Android Libraries for Data and Login
+    compile 'com.parse.bolts:bolts-android:1.2.0'
+    compile 'com.facebook.android:facebook-android-sdk:4.1.2'
+    compile fileTree(dir: 'libs', include: 'Parse-*.jar')
+    compile fileTree(dir: 'libs', include: 'ParseFacebookUtilsV4-*.jar')
 }

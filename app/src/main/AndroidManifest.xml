@@ -12,8 +12,8 @@
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="18" />
 
-
     <application
+        android:name=".FlashmobApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -26,22 +26,39 @@
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
-        
-        <!--Application ID For the Facebook Login API-->
-        <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/>
 
-        <!--Initilization for the ActiveAndroid system-->
-        <meta-data android:name="AA_DB_NAME" android:value="Flashmob.db" />
-        <meta-data android:name="AA_DB_VERSION" android:value="1" />
+        <!-- Application ID For the Facebook Login API -->
+        <meta-data android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_app_id"/>
+
 
         <activity
-            android:name=".activities.LocationActivity"
-            android:label="@string/title_activity_location" >
+            android:name=".activities.LauncherActivity"
+            android:label="@string/title_activity_login"
+            android:theme="@android:style/Theme.NoDisplay" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".activities.LoginActivity"
+            android:label="@string/title_activity_login" />
+        <activity
+            android:name=".activities.LocationActivity"
+            android:label="@string/title_activity_location" />
+
+        <!-- This is used for the facebook Login -->
+        <activity
+            android:name="com.facebook.FacebookActivity"
+            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <activity
+            android:name=".activities.StreamActivity"
+            android:label="@string/title_activity_stream" />
 
     </application>
 
