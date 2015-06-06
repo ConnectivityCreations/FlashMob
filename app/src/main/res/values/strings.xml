@@ -7,7 +7,12 @@
 
   <string name="action_settings">Settings</string>
   <string name="title_activity_stream">Stream Activity</string>
-  <string name="event_photo" />
-  <string name="your_event" />
-  <string name="event_name" />
+  
+  <string name="event_name">Event Name</string>
+  <string name="your_event">Your Event</string>
+  <string name="event_photo">Event Photo</string>
+  <string name="min_attendees">Min Attendees</string>
+  <string name="max_attendees">Max Attendees</string>
+  <string name="event_time">Event Time</string>
+  <string name="end_time">End Time</string>
 </resources>
