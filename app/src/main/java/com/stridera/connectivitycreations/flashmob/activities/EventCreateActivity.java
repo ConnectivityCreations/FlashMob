@@ -15,9 +15,11 @@ import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -66,6 +68,16 @@ public class EventCreateActivity extends AppCompatActivity {
         CameraUpdate cameraUpdate = CameraUpdateFactory.zoomTo(15);
         googleMap.animateCamera(cameraUpdate);
         updateLocation(eventLocation);
+      }
+    });
+
+    View mapOverlay = findViewById(R.id.mapOverlay);
+    final ScrollView scrollView = (ScrollView) findViewById(R.id.scrollView);
+    mapOverlay.setOnTouchListener(new View.OnTouchListener() {
+      @Override
+      public boolean onTouch(View v, MotionEvent event) {
+        scrollView.requestDisallowInterceptTouchEvent(true);
+        return false;
       }
     });
   }

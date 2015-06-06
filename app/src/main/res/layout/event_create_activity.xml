@@ -2,7 +2,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.stridera.connectivitycreations.flashmob.activities.EventCreateActivity">
+    tools:context="com.stridera.connectivitycreations.flashmob.activities.EventCreateActivity"
+    android:id="@+id/scrollView">
   <LinearLayout
       android:layout_width="fill_parent"
       android:layout_height="wrap_content"
@@ -59,16 +60,20 @@
         android:layout_height="wrap_content"
         android:id="@+id/locationEditText"
         android:hint="Enter Location"/>
-    <fragment
-        android:id="@+id/map"
-        class="com.google.android.gms.maps.SupportMapFragment"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:layout_below="@id/nameLayout"
-        android:layout_alignStart="@id/nameLayout"
-        android:layout_alignLeft="@id/nameLayout"
-        android:layout_alignRight="@id/nameLayout"
-        android:layout_alignEnd="@id/nameLayout"/>
+    <FrameLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+      <fragment
+          android:id="@+id/map"
+          class="com.google.android.gms.maps.SupportMapFragment"
+          android:layout_width="match_parent"
+          android:layout_height="200dp"/>
+      <View
+          android:id="@+id/mapOverlay"
+          android:layout_width="fill_parent"
+          android:layout_height="fill_parent"
+          android:background="@android:color/transparent"/>
+    </FrameLayout>
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
