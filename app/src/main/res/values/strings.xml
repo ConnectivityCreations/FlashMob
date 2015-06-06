@@ -13,4 +13,6 @@
   <string name="event_photo">Event Photo</string>
   <string name="min_attendees">Min Attendees</string>
   <string name="max_attendees">Max Attendees</string>
+  <string name="event_time">Event Time</string>
+  <string name="end_time">End Time</string>
 </resources>
