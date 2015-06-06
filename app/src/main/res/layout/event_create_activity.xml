@@ -1,18 +1,14 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:context="com.stridera.connectivitycreations.flashmob.activities.EventCreateActivity">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.stridera.connectivitycreations.flashmob.activities.EventCreateActivity"
+    android:orientation="vertical">
   <LinearLayout
       android:layout_width="fill_parent"
       android:layout_height="wrap_content"
       android:orientation="horizontal"
-      android:id="@+id/nameLayout"
-      android:layout_alignParentTop="true"
-      android:layout_alignParentLeft="true"
-      android:layout_alignParentStart="true"
-      android:layout_alignParentRight="true"
-      android:layout_alignParentEnd="true">
+      android:id="@+id/nameLayout">
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -31,19 +27,13 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:id="@+id/photoLabelTextView"
-      android:layout_below="@id/nameLayout"
-      android:layout_alignLeft="@id/nameLayout"
-      android:layout_alignStart="@id/nameLayout"
-      android:layout_alignRight="@id/nameLayout"
-      android:layout_alignEnd="@id/nameLayout"
       android:text="@string/event_photo"
       style="@style/Base.TextAppearance.AppCompat.Medium"
       android:padding="3dp"/>
   <RelativeLayout
       android:layout_width="fill_parent"
       android:layout_height="wrap_content"
-      android:layout_below="@id/photoLabelTextView"
-      >
+      android:layout_below="@id/photoLabelTextView">
     <ImageView
         android:layout_width="fill_parent"
         android:layout_height="200dp"
@@ -61,4 +51,65 @@
         android:layout_centerInParent="true"
         />
   </RelativeLayout>
-</RelativeLayout>
+  <EditText
+      android:layout_width="fill_parent"
+      android:layout_height="wrap_content"
+      android:id="@+id/locationEditText"
+      android:hint="Enter Location"/>
+  <!--<fragment-->
+      <!--android:id="@+id/map"-->
+      <!--class="com.google.android.gms.maps.SupportMapFragment"-->
+      <!--android:layout_width="match_parent"-->
+      <!--android:layout_height="200dp"-->
+      <!--android:layout_below="@id/nameLayout"-->
+      <!--android:layout_alignStart="@id/nameLayout"-->
+      <!--android:layout_alignLeft="@id/nameLayout"-->
+      <!--android:layout_alignRight="@id/nameLayout"-->
+      <!--android:layout_alignEnd="@id/nameLayout"/>-->
+  <LinearLayout
+      android:layout_width="fill_parent"
+      android:layout_height="wrap_content"
+      android:gravity="center_vertical">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/min_attendees"
+        style="@style/Base.TextAppearance.AppCompat.Medium"
+        android:padding="3dp"/>
+    <SeekBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/minAttendeesSeekBar"
+        android:layout_weight="1"/>
+    <EditText
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/minAttendeesEditText"
+        android:text="2"
+        android:singleLine="true"
+        android:inputType="number"/>
+  </LinearLayout>
+  <LinearLayout
+      android:layout_width="fill_parent"
+      android:layout_height="wrap_content"
+      android:gravity="center_vertical">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/max_attendees"
+        style="@style/Base.TextAppearance.AppCompat.Medium"
+        android:padding="3dp"/>
+    <SeekBar
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:id="@+id/maxAttendeesSeekBar"
+      android:layout_weight="1"/>
+    <EditText
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/maxAttendeesEditText"
+        android:text="2"
+        android:singleLine="true"
+        android:inputType="number"/>
+  </LinearLayout>
+</LinearLayout>
