@@ -7,4 +7,7 @@
 
   <string name="action_settings">Settings</string>
   <string name="title_activity_stream">Stream Activity</string>
+  <string name="event_photo" />
+  <string name="your_event" />
+  <string name="event_name" />
 </resources>

@@ -6,6 +6,9 @@ import com.facebook.FacebookSdk;
 import com.parse.Parse;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseInstallation;
+import com.parse.ParseObject;
+import com.stridera.connectivitycreations.flashmob.Models.FlashUser;
+import com.stridera.connectivitycreations.flashmob.Models.Flashmob;
 
 public class FlashmobApplication extends Application {
     @Override
@@ -17,6 +20,10 @@ public class FlashmobApplication extends Application {
 
         // Enable Local Datastore.
         Parse.enableLocalDatastore(this);
+
+        // Register ParseObject Subclasses
+        ParseObject.registerSubclass(Flashmob.class);
+        ParseObject.registerSubclass(FlashUser.class);
 
         // Initialize!
         Parse.initialize(this,
