@@ -52,7 +52,7 @@
           android:text="Attach"
           android:alpha="0.5"
           android:layout_centerInParent="true"
-          />
+          android:onClick="onAttachPhoto"/>
     </RelativeLayout>
     <EditText
         android:layout_width="fill_parent"
