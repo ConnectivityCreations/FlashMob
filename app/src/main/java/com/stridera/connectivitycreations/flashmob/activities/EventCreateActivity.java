@@ -10,16 +10,17 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ScrollView;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -34,6 +35,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.stridera.connectivitycreations.flashmob.R;
 
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 
 
@@ -44,7 +47,10 @@ public class EventCreateActivity extends AppCompatActivity {
 
   private GoogleMap googleMap;
   private EditText locationEditText;
-  private Location eventLocation;
+  private LatLng eventLatLng = null;
+  private Address eventAddress;
+  private Marker locationMarker;
+  private LatLng userLocation;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -54,9 +60,20 @@ public class EventCreateActivity extends AppCompatActivity {
     // find all the views we use later
     locationEditText = (EditText) findViewById(R.id.locationEditText);
 
-    // init everything
+    // init all the things
     initLocation();
     initMap();
+    initLocationEditText();
+  }
+
+  private void initLocationEditText() {
+    locationEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+      @Override
+      public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        updateEventLocationTask.execute(locationEditText.getText().toString());
+        return false;
+      }
+    });
   }
 
   private void initMap() {
@@ -67,17 +84,9 @@ public class EventCreateActivity extends AppCompatActivity {
         EventCreateActivity.this.googleMap = googleMap;
         CameraUpdate cameraUpdate = CameraUpdateFactory.zoomTo(15);
         googleMap.animateCamera(cameraUpdate);
-        updateLocation(eventLocation);
-      }
-    });
-
-    View mapOverlay = findViewById(R.id.mapOverlay);
-    final ScrollView scrollView = (ScrollView) findViewById(R.id.scrollView);
-    mapOverlay.setOnTouchListener(new View.OnTouchListener() {
-      @Override
-      public boolean onTouch(View v, MotionEvent event) {
-        scrollView.requestDisallowInterceptTouchEvent(true);
-        return false;
+        updateEventLocation(eventLatLng);
+        googleMap.getUiSettings().setScrollGesturesEnabled(false);
+        googleMap.setMyLocationEnabled(true);
       }
     });
   }
@@ -87,7 +96,9 @@ public class EventCreateActivity extends AppCompatActivity {
     locationManager.requestSingleUpdate(new Criteria(), new LocationListener() {
       @Override
       public void onLocationChanged(Location location) {
-        updateLocation(location);
+        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        userLocation = latLng;
+        updateEventLocation(latLng);
       }
 
       @Override
@@ -104,37 +115,110 @@ public class EventCreateActivity extends AppCompatActivity {
     }, null);
   }
 
-  private boolean updateLocation(Location location) {
-    if (location == null) {
+  private boolean updateEventLocation(LatLng latLng) {
+    if (latLng == null) {
       return false;
     }
-
-    Geocoder geocoder = new Geocoder(this, Locale.getDefault());
     try {
-      Address address = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1).get(0);
-
-      updateLocationEditText(address);
-      updateGoogleMap(location);
-
-      eventLocation = location;
+      Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+      List<Address> addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
+      if (addresses.isEmpty()) {
+        return false;
+      }
+      updateEventLocation(addresses.get(0), latLng);
       return true;
     } catch (IOException e) {
-      e.printStackTrace();
+      Log.e(TAG, "Geocoding failed", e);
     }
+
     return false;
   }
 
-  private void updateGoogleMap(Location location) {
+  AsyncTask<String, Void, Address> updateEventLocationTask = new AsyncTask<String, Void, Address>() {
+    static final double SEARCH_BOUNDS_PRECISION = .1;
+    static final int MAX_RESULTS = 5;
+
+    @Override
+    protected Address doInBackground(String... params) {
+      String locationName = params[0];
+      LatLng target = (userLocation == null) ? eventLatLng : userLocation;
+
+      try {
+        Geocoder geocoder = new Geocoder(EventCreateActivity.this, Locale.getDefault());
+        List<Address> addresses = target == null ?
+            geocoder.getFromLocationName(
+                locationName,
+                1
+            ) : geocoder.getFromLocationName(
+                locationName,
+                MAX_RESULTS,
+                target.latitude - SEARCH_BOUNDS_PRECISION,
+                target.longitude - SEARCH_BOUNDS_PRECISION,
+                target.latitude + SEARCH_BOUNDS_PRECISION,
+                target.longitude + SEARCH_BOUNDS_PRECISION
+            );
+        if (addresses.isEmpty()) {
+          return null;
+        }
+        if (target == null) {
+          return addresses.get(0);
+        }
+
+        Address closestAddress = null;
+        float minDistance = Float.MAX_VALUE;
+        float[] results = new float[1];
+        for (Address address : addresses) {
+          Location.distanceBetween(target.latitude, target.longitude, address.getLatitude(), address.getLongitude(), results);
+          float distance = results[0];
+          if (distance < minDistance) {
+            minDistance = distance;
+            closestAddress = address;
+          }
+        }
+        return closestAddress;
+      } catch (IOException e) {
+        Log.e(TAG, "Geocoding failed", e);
+      }
+
+      return null;
+    }
+
+    @Override
+    protected void onPostExecute(Address address) {
+      if (address == null) {
+        // could not find the location, revert
+        updateEventLocation(eventAddress, eventLatLng);
+      }
+      else {
+        LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+        updateEventLocation(address, latLng);
+      }
+    }
+  };
+
+  private void updateEventLocation(Address address, LatLng latLng) {
+    if ((address == null) || (latLng == null)) {
+      return;
+    }
+    updateLocationEditText(address);
+    updateGoogleMap(latLng);
+    eventLatLng = latLng;
+    eventAddress = address;
+  }
+
+  private void updateGoogleMap(LatLng latLng) {
     if (googleMap == null) {
       return;
     }
 
-    LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-
     // marker
-    BitmapDescriptor defaultMarker =
-        BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED);
-    Marker mapMarker = googleMap.addMarker(new MarkerOptions().position(latLng).icon(defaultMarker));
+    if (this.locationMarker == null) {
+      BitmapDescriptor defaultMarker =
+          BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED);
+      locationMarker = googleMap.addMarker(new MarkerOptions().position(latLng).icon(defaultMarker));
+    } else {
+      locationMarker.setPosition(latLng);
+    }
 
     // map camera
     CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(latLng);
@@ -145,8 +229,7 @@ public class EventCreateActivity extends AppCompatActivity {
     StringBuilder addressStringBuilder = new StringBuilder();
     String divider = ", ";
     for (int i = 0; i < address.getMaxAddressLineIndex(); i++) {
-      String line = address.getAddressLine(i);
-      addressStringBuilder.append(divider).append(line);
+      addressStringBuilder.append(divider).append(address.getAddressLine(i));
     }
     locationEditText.setText(addressStringBuilder.toString().substring(divider.length()));
   }
