@@ -1,7 +1,14 @@
 package com.stridera.connectivitycreations.flashmob.activities;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.location.Address;
+import android.location.Criteria;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -9,11 +16,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.stridera.connectivitycreations.flashmob.R;
 
 import java.io.IOException;
+import java.util.Locale;
 
 
 public class EventCreateActivity extends AppCompatActivity {
@@ -21,10 +30,58 @@ public class EventCreateActivity extends AppCompatActivity {
   private static final int PICK_PHOTO_CODE = 1;
   private static final String TAG = EventCreateActivity.class.getSimpleName();
 
+  private EditText locationEditText;
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.event_create_activity);
+
+    // find all the views we use later
+    locationEditText = (EditText) findViewById(R.id.locationEditText);
+
+    // init everything
+    initLocation();
+  }
+
+  private void initLocation() {
+    LocationManager locationManager = (LocationManager) getSystemService(Activity.LOCATION_SERVICE);
+    locationManager.requestSingleUpdate(new Criteria(), new LocationListener() {
+      @Override
+      public void onLocationChanged(Location location) {
+        updateLocation(location);
+      }
+
+      @Override
+      public void onStatusChanged(String provider, int status, Bundle extras) {
+      }
+
+      @Override
+      public void onProviderEnabled(String provider) {
+      }
+
+      @Override
+      public void onProviderDisabled(String provider) {
+      }
+    }, null);
+  }
+
+  private boolean updateLocation(Location location) {
+    Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+    try {
+      Address address = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1).get(0);
+      StringBuilder addressStringBuilder = new StringBuilder();
+      String divider = ", ";
+      for (int i = 0; i < address.getMaxAddressLineIndex(); i++) {
+        String line = address.getAddressLine(i);
+        addressStringBuilder.append(divider).append(line);
+      }
+      locationEditText.setText(addressStringBuilder.toString().substring(divider.length()));
+      return true;
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    return false;
   }
 
   @Override

@@ -18,7 +18,7 @@
           android:text="@string/event_name"
           style="@style/Base.TextAppearance.AppCompat.Medium"
           android:padding="3dp"/>
-      <EditText
+      <org.droidparts.widget.ClearableEditText
           android:layout_width="fill_parent"
           android:layout_height="wrap_content"
           android:id="@+id/nameEditText"
@@ -54,7 +54,7 @@
           android:layout_centerInParent="true"
           android:onClick="onAttachPhoto"/>
     </RelativeLayout>
-    <EditText
+    <org.droidparts.widget.ClearableEditText
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:id="@+id/locationEditText"
@@ -79,7 +79,7 @@
           android:text="@string/attendees"
           style="@style/Base.TextAppearance.AppCompat.Medium"
           android:padding="3dp"/>
-      <EditText
+      <org.droidparts.widget.ClearableEditText
           android:layout_width="40dp"
           android:layout_height="wrap_content"
           android:id="@+id/minAttendeesEditText"
@@ -93,7 +93,7 @@
           android:text="@string/dash"
           style="@style/Base.TextAppearance.AppCompat.Medium"
           android:padding="3dp"/>
-      <EditText
+      <org.droidparts.widget.ClearableEditText
           android:layout_width="40dp"
           android:layout_height="wrap_content"
           android:id="@+id/maxAttendeesEditText"
