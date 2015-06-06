@@ -19,6 +19,16 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.stridera.connectivitycreations.flashmob.R;
 
 import java.io.IOException;
@@ -30,7 +40,9 @@ public class EventCreateActivity extends AppCompatActivity {
   private static final int PICK_PHOTO_CODE = 1;
   private static final String TAG = EventCreateActivity.class.getSimpleName();
 
+  private GoogleMap googleMap;
   private EditText locationEditText;
+  private Location eventLocation;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +54,20 @@ public class EventCreateActivity extends AppCompatActivity {
 
     // init everything
     initLocation();
+    initMap();
+  }
+
+  private void initMap() {
+    SupportMapFragment mapFragment = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map));
+    mapFragment.getMapAsync(new OnMapReadyCallback() {
+      @Override
+      public void onMapReady(GoogleMap googleMap) {
+        EventCreateActivity.this.googleMap = googleMap;
+        CameraUpdate cameraUpdate = CameraUpdateFactory.zoomTo(15);
+        googleMap.animateCamera(cameraUpdate);
+        updateLocation(eventLocation);
+      }
+    });
   }
 
   private void initLocation() {
@@ -67,21 +93,50 @@ public class EventCreateActivity extends AppCompatActivity {
   }
 
   private boolean updateLocation(Location location) {
+    if (location == null) {
+      return false;
+    }
+
     Geocoder geocoder = new Geocoder(this, Locale.getDefault());
     try {
       Address address = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1).get(0);
-      StringBuilder addressStringBuilder = new StringBuilder();
-      String divider = ", ";
-      for (int i = 0; i < address.getMaxAddressLineIndex(); i++) {
-        String line = address.getAddressLine(i);
-        addressStringBuilder.append(divider).append(line);
-      }
-      locationEditText.setText(addressStringBuilder.toString().substring(divider.length()));
+
+      updateLocationEditText(address);
+      updateGoogleMap(location);
+
+      eventLocation = location;
       return true;
     } catch (IOException e) {
       e.printStackTrace();
     }
     return false;
+  }
+
+  private void updateGoogleMap(Location location) {
+    if (googleMap == null) {
+      return;
+    }
+
+    LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+
+    // marker
+    BitmapDescriptor defaultMarker =
+        BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED);
+    Marker mapMarker = googleMap.addMarker(new MarkerOptions().position(latLng).icon(defaultMarker));
+
+    // map camera
+    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(latLng);
+    googleMap.animateCamera(cameraUpdate);
+  }
+
+  private void updateLocationEditText(Address address) {
+    StringBuilder addressStringBuilder = new StringBuilder();
+    String divider = ", ";
+    for (int i = 0; i < address.getMaxAddressLineIndex(); i++) {
+      String line = address.getAddressLine(i);
+      addressStringBuilder.append(divider).append(line);
+    }
+    locationEditText.setText(addressStringBuilder.toString().substring(divider.length()));
   }
 
   @Override
