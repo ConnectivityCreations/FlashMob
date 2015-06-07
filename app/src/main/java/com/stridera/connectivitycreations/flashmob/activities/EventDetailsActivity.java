@@ -1,5 +1,6 @@
 package com.stridera.connectivitycreations.flashmob.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -116,14 +117,18 @@ public class EventDetailsActivity extends ActionBarActivity {
         rlAttendingViews.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // TODO: Launch the Attendees Activity
+                Intent i = new Intent(EventDetailsActivity.this, AttendeesActivity.class);
+                i.putExtra("event_id", event.getObjectId());
+                startActivity(i);
             }
         });
 
         rlCommentsViews.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // TODO: Launch the Comments Activity
+                Intent i = new Intent(EventDetailsActivity.this, CommentsActivity.class);
+                i.putExtra("event_id", event.getObjectId());
+                startActivity(i);
             }
         });
     }
