@@ -15,6 +15,7 @@ import com.parse.ParseUser;
 import java.io.ByteArrayOutputStream;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * The base class for all flashmobs.
@@ -22,33 +23,40 @@ import java.util.List;
 @ParseClassName("Flashmob")
 public class Flashmob extends ParseObject {
 
+    public static final int DEFAULT_DURATION = 60;
+
     // Constructor
 
     public Flashmob() {
         super();
     }
 
-    public Flashmob(String title, Bitmap image, Date when, int duration, int min_attendees, int max_attendees, ParseGeoPoint location, String address) {
+    public Flashmob(String title, Bitmap image, Date when, Integer duration, Integer min_attendees, Integer max_attendees, ParseGeoPoint location, String address) {
         super();
 
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        image.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-        // get byte array here
-        byte[] data = stream.toByteArray();
-        ParseFile parseimage = new ParseFile(getObjectId() + ".jpg", data);
-        parseimage.saveInBackground();
+        if (image != null) {
+          ByteArrayOutputStream stream = new ByteArrayOutputStream();
+          image.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+          // get byte array here
+          byte[] data = stream.toByteArray();
+          UUID uuid = UUID.nameUUIDFromBytes(data);
+          ParseFile parseimage = new ParseFile(uuid.toString() + ".jpg", data);
+          parseimage.saveInBackground();
+          put("image", parseimage);
+        }
 
-        Flashmob flashmob = ParseObject.createWithoutData(Flashmob.class, this.getObjectId());
-        flashmob.put("name", title);
-        flashmob.put("image", parseimage);
-        flashmob.put("eventAt", when);
-        flashmob.put("duration", duration);
-        flashmob.put("minAttendees", min_attendees);
-        flashmob.put("maxAttendees", max_attendees);
-        flashmob.put("location", location);
-        flashmob.put("address", address);
-        flashmob.put("owner", ParseUser.getCurrentUser());
-        flashmob.saveInBackground();
+        put("name", title);
+        put("eventAt", (when == null ? new Date() : when));
+        put("duration", (duration == null ? DEFAULT_DURATION : duration));
+        if (min_attendees != null) {
+          put("minAttendees", min_attendees);
+        }
+        if (max_attendees != null) {
+          put("maxAttendees", max_attendees);
+        }
+        put("location", location);
+        put("address", address);
+        put("owner", ParseUser.getCurrentUser());
     }
 
     // Accessor Methods

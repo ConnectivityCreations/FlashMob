@@ -123,7 +123,9 @@
           android:id="@+id/startTimeTextView"
           android:hint="@string/start"
           android:layout_weight="1"
-          style="@android:style/Widget.EditText"/>
+          style="@android:style/Widget.EditText"
+          android:onClick="onClickStartTimeTextView"
+          android:focusable="false"/>
       <TextView
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
@@ -136,7 +138,9 @@
           android:id="@+id/endTimeTextView"
           android:hint="@string/end"
           android:layout_weight="1"
-          style="@android:style/Widget.EditText"/>
+          style="@android:style/Widget.EditText"
+          android:onClick="onClickEndTimeTextView"
+          android:focusable="false"/>
     </LinearLayout>
   </LinearLayout>
 </ScrollView>
