@@ -2,6 +2,13 @@
       xmlns:app="http://schemas.android.com/apk/res-auto"
       xmlns:tools="http://schemas.android.com/tools"
       tools:context="com.stridera.connectivitycreations.flashmob.activities.EventCreateActivity">
+  <item
+      android:id="@+id/actionProgress"
+      android:title="@string/loading"
+      android:visible="false"
+      android:orderInCategory="90"
+      app:showAsAction="ifRoom"
+      app:actionLayout="@layout/action_view_progress" />
   <item android:id="@+id/action_save"
         android:orderInCategory="100"
         android:title="@string/save"

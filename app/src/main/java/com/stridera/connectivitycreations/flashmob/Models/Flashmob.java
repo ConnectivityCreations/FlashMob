@@ -96,6 +96,14 @@ public class Flashmob extends ParseObject {
         return getDate("eventAt");
     }
 
+    @Override
+    public String toString() {
+      StringBuilder stringBuilder = new StringBuilder(getTitle()).append("\n")
+          .append(getAddress()).append("\n")
+          .append(getEventDate());
+      return stringBuilder.toString();
+    }
+
     // Static Accessors
     private static ParseQuery<Flashmob> createQuery() {
         ParseQuery<Flashmob> query = new ParseQuery<Flashmob>(Flashmob.class);

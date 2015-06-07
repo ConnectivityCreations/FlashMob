@@ -27,33 +27,40 @@
           android:singleLine="true"
           android:layout_weight="1"/>
     </LinearLayout>
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/photoLabelTextView"
-        android:text="@string/event_photo"
-        style="@style/Base.TextAppearance.AppCompat.Medium"
-        android:padding="3dp"/>
     <RelativeLayout
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/photoLabelTextView">
+        android:layout_height="wrap_content">
       <ImageView
           android:layout_width="fill_parent"
           android:layout_height="200dp"
           android:id="@+id/photoImageView"
           android:background="@drawable/border"
           android:layout_centerInParent="true"
-          android:adjustViewBounds="true"
-          />
-      <Button
+          android:adjustViewBounds="true"/>
+      <LinearLayout
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:id="@+id/attachPhotoButton"
-          android:text="Attach"
-          android:alpha="0.5"
           android:layout_centerInParent="true"
-          android:onClick="onAttachPhoto"/>
+          android:orientation="horizontal">
+        <ImageButton
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:id="@+id/attachPhotoButton"
+            android:src="@drawable/attach"
+            android:scaleType="centerInside"
+            android:onClick="onAttachPhoto"
+            android:alpha=".4"
+            android:layout_margin="20dp"/>
+        <ImageButton
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:id="@+id/cameraButton"
+            android:src="@drawable/camera"
+            android:scaleType="centerInside"
+            android:onClick="onTakePhoto"
+            android:alpha=".4"
+            android:layout_margin="20dp"/>
+      </LinearLayout>
     </RelativeLayout>
     <org.droidparts.widget.ClearableEditText
         android:layout_width="fill_parent"
