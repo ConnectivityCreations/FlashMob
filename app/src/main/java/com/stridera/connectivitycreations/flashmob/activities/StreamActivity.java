@@ -12,6 +12,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -32,6 +34,7 @@ public class StreamActivity extends AppCompatActivity {
     ArrayAdapter<Flashmob> arrayAdapter; // Temp.  Will go to fragment.
     ArrayList<Flashmob> items;
     ParseGeoPoint point = new ParseGeoPoint(37.4020619, -122.1144424);
+    ListView lv;
 
   @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,8 +44,9 @@ public class StreamActivity extends AppCompatActivity {
         // TEMP, will move to fragment
         items = new ArrayList<>();
         arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, items);
-        ListView lv = (ListView) findViewById(R.id.listView);
+        lv = (ListView) findViewById(R.id.listView);
         lv.setAdapter(arrayAdapter);
+        setupListViewListener();
         initLocation();
     }
 
@@ -156,6 +160,20 @@ public class StreamActivity extends AppCompatActivity {
     private void startCreateNewActivity() {
         Intent intent = new Intent(this, EventCreateActivity.class);
         startActivity(intent);
+    }
+
+    private void setupListViewListener() {
+        lv.setOnItemClickListener(
+                new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapter, View item, int pos, long id) {
+                        Intent i = new Intent(StreamActivity.this, EventDetailsActivity.class);
+                        Flashmob event = items.get(pos);
+                        i.putExtra("event_id", event.getObjectId());
+                        startActivity(i);
+                    }
+                }
+        );
     }
 
 }
