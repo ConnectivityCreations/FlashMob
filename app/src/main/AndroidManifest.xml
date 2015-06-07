@@ -36,18 +36,18 @@
             android:name=".activities.LauncherActivity"
             android:label="@string/title_activity_login"
             android:theme="@android:style/Theme.NoDisplay" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+          <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+          </intent-filter>
         </activity>
         <activity
             android:name=".activities.LoginActivity"
             android:label="@string/title_activity_login" />
         <activity
-            android:name=".activities.LocationActivity"
-            android:label="@string/title_activity_location" />
+            android:name=".activities.EventCreateActivity"
+            android:label="@string/title_activity_location">
+        </activity>
 
         <!-- This is used for the facebook Login -->
         <activity

@@ -2,7 +2,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.stridera.connectivitycreations.flashmob.activities.EventCreateActivity">
+    tools:context="com.stridera.connectivitycreations.flashmob.activities.EventCreateActivity"
+    android:id="@+id/scrollView">
   <LinearLayout
       android:layout_width="fill_parent"
       android:layout_height="wrap_content"
@@ -18,7 +19,7 @@
           android:text="@string/event_name"
           style="@style/Base.TextAppearance.AppCompat.Medium"
           android:padding="3dp"/>
-      <EditText
+      <org.droidparts.widget.ClearableEditText
           android:layout_width="fill_parent"
           android:layout_height="wrap_content"
           android:id="@+id/nameEditText"
@@ -52,23 +53,28 @@
           android:text="Attach"
           android:alpha="0.5"
           android:layout_centerInParent="true"
-          />
+          android:onClick="onAttachPhoto"/>
     </RelativeLayout>
-    <EditText
+    <org.droidparts.widget.ClearableEditText
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:id="@+id/locationEditText"
+        android:singleLine="true"
         android:hint="Enter Location"/>
-    <!--<fragment-->
-        <!--android:id="@+id/map"-->
-        <!--class="com.google.android.gms.maps.SupportMapFragment"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="200dp"-->
-        <!--android:layout_below="@id/nameLayout"-->
-        <!--android:layout_alignStart="@id/nameLayout"-->
-        <!--android:layout_alignLeft="@id/nameLayout"-->
-        <!--android:layout_alignRight="@id/nameLayout"-->
-        <!--android:layout_alignEnd="@id/nameLayout"/>-->
+    <FrameLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+      <fragment
+          android:id="@+id/map"
+          class="com.google.android.gms.maps.SupportMapFragment"
+          android:layout_width="match_parent"
+          android:layout_height="200dp"/>
+      <View
+          android:id="@+id/mapOverlay"
+          android:layout_width="fill_parent"
+          android:layout_height="fill_parent"
+          android:background="@android:color/transparent"/>
+    </FrameLayout>
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -76,44 +82,31 @@
       <TextView
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:text="@string/min_attendees"
+          android:text="@string/attendees"
           style="@style/Base.TextAppearance.AppCompat.Medium"
           android:padding="3dp"/>
-      <SeekBar
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:id="@+id/minAttendeesSeekBar"
-          android:layout_weight="1"/>
-      <EditText
+      <org.droidparts.widget.ClearableEditText
           android:layout_width="40dp"
           android:layout_height="wrap_content"
           android:id="@+id/minAttendeesEditText"
-          android:text="2"
+          android:hint="@string/minimum"
           android:singleLine="true"
-          android:inputType="number"/>
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical">
+          android:inputType="number"
+          android:layout_weight="1"/>
       <TextView
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:text="@string/max_attendees"
+          android:text="@string/dash"
           style="@style/Base.TextAppearance.AppCompat.Medium"
           android:padding="3dp"/>
-      <SeekBar
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/maxAttendeesSeekBar"
-        android:layout_weight="1"/>
-      <EditText
+      <org.droidparts.widget.ClearableEditText
           android:layout_width="40dp"
           android:layout_height="wrap_content"
           android:id="@+id/maxAttendeesEditText"
-          android:text="2"
+          android:hint="@string/maximum"
           android:singleLine="true"
-          android:inputType="number"/>
+          android:inputType="number"
+          android:layout_weight="1"/>
     </LinearLayout>
     <LinearLayout
         android:layout_width="fill_parent"
@@ -124,24 +117,30 @@
           android:text="@string/event_time"
           style="@style/Base.TextAppearance.AppCompat.Medium"
           android:padding="3dp"/>
-      <TimePicker
-          android:layout_width="wrap_content"
+      <TextView
+          android:layout_width="40dp"
           android:layout_height="wrap_content"
-          android:layout_weight="1"/>
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content">
+          android:id="@+id/startTimeTextView"
+          android:hint="@string/start"
+          android:layout_weight="1"
+          style="@android:style/Widget.EditText"
+          android:onClick="onClickStartTimeTextView"
+          android:focusable="false"/>
       <TextView
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:text="@string/end_time"
+          android:text="@string/dash"
           style="@style/Base.TextAppearance.AppCompat.Medium"
           android:padding="3dp"/>
-      <TimePicker
-          android:layout_width="wrap_content"
+      <TextView
+          android:layout_width="40dp"
           android:layout_height="wrap_content"
-          android:layout_weight="1"/>
+          android:id="@+id/endTimeTextView"
+          android:hint="@string/end"
+          android:layout_weight="1"
+          style="@android:style/Widget.EditText"
+          android:onClick="onClickEndTimeTextView"
+          android:focusable="false"/>
     </LinearLayout>
   </LinearLayout>
 </ScrollView>
