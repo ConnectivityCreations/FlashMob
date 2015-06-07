@@ -108,7 +108,7 @@ public class Flashmob extends ParseObject {
     private static ParseQuery<Flashmob> createQuery() {
         ParseQuery<Flashmob> query = new ParseQuery<Flashmob>(Flashmob.class);
         query.include("owner");
-        query.setCachePolicy(ParseQuery.CachePolicy.CACHE_THEN_NETWORK);
+        //query.setCachePolicy(ParseQuery.CachePolicy.CACHE_THEN_NETWORK);
         return query;
     }
 

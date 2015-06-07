@@ -9,6 +9,8 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.parse.GetCallback;
+import com.parse.ParseException;
 import com.stridera.connectivitycreations.flashmob.Models.Flashmob;
 import com.stridera.connectivitycreations.flashmob.R;
 
@@ -28,7 +30,9 @@ public class EventDetailsActivity extends ActionBarActivity {
     protected TextView tvEventTime;
     protected TextView tvEventLocation;
 
-    protected Flashmob flashmob;
+    protected Flashmob event;
+    protected String eventId;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,10 +41,14 @@ public class EventDetailsActivity extends ActionBarActivity {
 
         getAllViews();
 
-        // TODO: Define correct way of retrieving the flashmob event from Stream activity
-        flashmob = (Flashmob) getIntent().getSerializableExtra("flashmob");
-
-        setAllViews();
+        eventId = getIntent().getStringExtra("event_id");
+        Flashmob.getInBackground(eventId, new GetCallback<Flashmob>() {
+            @Override
+            public void done(Flashmob flashmob, ParseException e) {
+                event = flashmob;
+                setAllViews();
+            }
+        });
     }
 
     @Override
@@ -94,9 +102,9 @@ public class EventDetailsActivity extends ActionBarActivity {
         // TODO: Set the number of comments
         // tvCommentsCount.setText(flashmob.getTitle());
 
-        tvEventName.setText(flashmob.getTitle());
-        tvEventTime.setText(flashmob.getEventDate().toString());
-        tvEventLocation.setText(flashmob.getAddress());
+        tvEventName.setText(event.getTitle());
+        tvEventTime.setText(event.getEventDate().toString());
+        tvEventLocation.setText(event.getAddress());
 
         rlJoinViews.setOnClickListener(new View.OnClickListener() {
             @Override
