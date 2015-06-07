@@ -27,25 +27,16 @@
           android:singleLine="true"
           android:layout_weight="1"/>
     </LinearLayout>
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/photoLabelTextView"
-        android:text="@string/event_photo"
-        style="@style/Base.TextAppearance.AppCompat.Medium"
-        android:padding="3dp"/>
     <RelativeLayout
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/photoLabelTextView">
+        android:layout_height="wrap_content">
       <ImageView
           android:layout_width="fill_parent"
           android:layout_height="200dp"
           android:id="@+id/photoImageView"
           android:background="@drawable/border"
           android:layout_centerInParent="true"
-          android:adjustViewBounds="true"
-          />
+          android:adjustViewBounds="true"/>
       <Button
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"

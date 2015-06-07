@@ -14,6 +14,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -23,6 +24,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -72,6 +74,7 @@ public class EventCreateActivity extends AppCompatActivity {
   private Calendar startTime;
   private Calendar endTime;
   private Bitmap eventImage;
+  private MenuItem progressItem;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -164,6 +167,11 @@ public class EventCreateActivity extends AppCompatActivity {
     static final int MAX_RESULTS = 5;
 
     @Override
+    protected void onPreExecute() {
+      progressItem.setVisible(true);
+    }
+
+    @Override
     protected Address doInBackground(String... params) {
       String locationName = params[0];
       LatLng target = (userLocation == null) ? eventLatLng : userLocation;
@@ -223,6 +231,7 @@ public class EventCreateActivity extends AppCompatActivity {
         LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
         updateEventLocation(address, latLng);
       }
+      progressItem.setVisible(false);
     }
   };
 
@@ -273,6 +282,8 @@ public class EventCreateActivity extends AppCompatActivity {
   public boolean onCreateOptionsMenu(Menu menu) {
     // Inflate the menu; this adds items to the action bar if it is present.
     getMenuInflater().inflate(R.menu.menu_event_create, menu);
+    progressItem = menu.findItem(R.id.actionProgress);
+    ProgressBar v =  (ProgressBar) MenuItemCompat.getActionView(progressItem);
     return true;
   }
 
@@ -296,6 +307,8 @@ public class EventCreateActivity extends AppCompatActivity {
       Toast.makeText(this, "Event location is required", Toast.LENGTH_LONG).show();
       return;
     }
+    progressItem.setVisible(true);
+
     ParseGeoPoint location = new ParseGeoPoint(eventLatLng.latitude, eventLatLng.longitude);
     String address = addressToString(eventAddress);
 
@@ -320,6 +333,7 @@ public class EventCreateActivity extends AppCompatActivity {
           Log.e(TAG, "Error saving model", e);
           Toast.makeText(EventCreateActivity.this, "Error saving your event", Toast.LENGTH_LONG).show();
         }
+        progressItem.setVisible(false);
       }
     });
   }

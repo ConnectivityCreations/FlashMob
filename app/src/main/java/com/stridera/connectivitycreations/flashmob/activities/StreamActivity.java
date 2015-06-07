@@ -1,7 +1,12 @@
 package com.stridera.connectivitycreations.flashmob.activities;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -24,10 +29,11 @@ import java.util.List;
 public class StreamActivity extends AppCompatActivity {
     private static final String LOG_TAG = "FlashmobLoginActivity";
 
-    ArrayAdapter<String> arrayAdapter; // Temp.  Will go to fragment.
-    ArrayList<String> items;
+    ArrayAdapter<Flashmob> arrayAdapter; // Temp.  Will go to fragment.
+    ArrayList<Flashmob> items;
+    ParseGeoPoint point = new ParseGeoPoint(37.4020619, -122.1144424);
 
-    @Override
+  @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stream);
@@ -37,7 +43,7 @@ public class StreamActivity extends AppCompatActivity {
         arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, items);
         ListView lv = (ListView) findViewById(R.id.listView);
         lv.setAdapter(arrayAdapter);
-        fillListview();
+        initLocation();
     }
 
     @Override
@@ -102,18 +108,39 @@ public class StreamActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    private void initLocation() {
+      LocationManager locationManager = (LocationManager) getSystemService(Activity.LOCATION_SERVICE);
+      locationManager.requestSingleUpdate(new Criteria(), new LocationListener() {
+        @Override
+        public void onLocationChanged(Location location) {
+          point = new ParseGeoPoint(location.getLatitude(), location.getLongitude());
+          fillListview();
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+        }
+      }, null);
+    }
+
     // Temp display function
     public void fillListview() {
         Flashmob.findNearbyEventsInBackground(
-                new ParseGeoPoint(37.4020619, -122.1144424),
-                10,
+                this.point,
+                100,
                 new FindCallback<Flashmob>() {
                     @Override
                     public void done(List<Flashmob> list, ParseException e) {
                         arrayAdapter.clear();
-                        for(Flashmob flashmob : list) {
-                            arrayAdapter.addAll(flashmob.getTitle() + " @ " + flashmob.getEventDate().toString());
-                        }
+                        arrayAdapter.addAll(list);
                     }
         });
      }
