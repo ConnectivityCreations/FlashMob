@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Criteria;
 import android.location.Geocoder;
@@ -13,6 +14,7 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -45,6 +47,7 @@ import com.parse.SaveCallback;
 import com.stridera.connectivitycreations.flashmob.Models.Flashmob;
 import com.stridera.connectivitycreations.flashmob.R;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
@@ -56,10 +59,12 @@ import java.util.Locale;
 public class EventCreateActivity extends AppCompatActivity {
 
   private static final int PICK_PHOTO_CODE = 1;
+  private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 2;
   private static final String TAG = EventCreateActivity.class.getSimpleName();
   private static final int MILLIS_IN_A_SECOND = 1000;
   private static final int SECONDS_IN_A_MINUTE = 60;
   private static final int MILLIS_IN_A_MINUTE = MILLIS_IN_A_SECOND * SECONDS_IN_A_MINUTE;
+  private static final String APP_TAG = "FlashMob";
 
   private GoogleMap googleMap;
   private EditText locationEditText;
@@ -67,6 +72,7 @@ public class EventCreateActivity extends AppCompatActivity {
   private EditText nameEditText;
   private EditText minAttendeesEditText;
   private EditText maxAttendeesEditText;
+  private ImageView photoImageView;
   private LatLng eventLatLng = null;
   private Address eventAddress;
   private Marker locationMarker;
@@ -87,6 +93,7 @@ public class EventCreateActivity extends AppCompatActivity {
     nameEditText = (EditText) findViewById(R.id.nameEditText);
     minAttendeesEditText = (EditText) findViewById(R.id.minAttendeesEditText);
     maxAttendeesEditText = (EditText) findViewById(R.id.maxAttendeesEditText);
+    photoImageView = (ImageView) findViewById(R.id.photoImageView);
 
     // init all the things
     initLocation();
@@ -343,6 +350,26 @@ public class EventCreateActivity extends AppCompatActivity {
     startActivityForResult(intent, PICK_PHOTO_CODE);
   }
 
+  public void onTakePhoto(View view) {
+    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+    intent.putExtra(MediaStore.EXTRA_OUTPUT, getPhotoFileUri());
+    startActivityForResult(intent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
+  }
+
+  private Uri getPhotoFileUri() {
+    // Get safe storage directory for photos
+    File mediaStorageDir = new File(
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), APP_TAG);
+
+    // Create the storage directory if it does not exist
+    if (!mediaStorageDir.exists() && !mediaStorageDir.mkdirs()){
+      Log.d(APP_TAG, "failed to create directory");
+    }
+
+    // Return the file target for the photo based on filename
+    return Uri.fromFile(new File(mediaStorageDir.getPath() + File.separator + "photo.jpg"));
+  }
+
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     if (resultCode != RESULT_OK) {
@@ -356,12 +383,15 @@ public class EventCreateActivity extends AppCompatActivity {
         try {
           eventImage = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoUri);
           // Load the selected image into a preview
-          ImageView ivPreview = (ImageView) findViewById(R.id.photoImageView);
-          ivPreview.setImageBitmap(eventImage);
+          photoImageView.setImageBitmap(eventImage);
         } catch (IOException ex) {
           Log.e(TAG, "Error loading image", ex);
         }
       }
+    } else if (requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE) {
+      Uri takenPhotoUri = getPhotoFileUri();
+      eventImage = BitmapFactory.decodeFile(takenPhotoUri.getPath());
+      photoImageView.setImageBitmap(eventImage);
     } else {
       Log.w(TAG, "Unhandled result code: " + resultCode);
     }
