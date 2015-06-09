@@ -17,6 +17,8 @@ import com.stridera.connectivitycreations.flashmob.R;
 
 public class EventDetailsActivity extends ActionBarActivity {
 
+    public static final String EVENT_ID = "event_id";
+
     protected ImageView ivEventDetailsImage;
     protected TextView tvEventName;
 
@@ -42,7 +44,7 @@ public class EventDetailsActivity extends ActionBarActivity {
 
         getAllViews();
 
-        eventId = getIntent().getStringExtra("event_id");
+        eventId = getIntent().getStringExtra(EVENT_ID);
         Flashmob.getInBackground(eventId, new GetCallback<Flashmob>() {
             @Override
             public void done(Flashmob flashmob, ParseException e) {

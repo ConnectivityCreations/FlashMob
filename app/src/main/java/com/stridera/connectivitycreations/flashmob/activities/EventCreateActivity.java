@@ -330,12 +330,15 @@ public class EventCreateActivity extends AppCompatActivity {
     Integer minAttendees = minStr.isEmpty() ? null : Integer.valueOf(minStr);
     String maxStr = maxAttendeesEditText.getText().toString();
     Integer maxAttendees = maxStr.isEmpty() ? null : Integer.valueOf(maxStr);
-    Flashmob event = new Flashmob(title, eventImage, when, duration, minAttendees, maxAttendees, location, address);
+    final Flashmob event = new Flashmob(title, eventImage, when, duration, minAttendees, maxAttendees, location, address);
     event.saveInBackground(new SaveCallback() {
       @Override
       public void done(ParseException e) {
         if (e == null) {
           finish();
+          Intent i = new Intent(EventCreateActivity.this, EventDetailsActivity.class);
+          i.putExtra(EventDetailsActivity.EVENT_ID, event.getObjectId());
+          startActivity(i);
         } else {
           Log.e(TAG, "Error saving model", e);
           Toast.makeText(EventCreateActivity.this, "Error saving your event", Toast.LENGTH_LONG).show();
