@@ -1,4 +1,4 @@
-package com.stridera.connectivitycreations.flashmob.Models;
+package com.stridera.connectivitycreations.flashmob.models;
 
 import android.graphics.Bitmap;
 
@@ -94,6 +94,13 @@ public class Flashmob extends ParseObject {
 
     public Date getEventDate() {
         return getDate("eventAt");
+    }
+
+    public void join() {
+        Accepted accepted = new Accepted();
+        accepted.put("flashmob", this);
+        accepted.put("user", FlashUser.getCurrentuser());
+        accepted.saveInBackground();
     }
 
     @Override

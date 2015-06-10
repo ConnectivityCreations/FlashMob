@@ -12,7 +12,7 @@ import android.widget.TextView;
 
 import com.parse.GetCallback;
 import com.parse.ParseException;
-import com.stridera.connectivitycreations.flashmob.Models.Flashmob;
+import com.stridera.connectivitycreations.flashmob.models.Flashmob;
 import com.stridera.connectivitycreations.flashmob.R;
 
 public class EventDetailsActivity extends ActionBarActivity {

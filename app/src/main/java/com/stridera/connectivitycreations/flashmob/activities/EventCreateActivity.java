@@ -44,7 +44,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.SaveCallback;
-import com.stridera.connectivitycreations.flashmob.Models.Flashmob;
+import com.stridera.connectivitycreations.flashmob.models.Flashmob;
 import com.stridera.connectivitycreations.flashmob.R;
 
 import java.io.File;

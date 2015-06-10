@@ -6,8 +6,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
 
-import com.stridera.connectivitycreations.flashmob.Models.FlashUser;
-import com.stridera.connectivitycreations.flashmob.Models.Flashmob;
+import com.stridera.connectivitycreations.flashmob.models.FlashUser;
+import com.stridera.connectivitycreations.flashmob.models.Flashmob;
 import com.stridera.connectivitycreations.flashmob.R;
 import com.stridera.connectivitycreations.flashmob.adapters.AttendeesAdapter;
 

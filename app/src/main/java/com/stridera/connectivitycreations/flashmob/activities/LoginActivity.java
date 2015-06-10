@@ -28,7 +28,6 @@ public class LoginActivity extends Activity {
     TextView tvPassword;
     private Dialog progressDialog;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -102,6 +101,8 @@ public class LoginActivity extends Activity {
     private void doLoggedIn(boolean isNew) {
         Intent intent = new Intent(LoginActivity.this, StreamActivity.class);
         intent.putExtra("new_user", isNew);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
     }
 
