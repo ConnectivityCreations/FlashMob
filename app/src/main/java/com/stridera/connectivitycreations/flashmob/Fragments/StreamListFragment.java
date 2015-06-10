@@ -17,6 +17,7 @@ import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.stridera.connectivitycreations.flashmob.R;
 import com.stridera.connectivitycreations.flashmob.adapters.StreamAdapter;
+import com.stridera.connectivitycreations.flashmob.models.Accepted;
 import com.stridera.connectivitycreations.flashmob.models.Flashmob;
 
 import java.util.ArrayList;
@@ -80,27 +81,40 @@ public class StreamListFragment extends Fragment {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                fillListview();
+                getUpcomingEvents();
             }
         });
 
-        fillListview();
+        getUpcomingEvents();
 
         return view;
     }
 
-    public void fillListview() {
-
-        Flashmob.findNearbyEventsInBackground(
-                this.point,
-                100,
-                new FindCallback<Flashmob>() {
-                    @Override
-                    public void done(List<Flashmob> list, ParseException e) {
-                        arrayAdapter.clear();
-                        arrayAdapter.addAll(list);
-                        swipeRefreshLayout.setRefreshing(false);
+    public void getUpcomingEvents() {
+        if (false) {
+            Accepted.getItemsSelectedByCurrentUserInBackground(new FindCallback<Accepted>() {
+                @Override
+                public void done(List<Accepted> list, ParseException e) {
+                    arrayAdapter.clear();
+                    ;
+                    for (Accepted accepted : list) {
+                        arrayAdapter.add(accepted.getFlashmob());
                     }
-                });
+                    swipeRefreshLayout.setRefreshing(false);
+                }
+            });
+        } else {
+            Flashmob.findNearbyEventsInBackground(
+                    this.point,
+                    100,
+                    new FindCallback<Flashmob>() {
+                        @Override
+                        public void done(List<Flashmob> list, ParseException e) {
+                            arrayAdapter.clear();
+                            arrayAdapter.addAll(list);
+                            swipeRefreshLayout.setRefreshing(false);
+                        }
+                    });
+        }
     }
 }

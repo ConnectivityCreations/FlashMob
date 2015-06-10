@@ -101,7 +101,7 @@ public class StreamActivity extends AppCompatActivity implements StreamListFragm
             ).saveInBackground(new SaveCallback() {
                 @Override
                 public void done(ParseException e) {
-                    ((StreamListFragment) fragment).fillListview();
+                    ((StreamListFragment) fragment).getUpcomingEvents();
                 }
             });
 
@@ -117,7 +117,7 @@ public class StreamActivity extends AppCompatActivity implements StreamListFragm
           @Override
           public void onLocationChanged(Location location) {
               point = new ParseGeoPoint(location.getLatitude(), location.getLongitude());
-//              ((StreamListFragment) fragment).fillListview();
+//              ((StreamListFragment) fragment).getUpcomingEvents();
           }
 
           @Override

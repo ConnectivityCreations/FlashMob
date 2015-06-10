@@ -98,9 +98,7 @@ public class Flashmob extends ParseObject {
     }
 
     public void join() {
-        Accepted accepted = new Accepted();
-        accepted.put("flashmob", this);
-        accepted.put("user", FlashUser.getCurrentUser());
+        Accepted accepted = new Accepted(this, FlashUser.getCurrentUser());
         accepted.saveInBackground();
     }
 
@@ -122,8 +120,11 @@ public class Flashmob extends ParseObject {
 
     public static void getInBackground(final String objectId,
                                        final GetCallback<Flashmob> callback) {
+
         ParseQuery<Flashmob> query = Flashmob.createQuery();
         query.whereEqualTo("objectId", objectId);
+
+
         query.findInBackground(new FindCallback<Flashmob>() {
             @Override
             public void done(List<Flashmob> objects, ParseException e) {

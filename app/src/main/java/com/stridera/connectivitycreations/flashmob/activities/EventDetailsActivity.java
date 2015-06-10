@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.parse.GetCallback;
 import com.parse.ParseException;
@@ -131,6 +132,8 @@ public class EventDetailsActivity extends ActionBarActivity {
         rlJoinOrEditViews.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                event.join();
+                Toast.makeText(EventDetailsActivity.this, "Event saved!", Toast.LENGTH_SHORT).show();
                 // TODO: Join/edit the event
             }
         });

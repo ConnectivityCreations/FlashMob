@@ -5,11 +5,27 @@ import com.parse.ParseClassName;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
 import java.util.List;
 
 @ParseClassName("Accepted")
 public class Accepted extends ParseObject {
+
+
+    public Accepted() {
+        super();
+    }
+
+    public Accepted(Flashmob flashmob, ParseUser user) {
+        super();
+        put("flashmob", flashmob);
+        put("user", user);
+    }
+
+    public Flashmob getFlashmob() {
+        return (Flashmob) get("flashmob");
+    }
 
     public static void getItemsSelectedByCurrentUserInBackground(final FindCallback<Accepted> callback) {
         ParseQuery<Accepted> query = new ParseQuery<Accepted>(Accepted.class);
@@ -30,6 +46,7 @@ public class Accepted extends ParseObject {
     public static void getItemsSelectedByFlashmobInBackground(Flashmob flashmob, final FindCallback<Accepted> callback) {
         ParseQuery<Accepted> query = new ParseQuery<Accepted>(Accepted.class);
         query.include("flashmob");
+        query.include("user");
         query.whereEqualTo("flashmob", flashmob);
         query.findInBackground(new FindCallback<Accepted>() {
             @Override

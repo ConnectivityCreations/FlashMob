@@ -5,12 +5,14 @@ import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.location.Address;
 import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -44,10 +46,11 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.SaveCallback;
-import com.stridera.connectivitycreations.flashmob.models.Flashmob;
 import com.stridera.connectivitycreations.flashmob.R;
+import com.stridera.connectivitycreations.flashmob.models.Flashmob;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
@@ -393,8 +396,25 @@ public class EventCreateActivity extends AppCompatActivity {
       }
     } else if (requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE) {
       Uri takenPhotoUri = getPhotoFileUri();
-      eventImage = BitmapFactory.decodeFile(takenPhotoUri.getPath());
-      photoImageView.setImageBitmap(eventImage);
+      final String imagePath = takenPhotoUri.getPath();
+
+      new AsyncTask<Void,Void,String>() {
+        @Override
+        protected String doInBackground(Void... params) {
+          try {
+            return getRightAngleImage(imagePath);
+          }catch (Throwable e){
+            e.printStackTrace();
+          }
+          return imagePath;
+        }
+
+        @Override
+        protected void onPostExecute(String imagePath) {
+          super.onPostExecute(imagePath);
+          photoImageView.setImageBitmap(decodeFile(imagePath));
+        }
+      }.execute();
     } else {
       Log.w(TAG, "Unhandled result code: " + resultCode);
     }
@@ -453,5 +473,101 @@ public class EventCreateActivity extends AppCompatActivity {
   private void setTime(TextView timeTextView, Calendar time) {
     String timeStr = DateFormat.getTimeFormat(EventCreateActivity.this).format(time.getTime());
     timeTextView.setText(timeStr);
+  }
+
+  // Handle Image Rotation on Camera Intent
+
+  private String getRightAngleImage(String photoPath) {
+
+    try {
+      ExifInterface ei = new ExifInterface(photoPath);
+      int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+      int degree = 0;
+
+      switch (orientation) {
+        case ExifInterface.ORIENTATION_NORMAL:
+          degree = 0;
+          break;
+        case ExifInterface.ORIENTATION_ROTATE_90:
+          degree = 90;
+          break;
+        case ExifInterface.ORIENTATION_ROTATE_180:
+          degree = 180;
+          break;
+        case ExifInterface.ORIENTATION_ROTATE_270:
+          degree = 270;
+          break;
+        case ExifInterface.ORIENTATION_UNDEFINED:
+          degree = 0;
+          break;
+        default:
+          degree = 90;
+      }
+
+      return rotateImage(degree,photoPath);
+
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    return photoPath;
+  }
+
+  private String rotateImage(int degree, String imagePath){
+
+    if(degree<=0){
+      return imagePath;
+    }
+    try{
+      Bitmap b= BitmapFactory.decodeFile(imagePath);
+
+      Matrix matrix = new Matrix();
+      if(b.getWidth()>b.getHeight()){
+        matrix.setRotate(degree);
+        b = Bitmap.createBitmap(b, 0, 0, b.getWidth(), b.getHeight(),
+                matrix, true);
+      }
+
+      FileOutputStream fOut = new FileOutputStream(imagePath);
+      String imageName = imagePath.substring(imagePath.lastIndexOf("/") + 1);
+      String imageType = imageName.substring(imageName.lastIndexOf(".") + 1);
+
+      FileOutputStream out = new FileOutputStream(imagePath);
+      if (imageType.equalsIgnoreCase("png")) {
+        b.compress(Bitmap.CompressFormat.PNG, 100, out);
+      }else if (imageType.equalsIgnoreCase("jpeg")|| imageType.equalsIgnoreCase("jpg")) {
+        b.compress(Bitmap.CompressFormat.JPEG, 100, out);
+      }
+      fOut.flush();
+      fOut.close();
+
+      b.recycle();
+    }catch (Exception e){
+      e.printStackTrace();
+    }
+    return imagePath;
+  }
+
+  public Bitmap decodeFile(String path) {
+    try {
+      // Decode deal_image size
+      BitmapFactory.Options o = new BitmapFactory.Options();
+      o.inJustDecodeBounds = true;
+      BitmapFactory.decodeFile(path, o);
+      // The new size we want to sxcale to
+      final int REQUIRED_SIZE = 64;
+
+      // Find the correct scale value. It should be the power of 2.
+      int scale = 1;
+      while (o.outWidth / scale / 2 >= REQUIRED_SIZE && o.outHeight / scale / 2 >= REQUIRED_SIZE)
+        scale *= 2;
+      // Decode with inSampleSize
+      BitmapFactory.Options o2 = new BitmapFactory.Options();
+      o2.inSampleSize = scale;
+      return BitmapFactory.decodeFile(path, o2);
+    } catch (Throwable e) {
+      e.printStackTrace();
+    }
+    return null;
   }
 }
