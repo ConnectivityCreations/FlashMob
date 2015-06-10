@@ -42,22 +42,22 @@
         <RelativeLayout
             android:layout_width="100dp"
             android:layout_height="match_parent"
-            android:id="@+id/rlJoinViews">
+            android:id="@+id/rlJoinOrEditViews">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text="Join"
-                android:id="@+id/tvJoinLabel"
+                android:id="@+id/tvJoinOrEditLabel"
                 android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true" />
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/ivJoinImage"
-                android:layout_above="@+id/tvJoinLabel"
+                android:id="@+id/ivJoinOrEditImage"
+                android:layout_above="@+id/tvJoinOrEditLabel"
                 android:layout_centerHorizontal="true"
                 android:src="@drawable/ic_join_image" />
         </RelativeLayout>

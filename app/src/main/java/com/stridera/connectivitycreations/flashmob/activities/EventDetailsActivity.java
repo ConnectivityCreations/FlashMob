@@ -12,6 +12,8 @@ import android.widget.TextView;
 
 import com.parse.GetCallback;
 import com.parse.ParseException;
+import com.parse.ParseUser;
+import com.stridera.connectivitycreations.flashmob.models.FlashUser;
 import com.stridera.connectivitycreations.flashmob.models.Flashmob;
 import com.stridera.connectivitycreations.flashmob.R;
 
@@ -22,7 +24,9 @@ public class EventDetailsActivity extends ActionBarActivity {
     protected ImageView ivEventDetailsImage;
     protected TextView tvEventName;
 
-    protected RelativeLayout rlJoinViews;
+    protected RelativeLayout rlJoinOrEditViews;
+    protected ImageView ivJoinOrEditImage;
+    protected TextView tvJoinOrEditLabel;
 
     protected RelativeLayout rlAttendingViews;
     protected TextView tvAttendingCount;
@@ -36,11 +40,13 @@ public class EventDetailsActivity extends ActionBarActivity {
     protected Flashmob event;
     protected String eventId;
 
+    protected ParseUser currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_details);
+        currentUser = FlashUser.getCurrentUser();
 
         getAllViews();
 
@@ -81,7 +87,9 @@ public class EventDetailsActivity extends ActionBarActivity {
         ivEventDetailsImage = (ImageView) findViewById(R.id.ivEventDetailsImage);
         tvEventName = (TextView) findViewById(R.id.tvEventName);
 
-        rlJoinViews = (RelativeLayout) findViewById(R.id.rlJoinViews);
+        rlJoinOrEditViews = (RelativeLayout) findViewById(R.id.rlJoinOrEditViews);
+        ivJoinOrEditImage = (ImageView) findViewById(R.id.ivJoinOrEditImage);
+        tvJoinOrEditLabel = (TextView) findViewById(R.id.tvJoinOrEditLabel);
 
         rlAttendingViews = (RelativeLayout) findViewById(R.id.rlAttendingViews);
         tvAttendingCount = (TextView) findViewById(R.id.tvAttendingCount);
@@ -109,10 +117,21 @@ public class EventDetailsActivity extends ActionBarActivity {
         tvEventTime.setText(event.getEventDate().toString());
         tvEventLocation.setText(event.getAddress());
 
-        rlJoinViews.setOnClickListener(new View.OnClickListener() {
+        // TODO: Check if current user is owner of event. Change rlJoinOrEditViews based
+        // on that. If owner, show edit options. If not, show join options.
+
+        if (currentUser == event.getOwner()) {
+            ivJoinOrEditImage.setImageResource(R.drawable.ic_edit_image);
+            tvJoinOrEditLabel.setText("Edit");
+        } else {
+            ivJoinOrEditImage.setImageResource(R.drawable.ic_join_image);
+            tvJoinOrEditLabel.setText("Join");
+        }
+
+        rlJoinOrEditViews.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // TODO: Join the event
+                // TODO: Join/edit the event
             }
         });
 
