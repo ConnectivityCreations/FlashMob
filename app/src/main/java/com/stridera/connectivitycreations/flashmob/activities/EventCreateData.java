@@ -21,7 +21,7 @@ public class EventCreateData {
   }
 
   private LatLng eventLatLng = null;
-  private Address eventAddress = null;
+  private String eventAddress = null;
   LatLng userLocation = null;
   Calendar startTime = null;
   Calendar endTime = null;
@@ -31,7 +31,7 @@ public class EventCreateData {
 
   public EventCreateData(Bundle savedInstanceState) {
     eventLatLng = savedInstanceState.getParcelable("event_location");
-    eventAddress = savedInstanceState.getParcelable("event_address");
+    eventAddress = savedInstanceState.getString("event_address");
     userLocation = savedInstanceState.getParcelable("user_location");
     startTime = getTime("start_time", savedInstanceState);
     endTime = getTime("end_time", savedInstanceState);
@@ -40,7 +40,7 @@ public class EventCreateData {
 
   public void saveState(Bundle outState) {
     outState.putParcelable("event_location", eventLatLng);
-    outState.putParcelable("event_address", eventAddress);
+    outState.putString("event_address", eventAddress);
     outState.putParcelable("user_location", userLocation);
     if (startTime != null) {
       outState.putLong("start_time", startTime.getTime().getTime());
@@ -62,13 +62,12 @@ public class EventCreateData {
     }
 
     ParseGeoPoint location = new ParseGeoPoint(eventLatLng.latitude, eventLatLng.longitude);
-    String address = LocationHelper.addressToString(eventAddress);
 
     // optional
     Date when = startTime == null ? null : startTime.getTime();
     Integer duration = TimeHelper.getDurationInMinutes(startTime, endTime);
 
-    final Flashmob event = new Flashmob(title, eventImage, when, duration, minAttendees, maxAttendees, location, address);
+    final Flashmob event = new Flashmob(title, eventImage, when, duration, minAttendees, maxAttendees, location, eventAddress);
     event.saveInBackground(new com.parse.SaveCallback() {
       @Override
       public void done(com.parse.ParseException e) {
@@ -85,9 +84,13 @@ public class EventCreateData {
     return eventLatLng;
   }
 
+  public String getEventAddress() {
+    return eventAddress;
+  }
+
   public void setLocation(LatLng latLng, Address address) {
     this.eventLatLng = latLng;
-    this.eventAddress = address;
+    this.eventAddress = LocationHelper.addressToString(address);
   }
 
   static Calendar getTime(String key, Bundle savedInstanceState) {
