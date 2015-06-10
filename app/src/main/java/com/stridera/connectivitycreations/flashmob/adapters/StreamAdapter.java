@@ -95,9 +95,9 @@ public class StreamAdapter extends ArrayAdapter<Flashmob> {
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        if (flashmob.getOwner() != null && flashmob.getOwner() == FlashUser.getCurrentUser()) {
+        if (flashmob.isOwner()) {
             viewHolder.rlCard.setBackgroundColor(convertView.getResources().getColor(R.color.light_red));
-        } else if (flashmob.getAttendees().contains(FlashUser.getCurrentUser())) {
+        } else if (flashmob.isAttending()) {
             viewHolder.rlCard.setBackgroundColor(convertView.getResources().getColor(R.color.light_blue));
         } else {
             viewHolder.rlCard.setBackgroundColor(convertView.getResources().getColor(R.color.bright_foreground_material_dark));

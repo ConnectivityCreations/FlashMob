@@ -202,4 +202,11 @@ public class Flashmob extends ParseObject {
 
     }
 
+    public boolean isOwner() {
+        return this.getOwner() != null && this.getOwner() == FlashUser.getCurrentUser();
+    }
+
+    public boolean isAttending() {
+        return this.getAttendees().contains(FlashUser.getCurrentUser());
+    }
 }
