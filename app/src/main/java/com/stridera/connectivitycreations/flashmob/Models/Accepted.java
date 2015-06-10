@@ -14,7 +14,7 @@ public class Accepted extends ParseObject {
     public static void getItemsSelectedByCurrentUserInBackground(final FindCallback<Accepted> callback) {
         ParseQuery<Accepted> query = new ParseQuery<Accepted>(Accepted.class);
         query.include("flashmob");
-        query.whereEqualTo("user", FlashUser.getCurrentuser());
+        query.whereEqualTo("user", FlashUser.getCurrentUser());
         query.findInBackground(new FindCallback<Accepted>() {
             @Override
             public void done(List<Accepted> flashmobs, ParseException e) {

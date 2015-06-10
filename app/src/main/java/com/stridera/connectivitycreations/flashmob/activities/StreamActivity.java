@@ -8,14 +8,17 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 import com.stridera.connectivitycreations.flashmob.fragments.StreamListFragment;
 import com.stridera.connectivitycreations.flashmob.models.Flashmob;
 import com.stridera.connectivitycreations.flashmob.R;
@@ -27,6 +30,7 @@ public class StreamActivity extends AppCompatActivity implements StreamListFragm
 
 
     ParseGeoPoint point = new ParseGeoPoint(37.4020619, -122.1144424);
+    Fragment fragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +40,8 @@ public class StreamActivity extends AppCompatActivity implements StreamListFragm
         initLocation();
 
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.replace(R.id.flFragments, new StreamListFragment());
+        fragment = new StreamListFragment();
+        ft.replace(R.id.flFragments, fragment);
         ft.commit();
     }
 
@@ -93,9 +98,13 @@ public class StreamActivity extends AppCompatActivity implements StreamListFragm
                     4,
                     new ParseGeoPoint(37.4020619, -122.1144424),
                     "Box 4440 El Camino Real Los Altos, CA 94022"
-            );
+            ).saveInBackground(new SaveCallback() {
+                @Override
+                public void done(ParseException e) {
+                    ((StreamListFragment) fragment).fillListview();
+                }
+            });
 
-//            fillListview();
             return true;
         }
 
@@ -108,7 +117,7 @@ public class StreamActivity extends AppCompatActivity implements StreamListFragm
           @Override
           public void onLocationChanged(Location location) {
               point = new ParseGeoPoint(location.getLatitude(), location.getLongitude());
-//              fillListview();
+//              ((StreamListFragment) fragment).fillListview();
           }
 
           @Override

@@ -60,7 +60,7 @@ public class StreamAdapter extends ArrayAdapter<Flashmob> {
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        if (flashmob.getOwner().getObjectId() == FlashUser.getCurrentuser().getObjectId()) {
+        if (flashmob.getOwner() == FlashUser.getCurrentUser()) {
             viewHolder.rlCard.setBackgroundColor(convertView.getResources().getColor(R.color.light_red));
         } else {
             viewHolder.rlCard.setBackgroundColor(convertView.getResources().getColor(R.color.bright_foreground_material_dark));

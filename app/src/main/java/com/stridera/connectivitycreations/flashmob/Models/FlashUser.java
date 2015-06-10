@@ -6,7 +6,4 @@ import com.parse.ParseUser;
 @ParseClassName("_User")
 public class FlashUser extends ParseUser {
 
-    public static ParseUser getCurrentuser() {
-        return ParseUser.getCurrentUser();
-    }
 }

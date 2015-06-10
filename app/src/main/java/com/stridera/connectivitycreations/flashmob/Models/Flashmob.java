@@ -24,6 +24,7 @@ import java.util.UUID;
 public class Flashmob extends ParseObject {
 
     public static final int DEFAULT_DURATION = 60;
+    public static final int QUERY_LIMIT = 20;
 
     // Constructor
 
@@ -99,7 +100,7 @@ public class Flashmob extends ParseObject {
     public void join() {
         Accepted accepted = new Accepted();
         accepted.put("flashmob", this);
-        accepted.put("user", FlashUser.getCurrentuser());
+        accepted.put("user", FlashUser.getCurrentUser());
         accepted.saveInBackground();
     }
 
@@ -163,9 +164,11 @@ public class Flashmob extends ParseObject {
     public static void findNearbyEventsInBackground(ParseGeoPoint location, int distance,
                                                     final FindCallback<Flashmob> callback) {
         ParseQuery<Flashmob> flashmobQuery = ParseQuery.getQuery(Flashmob.class);
+        flashmobQuery.whereGreaterThan("eventAt", new Date());
         //flashmobQuery.whereNear("location", location);
         flashmobQuery.whereWithinMiles("location", location, distance);
-        flashmobQuery.setLimit(distance);
+        flashmobQuery.setLimit(QUERY_LIMIT);
+        flashmobQuery.orderByAscending("eventAt");
         flashmobQuery.findInBackground(new FindCallback<Flashmob>() {
             @Override
             public void done(List<Flashmob> flashmobs, ParseException e) {

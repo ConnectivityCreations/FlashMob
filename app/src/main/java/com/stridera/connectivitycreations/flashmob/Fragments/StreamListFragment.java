@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,9 +15,9 @@ import android.widget.ListView;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
+import com.stridera.connectivitycreations.flashmob.R;
 import com.stridera.connectivitycreations.flashmob.adapters.StreamAdapter;
 import com.stridera.connectivitycreations.flashmob.models.Flashmob;
-import com.stridera.connectivitycreations.flashmob.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,7 @@ public class StreamListFragment extends Fragment {
 
     ArrayAdapter<Flashmob> arrayAdapter; // Temp.  Will go to fragment.
     ArrayList<Flashmob> items;
+    SwipeRefreshLayout swipeRefreshLayout;
 
     ParseGeoPoint point = new ParseGeoPoint(37.4020619, -122.1144424);
 
@@ -54,6 +56,7 @@ public class StreamListFragment extends Fragment {
             throw new ClassCastException(activity.toString()
                     + " must implement MyListFragment.OnItemSelectedListener");
         }
+
     }
 
     @Nullable
@@ -72,6 +75,15 @@ public class StreamListFragment extends Fragment {
                 listener.onFlashmobSelected(flashmob.getObjectId());
             }
         });
+
+        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeContainer);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                fillListview();
+            }
+        });
+
         fillListview();
 
         return view;
@@ -87,6 +99,7 @@ public class StreamListFragment extends Fragment {
                     public void done(List<Flashmob> list, ParseException e) {
                         arrayAdapter.clear();
                         arrayAdapter.addAll(list);
+                        swipeRefreshLayout.setRefreshing(false);
                     }
                 });
     }
