@@ -11,12 +11,16 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseUser;
+import com.stridera.connectivitycreations.flashmob.R;
+import com.stridera.connectivitycreations.flashmob.models.Accepted;
 import com.stridera.connectivitycreations.flashmob.models.FlashUser;
 import com.stridera.connectivitycreations.flashmob.models.Flashmob;
-import com.stridera.connectivitycreations.flashmob.R;
+
+import java.util.List;
 
 public class EventDetailsActivity extends ActionBarActivity {
 
@@ -108,8 +112,7 @@ public class EventDetailsActivity extends ActionBarActivity {
         // TODO: Set the image for the event
         // ivEventDetailsImage = ...
 
-        // TODO: Set the number of current attendees
-        // tvAttendingCount.setText(flashmob.something());
+        updateAttendingCount();
 
         // TODO: Set the number of comments
         // tvCommentsCount.setText(flashmob.getTitle());
@@ -118,25 +121,25 @@ public class EventDetailsActivity extends ActionBarActivity {
         tvEventTime.setText(event.getEventDate().toString());
         tvEventLocation.setText(event.getAddress());
 
-        // TODO: Check if current user is owner of event. Change rlJoinOrEditViews based
-        // on that. If owner, show edit options. If not, show join options.
-
         if (currentUser == event.getOwner()) {
             ivJoinOrEditImage.setImageResource(R.drawable.ic_edit_image);
             tvJoinOrEditLabel.setText("Edit");
+            // TODO: Set onclick listener for edit view clicked
         } else {
             ivJoinOrEditImage.setImageResource(R.drawable.ic_join_image);
             tvJoinOrEditLabel.setText("Join");
-        }
 
-        rlJoinOrEditViews.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                event.join();
-                Toast.makeText(EventDetailsActivity.this, "Event saved!", Toast.LENGTH_SHORT).show();
-                // TODO: Join/edit the event
-            }
-        });
+            rlJoinOrEditViews.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    // TODO: Prevent user from joining multiple times
+                    event.join();
+                    updateAttendingCount();
+                    Toast.makeText(EventDetailsActivity.this, "Event joined!", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
 
         rlAttendingViews.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -157,6 +160,13 @@ public class EventDetailsActivity extends ActionBarActivity {
         });
     }
 
-
+    protected void updateAttendingCount() {
+        Accepted.getItemsSelectedByFlashmobInBackground(event, new FindCallback<Accepted>() {
+            @Override
+            public void done(List<Accepted> list, ParseException e) {
+                tvAttendingCount.setText(list.size() + "");
+            }
+        });
+    }
 
 }
