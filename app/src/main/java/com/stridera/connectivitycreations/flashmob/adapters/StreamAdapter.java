@@ -1,7 +1,6 @@
 package com.stridera.connectivitycreations.flashmob.adapters;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +12,7 @@ import android.widget.TextView;
 import com.parse.ParseFile;
 import com.squareup.picasso.Picasso;
 import com.stridera.connectivitycreations.flashmob.R;
+import com.stridera.connectivitycreations.flashmob.models.FlashUser;
 import com.stridera.connectivitycreations.flashmob.models.Flashmob;
 
 import java.util.List;
@@ -60,11 +60,11 @@ public class StreamAdapter extends ArrayAdapter<Flashmob> {
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
-//        if (flashmob.getOwner().getObjectId() == FlashUser.getCurrentuser().getObjectId()) {
-//            viewHolder.rlCard.setBackgroundColor(convertView.getResources().getColor(R.color.bright_foreground_material_light));
-//        } else {
-//            viewHolder.rlCard.setBackgroundColor(convertView.getResources().getColor(R.color.primary_dark_material_light));
-//        }
+        if (flashmob.getOwner().getObjectId() == FlashUser.getCurrentuser().getObjectId()) {
+            viewHolder.rlCard.setBackgroundColor(convertView.getResources().getColor(R.color.light_red));
+        } else {
+            viewHolder.rlCard.setBackgroundColor(convertView.getResources().getColor(R.color.bright_foreground_material_dark));
+        }
 
         ParseFile pfImage = flashmob.getImage();
         // TODO: Move to background.  Really slow!  No cacheing.

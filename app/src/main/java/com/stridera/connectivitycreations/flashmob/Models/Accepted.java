@@ -11,11 +11,26 @@ import java.util.List;
 @ParseClassName("Accepted")
 public class Accepted extends ParseObject {
 
-    public static void getInBackground(final FindCallback<Accepted> callback) {
+    public static void getItemsSelectedByCurrentUserInBackground(final FindCallback<Accepted> callback) {
         ParseQuery<Accepted> query = new ParseQuery<Accepted>(Accepted.class);
         query.include("flashmob");
-        query.include("owner");
         query.whereEqualTo("user", FlashUser.getCurrentuser());
+        query.findInBackground(new FindCallback<Accepted>() {
+            @Override
+            public void done(List<Accepted> flashmobs, ParseException e) {
+                if (e == null) {
+                    callback.done(flashmobs, null);
+                } else {
+                    callback.done(null, e);
+                }
+            }
+        });
+    }
+
+    public static void getItemsSelectedByFlashmobInBackground(Flashmob flashmob, final FindCallback<Accepted> callback) {
+        ParseQuery<Accepted> query = new ParseQuery<Accepted>(Accepted.class);
+        query.include("flashmob");
+        query.whereEqualTo("flashmob", flashmob);
         query.findInBackground(new FindCallback<Accepted>() {
             @Override
             public void done(List<Accepted> flashmobs, ParseException e) {

@@ -69,7 +69,7 @@ public class Flashmob extends ParseObject {
     }
 
     public FlashUser getOwner() {
-        return (FlashUser) get("User");
+        return (FlashUser) get("owner");
     }
 
     public int getDuration() {
