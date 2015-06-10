@@ -14,7 +14,9 @@ import android.widget.Toast;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseUser;
+import com.squareup.picasso.Picasso;
 import com.stridera.connectivitycreations.flashmob.R;
 import com.stridera.connectivitycreations.flashmob.models.Accepted;
 import com.stridera.connectivitycreations.flashmob.models.FlashUser;
@@ -109,8 +111,21 @@ public class EventDetailsActivity extends ActionBarActivity {
     }
 
     private void setAllViews() {
-        // TODO: Set the image for the event
-        // ivEventDetailsImage = ...
+
+        ParseFile eventPic = event.getImage();
+
+        if (eventPic != null) {
+            Picasso.with(this)
+                    .load(event.getImage().getUrl())
+                    .resize(800, 800)
+                    .placeholder(R.mipmap.ic_launcher)
+                    .error(R.mipmap.ic_launcher)
+                    .into(ivEventDetailsImage);
+        } else {
+            ivEventDetailsImage.setImageResource(R.mipmap.ic_launcher);
+        }
+
+        ivEventDetailsImage.setAlpha(90);
 
         updateAttendingCount();
 

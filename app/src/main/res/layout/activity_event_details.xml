@@ -16,12 +16,15 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true" />
+            android:layout_alignParentEnd="true"
+            android:adjustViewBounds="true"
+            android:scaleType="centerCrop"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@android:color/black"
             android:text="@string/event_name"
             android:id="@+id/tvEventName"
             android:layout_alignBottom="@+id/ivEventDetailsImage"
@@ -36,7 +39,8 @@
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_gravity="center_horizontal">
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="20dp">
 
 
         <RelativeLayout
