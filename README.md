@@ -64,3 +64,6 @@ the following are **bonus** features:
 ## Wireframes
 
 Wireframes for the project can be found [here](https://stridera.app.box.com/s/bbqp6b94msx8bql0g2i189rl8piw9cbi).
+
+## Core Flows Walkthrough
+![Core Flows](http://i.imgur.com/eseLPi9.gifv)
