@@ -1,6 +1,13 @@
 package com.stridera.connectivitycreations.flashmob.adapters;
 
+import android.app.Activity;
 import android.content.Context;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Bundle;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,17 +16,21 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.parse.ParseFile;
+import com.parse.ParseGeoPoint;
 import com.squareup.picasso.Picasso;
 import com.stridera.connectivitycreations.flashmob.R;
 import com.stridera.connectivitycreations.flashmob.models.FlashUser;
 import com.stridera.connectivitycreations.flashmob.models.Flashmob;
 
+import java.util.Date;
 import java.util.List;
 
 public class StreamAdapter extends ArrayAdapter<Flashmob> {
     private final Context context;
     private final List<Flashmob> items;
+    private LatLng userLocation;
 
     private static class ViewHolder {
         RelativeLayout rlCard;
@@ -35,6 +46,30 @@ public class StreamAdapter extends ArrayAdapter<Flashmob> {
         super(context, R.layout.item_flashmob, items);
         this.context = context;
         this.items = items;
+
+        initLocation();
+    }
+
+    private void initLocation() {
+        LocationManager locationManager = (LocationManager) context.getSystemService(Activity.LOCATION_SERVICE);
+        locationManager.requestSingleUpdate(new Criteria(), new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                userLocation = new LatLng(location.getLatitude(), location.getLongitude());
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+            }
+        }, null);
     }
 
     @Override
@@ -86,8 +121,17 @@ public class StreamAdapter extends ArrayAdapter<Flashmob> {
         viewHolder.tvTitle.setText(flashmob.getTitle());
         viewHolder.tvAddress.setText(flashmob.getAddress());
         viewHolder.tvTimes.setText(String.format("%s for %s m", flashmob.getEventDate().toString(), flashmob.getDuration()));
-        viewHolder.tvDistance.setText(""); // TODO: Compute these.
-        viewHolder.tvTimeTo.setText("");
+
+        if (userLocation != null) {
+            double distance = flashmob.getLocation().distanceInMilesTo(new ParseGeoPoint(userLocation.latitude, userLocation.longitude));
+            viewHolder.tvDistance.setText(String.format("%.2f mi", distance)); // TODO: Compute these.
+        } else {
+            viewHolder.tvDistance.setText("");
+        }
+        Date event_time = flashmob.getEventDate();
+        String relativeDate = DateUtils.getRelativeTimeSpanString(event_time.getTime(),
+                System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS).toString();
+        viewHolder.tvTimeTo.setText(relativeDate);
 
         return convertView;
     }
