@@ -72,6 +72,7 @@ public class EventCreateActivity extends AppCompatActivity {
   private GoogleMap googleMap;
   private EditText locationEditText;
   private TextView startTimeTextView;
+  private TextView endTimeTextView;
   private EditText nameEditText;
   private EditText minAttendeesEditText;
   private EditText maxAttendeesEditText;
@@ -93,15 +94,56 @@ public class EventCreateActivity extends AppCompatActivity {
     // find all the views we use later
     locationEditText = (EditText) findViewById(R.id.locationEditText);
     startTimeTextView = (TextView) findViewById(R.id.startTimeTextView);
+    endTimeTextView = (TextView) findViewById(R.id.endTimeTextView);
     nameEditText = (EditText) findViewById(R.id.nameEditText);
     minAttendeesEditText = (EditText) findViewById(R.id.minAttendeesEditText);
     maxAttendeesEditText = (EditText) findViewById(R.id.maxAttendeesEditText);
     photoImageView = (ImageView) findViewById(R.id.photoImageView);
 
     // init all the things
-    initLocation();
+    if (savedInstanceState == null) {
+      initLocation();
+    }
     initMap();
     initLocationEditText();
+  }
+
+  @Override
+  protected void onSaveInstanceState(Bundle outState) {
+    super.onSaveInstanceState(outState);
+    outState.putParcelable("event_location", eventLatLng);
+    outState.putParcelable("event_address", eventAddress);
+    outState.putParcelable("user_location", userLocation);
+    if (startTime != null) {
+      outState.putLong("start_time", startTime.getTime().getTime());
+    }
+    if (endTime != null) {
+      outState.putLong("end_time", endTime.getTime().getTime());
+    }
+    outState.putParcelable("event_image", eventImage);
+  }
+
+  @Override
+  protected void onRestoreInstanceState(Bundle savedInstanceState) {
+    super.onRestoreInstanceState(savedInstanceState);
+    eventLatLng = savedInstanceState.getParcelable("event_location");
+    eventAddress = savedInstanceState.getParcelable("event_address");
+    userLocation = savedInstanceState.getParcelable("user_location");
+    startTime = getTime("start_time", savedInstanceState, startTimeTextView);
+    endTime = getTime("end_time", savedInstanceState, endTimeTextView);
+    eventImage = savedInstanceState.getParcelable("event_image");
+    setupPhotoImageView();
+  }
+
+  Calendar getTime(String key, Bundle savedInstanceState, TextView timeTextView) {
+    long time = savedInstanceState.getLong(key);
+    if (time != 0) {
+      Calendar cal = new GregorianCalendar();
+      cal.setTime(new Date(time));
+      setTime(timeTextView, cal);
+      return cal;
+    }
+    return null;
   }
 
   private void initLocationEditText() {
@@ -388,8 +430,7 @@ public class EventCreateActivity extends AppCompatActivity {
         Uri photoUri = data.getData();
         try {
           eventImage = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoUri);
-          // Load the selected image into a preview
-          photoImageView.setImageBitmap(eventImage);
+          setupPhotoImageView();
         } catch (IOException ex) {
           Log.e(TAG, "Error loading image", ex);
         }
@@ -418,6 +459,11 @@ public class EventCreateActivity extends AppCompatActivity {
     } else {
       Log.w(TAG, "Unhandled result code: " + resultCode);
     }
+  }
+
+  private void setupPhotoImageView() {
+    // Load the selected image into a preview
+    photoImageView.setImageBitmap(eventImage);
   }
 
   public void onClickStartTimeTextView(View view) {
