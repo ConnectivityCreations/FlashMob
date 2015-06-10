@@ -17,7 +17,6 @@ import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.stridera.connectivitycreations.flashmob.R;
 import com.stridera.connectivitycreations.flashmob.adapters.StreamAdapter;
-import com.stridera.connectivitycreations.flashmob.models.Accepted;
 import com.stridera.connectivitycreations.flashmob.models.Flashmob;
 
 import java.util.ArrayList;
@@ -92,17 +91,7 @@ public class StreamListFragment extends Fragment {
 
     public void getUpcomingEvents() {
         if (false) {
-            Accepted.getItemsSelectedByCurrentUserInBackground(new FindCallback<Accepted>() {
-                @Override
-                public void done(List<Accepted> list, ParseException e) {
-                    arrayAdapter.clear();
-                    ;
-//                    for (aAccepted accepted : list) {
-//                        arrayAdapter.add(acacepted.getFlashmob());
-//                    }
-                    swipeRefreshLayout.setRefreshing(false);
-                }
-            });
+            // Only items owned/accepted
         } else {
             Flashmob.findNearbyEventsInBackground(
                     this.point,
