@@ -48,6 +48,7 @@ import com.parse.ParseGeoPoint;
 import com.parse.SaveCallback;
 import com.stridera.connectivitycreations.flashmob.R;
 import com.stridera.connectivitycreations.flashmob.models.Flashmob;
+import com.stridera.connectivitycreations.flashmob.utils.LocationHelper;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -64,9 +65,6 @@ public class EventCreateActivity extends AppCompatActivity {
   private static final int PICK_PHOTO_CODE = 1;
   private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 2;
   private static final String TAG = EventCreateActivity.class.getSimpleName();
-  private static final int MILLIS_IN_A_SECOND = 1000;
-  private static final int SECONDS_IN_A_MINUTE = 60;
-  private static final int MILLIS_IN_A_MINUTE = MILLIS_IN_A_SECOND * SECONDS_IN_A_MINUTE;
   private static final String APP_TAG = "FlashMob";
 
   private GoogleMap googleMap;
@@ -77,14 +75,9 @@ public class EventCreateActivity extends AppCompatActivity {
   private EditText minAttendeesEditText;
   private EditText maxAttendeesEditText;
   private ImageView photoImageView;
-  private LatLng eventLatLng = null;
-  private Address eventAddress;
   private Marker locationMarker;
-  private LatLng userLocation;
-  private Calendar startTime;
-  private Calendar endTime;
-  private Bitmap eventImage;
   private MenuItem progressItem;
+  private EventCreateData data = new EventCreateData();
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -111,39 +104,20 @@ public class EventCreateActivity extends AppCompatActivity {
   @Override
   protected void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
-    outState.putParcelable("event_location", eventLatLng);
-    outState.putParcelable("event_address", eventAddress);
-    outState.putParcelable("user_location", userLocation);
-    if (startTime != null) {
-      outState.putLong("start_time", startTime.getTime().getTime());
-    }
-    if (endTime != null) {
-      outState.putLong("end_time", endTime.getTime().getTime());
-    }
-    outState.putParcelable("event_image", eventImage);
+    this.data.saveState(outState);
   }
 
   @Override
   protected void onRestoreInstanceState(Bundle savedInstanceState) {
     super.onRestoreInstanceState(savedInstanceState);
-    eventLatLng = savedInstanceState.getParcelable("event_location");
-    eventAddress = savedInstanceState.getParcelable("event_address");
-    userLocation = savedInstanceState.getParcelable("user_location");
-    startTime = getTime("start_time", savedInstanceState, startTimeTextView);
-    endTime = getTime("end_time", savedInstanceState, endTimeTextView);
-    eventImage = savedInstanceState.getParcelable("event_image");
-    setupPhotoImageView();
+    this.data = new EventCreateData(savedInstanceState);
+    setPhotoImageView();
+    setTimeTextViews();
   }
 
-  Calendar getTime(String key, Bundle savedInstanceState, TextView timeTextView) {
-    long time = savedInstanceState.getLong(key);
-    if (time != 0) {
-      Calendar cal = new GregorianCalendar();
-      cal.setTime(new Date(time));
-      setTime(timeTextView, cal);
-      return cal;
-    }
-    return null;
+  private void setTimeTextViews() {
+    setTime(startTimeTextView, data.startTime);
+    setTime(endTimeTextView, data.endTime);
   }
 
   private void initLocationEditText() {
@@ -164,7 +138,7 @@ public class EventCreateActivity extends AppCompatActivity {
         EventCreateActivity.this.googleMap = googleMap;
         CameraUpdate cameraUpdate = CameraUpdateFactory.zoomTo(15);
         googleMap.animateCamera(cameraUpdate);
-        updateEventLocation(eventLatLng);
+        updateEventLocation(data.getEventLatLng());
         googleMap.getUiSettings().setScrollGesturesEnabled(false);
         googleMap.setMyLocationEnabled(true);
       }
@@ -177,7 +151,7 @@ public class EventCreateActivity extends AppCompatActivity {
       @Override
       public void onLocationChanged(Location location) {
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        userLocation = latLng;
+        data.userLocation = latLng;
         updateEventLocation(latLng);
       }
 
@@ -226,7 +200,7 @@ public class EventCreateActivity extends AppCompatActivity {
     @Override
     protected Address doInBackground(String... params) {
       String locationName = params[0];
-      LatLng target = (userLocation == null) ? eventLatLng : userLocation;
+      LatLng target = (data.userLocation == null) ? data.getEventLatLng() : data.userLocation;
 
       try {
         Geocoder geocoder = new Geocoder(EventCreateActivity.this, Locale.getDefault());
@@ -272,8 +246,7 @@ public class EventCreateActivity extends AppCompatActivity {
     protected void onPostExecute(Address address) {
       if (address == null) {
         Toast.makeText(EventCreateActivity.this, "Location could not be found", Toast.LENGTH_LONG).show();
-        eventLatLng = null;
-        eventAddress = null;
+        data.setLocation(null, null);
         if (locationMarker != null) {
           locationMarker.remove();
         }
@@ -293,8 +266,7 @@ public class EventCreateActivity extends AppCompatActivity {
     }
     updateLocationEditText(address);
     updateGoogleMap(latLng);
-    eventLatLng = latLng;
-    eventAddress = address;
+    data.setLocation(latLng, address);
   }
 
   private void updateGoogleMap(LatLng latLng) {
@@ -317,17 +289,8 @@ public class EventCreateActivity extends AppCompatActivity {
   }
 
   private void updateLocationEditText(Address address) {
-    String addressStr = addressToString(address);
+    String addressStr = LocationHelper.addressToString(address);
     locationEditText.setText(addressStr);
-  }
-
-  private String addressToString(Address address) {
-    StringBuilder addressStringBuilder = new StringBuilder();
-    String divider = ", ";
-    for (int i = 0; i < address.getMaxAddressLineIndex(); i++) {
-      addressStringBuilder.append(divider).append(address.getAddressLine(i));
-    }
-    return addressStringBuilder.toString().substring(divider.length());
   }
 
   @Override
@@ -351,44 +314,28 @@ public class EventCreateActivity extends AppCompatActivity {
   private void saveEvent() {
     // required
     String title = nameEditText.getText().toString();
-    if (title.isEmpty()) {
-      Toast.makeText(this, "Event name is required", Toast.LENGTH_LONG).show();
-      return;
-    }
-    if ((eventLatLng == null) || (eventAddress == null)) {
-      Toast.makeText(this, "Event location is required", Toast.LENGTH_LONG).show();
-      return;
-    }
-    progressItem.setVisible(true);
-
-    ParseGeoPoint location = new ParseGeoPoint(eventLatLng.latitude, eventLatLng.longitude);
-    String address = addressToString(eventAddress);
-
-    // optional
-    Date when = startTime == null ? null : startTime.getTime();
-    Integer duration = null;
-    if (endTime != null) {
-      long differenceInMillis = endTime.getTimeInMillis() - startTime.getTimeInMillis();
-      duration = (int)(differenceInMillis / MILLIS_IN_A_MINUTE);
-    }
     String minStr = minAttendeesEditText.getText().toString();
     Integer minAttendees = minStr.isEmpty() ? null : Integer.valueOf(minStr);
     String maxStr = maxAttendeesEditText.getText().toString();
     Integer maxAttendees = maxStr.isEmpty() ? null : Integer.valueOf(maxStr);
-    final Flashmob event = new Flashmob(title, eventImage, when, duration, minAttendees, maxAttendees, location, address);
-    event.saveInBackground(new SaveCallback() {
+    progressItem.setVisible(true);
+    data.saveFlashmob(title, minAttendees, maxAttendees, new EventCreateData.SaveCallback() {
       @Override
-      public void done(ParseException e) {
-        if (e == null) {
-          finish();
-          Intent i = new Intent(EventCreateActivity.this, EventDetailsActivity.class);
-          i.putExtra(EventDetailsActivity.EVENT_ID, event.getObjectId());
-          startActivity(i);
-        } else {
-          Log.e(TAG, "Error saving model", e);
-          Toast.makeText(EventCreateActivity.this, "Error saving your event", Toast.LENGTH_LONG).show();
-        }
+      public void onSuccess(Flashmob event) {
         progressItem.setVisible(false);
+        finish();
+        Intent i = new Intent(EventCreateActivity.this, EventDetailsActivity.class);
+        i.putExtra(EventDetailsActivity.EVENT_ID, event.getObjectId());
+        startActivity(i);
+      }
+
+      @Override
+      public void onFailure(ParseException ex, String userError) {
+        progressItem.setVisible(false);
+        if (ex != null) {
+          Log.e(TAG, "Error saving model", ex);
+        }
+        Toast.makeText(EventCreateActivity.this, userError, Toast.LENGTH_LONG).show();
       }
     });
   }
@@ -419,7 +366,7 @@ public class EventCreateActivity extends AppCompatActivity {
   }
 
   @Override
-  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+  protected void onActivityResult(int requestCode, int resultCode, Intent activityData) {
     if (resultCode != RESULT_OK) {
       Log.d(TAG, "Ignoring activity result with code: " + resultCode);
       return;
@@ -427,10 +374,10 @@ public class EventCreateActivity extends AppCompatActivity {
 
     if (requestCode == PICK_PHOTO_CODE) {
       if (data != null) {
-        Uri photoUri = data.getData();
+        Uri photoUri = activityData.getData();
         try {
-          eventImage = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoUri);
-          setupPhotoImageView();
+          data.eventImage = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoUri);
+          setPhotoImageView();
         } catch (IOException ex) {
           Log.e(TAG, "Error loading image", ex);
         }
@@ -461,9 +408,9 @@ public class EventCreateActivity extends AppCompatActivity {
     }
   }
 
-  private void setupPhotoImageView() {
+  private void setPhotoImageView() {
     // Load the selected image into a preview
-    photoImageView.setImageBitmap(eventImage);
+    photoImageView.setImageBitmap(data.eventImage);
   }
 
   public void onClickStartTimeTextView(View view) {
@@ -482,12 +429,12 @@ public class EventCreateActivity extends AppCompatActivity {
 
   private void setStartTime(Calendar time) {
     setTime(startTimeTextView, time);
-    startTime = time;
+    data.startTime = time;
   }
 
   public void onClickEndTimeTextView(View view) {
     final TextView timeTextView = (TextView)view;
-    final Calendar reference = startTime == null ? Calendar.getInstance() : startTime;
+    final Calendar reference = data.startTime == null ? Calendar.getInstance() : data.startTime;
     int hour = reference.get(Calendar.HOUR_OF_DAY) + (Flashmob.DEFAULT_DURATION / 60);
     int minute = reference.get(Calendar.MINUTE) + (Flashmob.DEFAULT_DURATION % 60);
 
@@ -495,11 +442,11 @@ public class EventCreateActivity extends AppCompatActivity {
       @Override
       public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
         Calendar time = createAfter(reference, hourOfDay, minute);
-        if (startTime == null) {
+        if (data.startTime == null) {
           setStartTime(reference);
         }
         setTime(timeTextView, time);
-        endTime = time;
+        data.endTime = time;
       }
     });
   }
@@ -517,8 +464,13 @@ public class EventCreateActivity extends AppCompatActivity {
   }
 
   private void setTime(TextView timeTextView, Calendar time) {
-    String timeStr = DateFormat.getTimeFormat(EventCreateActivity.this).format(time.getTime());
-    timeTextView.setText(timeStr);
+    if (time == null) {
+      timeTextView.setText("");
+    }
+    else {
+      String timeStr = DateFormat.getTimeFormat(EventCreateActivity.this).format(time.getTime());
+      timeTextView.setText(timeStr);
+    }
   }
 
   // Handle Image Rotation on Camera Intent
