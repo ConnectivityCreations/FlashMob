@@ -6,18 +6,28 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
 
-import com.stridera.connectivitycreations.flashmob.models.FlashUser;
-import com.stridera.connectivitycreations.flashmob.models.Flashmob;
+import com.parse.FindCallback;
+import com.parse.GetCallback;
+import com.parse.ParseException;
 import com.stridera.connectivitycreations.flashmob.R;
 import com.stridera.connectivitycreations.flashmob.adapters.AttendeesAdapter;
+import com.stridera.connectivitycreations.flashmob.models.Accepted;
+import com.stridera.connectivitycreations.flashmob.models.FlashUser;
+import com.stridera.connectivitycreations.flashmob.models.Flashmob;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class AttendeesActivity extends ActionBarActivity {
+
+    public static final String EVENT_ID = "event_id";
 
     private Flashmob flashmob;
     private ArrayList<FlashUser> attendees;
     private AttendeesAdapter aAttendees;
+    private ListView lvAttendees;
+
+    private String eventId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,10 +36,11 @@ public class AttendeesActivity extends ActionBarActivity {
 
         attendees = new ArrayList<>();
         aAttendees = new AttendeesAdapter(this, attendees);
-        ListView lvAttendees = (ListView) findViewById(R.id.lvAttendees);
+        lvAttendees = (ListView) findViewById(R.id.lvAttendees);
         lvAttendees.setAdapter(aAttendees);
 
-        // TODO: Fetch the data to populate the ListView
+        eventId = getIntent().getStringExtra(EVENT_ID);
+        populateList();
     }
 
     @Override
@@ -52,6 +63,29 @@ public class AttendeesActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void populateList()
+    {
+        Flashmob.getInBackground(eventId, new GetCallback<Flashmob>() {
+            @Override
+            public void done(Flashmob fm, ParseException e) {
+                flashmob = fm;
+                getAttendees();
+            }
+        });
+    }
+
+    private void getAttendees() {
+        Accepted.getItemsSelectedByFlashmobInBackground(flashmob, new FindCallback<Accepted>() {
+            @Override
+            public void done(List<Accepted> list, ParseException e) {
+                for (Accepted accepted : list) {
+                    attendees.add((FlashUser)accepted.get("user"));
+                }
+                aAttendees.notifyDataSetChanged();
+            }
+        });
     }
 
 }
