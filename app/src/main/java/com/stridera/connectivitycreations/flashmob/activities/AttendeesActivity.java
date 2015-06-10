@@ -2,6 +2,7 @@ package com.stridera.connectivitycreations.flashmob.activities;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
@@ -9,9 +10,9 @@ import android.widget.ListView;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
+import com.parse.ParseRelation;
 import com.stridera.connectivitycreations.flashmob.R;
 import com.stridera.connectivitycreations.flashmob.adapters.AttendeesAdapter;
-import com.stridera.connectivitycreations.flashmob.models.Accepted;
 import com.stridera.connectivitycreations.flashmob.models.FlashUser;
 import com.stridera.connectivitycreations.flashmob.models.Flashmob;
 
@@ -77,15 +78,8 @@ public class AttendeesActivity extends ActionBarActivity {
     }
 
     private void getAttendees() {
-        Accepted.getItemsSelectedByFlashmobInBackground(flashmob, new FindCallback<Accepted>() {
-            @Override
-            public void done(List<Accepted> list, ParseException e) {
-                for (Accepted accepted : list) {
-                    attendees.add((FlashUser)accepted.get("user"));
-                }
-                aAttendees.notifyDataSetChanged();
-            }
-        });
+        attendees.addAll(flashmob.getAttendees());
+        aAttendees.notifyDataSetChanged();
     }
 
 }

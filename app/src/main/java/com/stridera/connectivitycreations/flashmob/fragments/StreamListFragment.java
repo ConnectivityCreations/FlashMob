@@ -97,9 +97,9 @@ public class StreamListFragment extends Fragment {
                 public void done(List<Accepted> list, ParseException e) {
                     arrayAdapter.clear();
                     ;
-                    for (Accepted accepted : list) {
-                        arrayAdapter.add(accepted.getFlashmob());
-                    }
+//                    for (aAccepted accepted : list) {
+//                        arrayAdapter.add(acacepted.getFlashmob());
+//                    }
                     swipeRefreshLayout.setRefreshing(false);
                 }
             });

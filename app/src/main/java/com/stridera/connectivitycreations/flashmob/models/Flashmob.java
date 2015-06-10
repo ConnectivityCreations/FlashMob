@@ -1,6 +1,7 @@
 package com.stridera.connectivitycreations.flashmob.models;
 
 import android.graphics.Bitmap;
+import android.util.Log;
 
 import com.parse.FindCallback;
 import com.parse.GetCallback;
@@ -11,8 +12,10 @@ import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -85,6 +88,15 @@ public class Flashmob extends ParseObject {
         return getInt("maxAttendees");
     }
 
+    public List<FlashUser> getAttendees() {
+        List<FlashUser> attendees = getList("attendees");
+        if (attendees == null) {
+            return new ArrayList<>();
+        } else {
+            return attendees;
+        }
+    }
+
     public ParseGeoPoint getLocation() {
         return getParseGeoPoint("location");
     }
@@ -98,8 +110,16 @@ public class Flashmob extends ParseObject {
     }
 
     public void join() {
-        Accepted accepted = new Accepted(this, FlashUser.getCurrentUser());
-        accepted.saveInBackground();
+        this.add("attendees", FlashUser.getCurrentUser());
+        this.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                Log.d("Blah", "Object saved.");
+                if (e != null) {
+                    Log.d("Blah", e.toString());
+                }
+            }
+        });
     }
 
     @Override
@@ -114,6 +134,7 @@ public class Flashmob extends ParseObject {
     private static ParseQuery<Flashmob> createQuery() {
         ParseQuery<Flashmob> query = new ParseQuery<Flashmob>(Flashmob.class);
         query.include("owner");
+        query.include("attendees");
         //query.setCachePolicy(ParseQuery.CachePolicy.CACHE_THEN_NETWORK);
         return query;
     }
@@ -123,8 +144,6 @@ public class Flashmob extends ParseObject {
 
         ParseQuery<Flashmob> query = Flashmob.createQuery();
         query.whereEqualTo("objectId", objectId);
-
-
         query.findInBackground(new FindCallback<Flashmob>() {
             @Override
             public void done(List<Flashmob> objects, ParseException e) {

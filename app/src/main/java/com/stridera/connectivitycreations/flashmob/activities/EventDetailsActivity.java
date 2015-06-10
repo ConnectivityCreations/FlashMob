@@ -3,6 +3,7 @@ package com.stridera.connectivitycreations.flashmob.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -11,18 +12,14 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseUser;
 import com.squareup.picasso.Picasso;
 import com.stridera.connectivitycreations.flashmob.R;
-import com.stridera.connectivitycreations.flashmob.models.Accepted;
 import com.stridera.connectivitycreations.flashmob.models.FlashUser;
 import com.stridera.connectivitycreations.flashmob.models.Flashmob;
-
-import java.util.List;
 
 public class EventDetailsActivity extends ActionBarActivity {
 
@@ -61,8 +58,13 @@ public class EventDetailsActivity extends ActionBarActivity {
         Flashmob.getInBackground(eventId, new GetCallback<Flashmob>() {
             @Override
             public void done(Flashmob flashmob, ParseException e) {
-                event = flashmob;
-                setAllViews();
+                if (e == null) {
+                    event = flashmob;
+                    setAllViews();
+                } else {
+                    Log.d("Blah", "Error: " + e.getMessage());
+                    finish();
+                }
             }
         });
     }
@@ -176,12 +178,7 @@ public class EventDetailsActivity extends ActionBarActivity {
     }
 
     protected void updateAttendingCount() {
-        Accepted.getItemsSelectedByFlashmobInBackground(event, new FindCallback<Accepted>() {
-            @Override
-            public void done(List<Accepted> list, ParseException e) {
-                tvAttendingCount.setText(list.size() + "");
-            }
-        });
+        tvAttendingCount.setText(String.valueOf(event.getAttendees().size()));
     }
 
 }
