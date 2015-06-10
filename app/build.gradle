@@ -26,7 +26,8 @@ repositories {
 dependencies {
 
     // Android Support Libraries
-    compile 'com.android.support:appcompat-v7:22.1.1'
+    compile 'com.android.support:appcompat-v7:22.2.0'
+    compile 'com.android.support:design:22.2.0'
 
     // Google Play required for map Fragments
     compile 'com.google.android.gms:play-services:7.3.0'
@@ -39,5 +40,6 @@ dependencies {
     compile 'com.facebook.android:facebook-android-sdk:4.1.2'
     compile fileTree(dir: 'libs', include: 'Parse-*.jar')
     compile fileTree(dir: 'libs', include: 'ParseFacebookUtilsV4-*.jar')
+
     compile 'org.droidparts:droidparts:2.7.4'
 }

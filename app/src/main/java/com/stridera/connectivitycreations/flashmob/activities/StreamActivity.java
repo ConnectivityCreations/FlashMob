@@ -8,12 +8,14 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
@@ -37,12 +39,23 @@ public class StreamActivity extends AppCompatActivity implements StreamListFragm
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stream);
 
+        setupFab();
         initLocation();
 
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         fragment = new StreamListFragment();
         ft.replace(R.id.flFragments, fragment);
         ft.commit();
+    }
+
+    private void setupFab() {
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fabAdd);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startCreateNewActivity();
+            }
+        });
     }
 
     @Override
@@ -80,9 +93,6 @@ public class StreamActivity extends AppCompatActivity implements StreamListFragm
         if (id == R.id.action_logout) {
             ParseUser.logOut();
             startLoginActivity();
-            return true;
-        } else if (id == R.id.action_add) {
-            startCreateNewActivity();
             return true;
         } else if (id == R.id.action_settings) {
             return true;
