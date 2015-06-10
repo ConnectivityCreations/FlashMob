@@ -4,19 +4,10 @@ import android.app.Activity;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
-import android.location.Address;
-import android.location.Criteria;
-import android.location.Geocoder;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.media.ExifInterface;
+import android.location.*;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -26,36 +17,19 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.TimePicker;
-import android.widget.Toast;
-
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
+import android.widget.*;
+import com.google.android.gms.maps.*;
+import com.google.android.gms.maps.model.*;
 import com.parse.ParseException;
-import com.parse.ParseGeoPoint;
-import com.parse.SaveCallback;
+import com.stridera.connectivitycreations.flashmob.FlashmobApplication;
 import com.stridera.connectivitycreations.flashmob.R;
 import com.stridera.connectivitycreations.flashmob.models.Flashmob;
+import com.stridera.connectivitycreations.flashmob.utils.CameraHelper;
 import com.stridera.connectivitycreations.flashmob.utils.LocationHelper;
+import com.stridera.connectivitycreations.flashmob.utils.TimeHelper;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -65,7 +39,6 @@ public class EventCreateActivity extends AppCompatActivity {
   private static final int PICK_PHOTO_CODE = 1;
   private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 2;
   private static final String TAG = EventCreateActivity.class.getSimpleName();
-  private static final String APP_TAG = "FlashMob";
 
   private GoogleMap googleMap;
   private EditText locationEditText;
@@ -94,37 +67,16 @@ public class EventCreateActivity extends AppCompatActivity {
     photoImageView = (ImageView) findViewById(R.id.photoImageView);
 
     // init all the things
-    if (savedInstanceState == null) {
-      initLocation();
-    }
+    initLocation();
     initMap();
     initLocationEditText();
-  }
-
-  @Override
-  protected void onSaveInstanceState(Bundle outState) {
-    super.onSaveInstanceState(outState);
-    this.data.saveState(outState);
-  }
-
-  @Override
-  protected void onRestoreInstanceState(Bundle savedInstanceState) {
-    super.onRestoreInstanceState(savedInstanceState);
-    this.data = new EventCreateData(savedInstanceState);
-    setPhotoImageView();
-    setTimeTextViews();
-  }
-
-  private void setTimeTextViews() {
-    setTime(startTimeTextView, data.startTime);
-    setTime(endTimeTextView, data.endTime);
   }
 
   private void initLocationEditText() {
     locationEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
       @Override
       public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-        new UpdateEventLocationTask().execute(locationEditText.getText().toString());
+        onLocationEditTextChanged(locationEditText.getText().toString());
         return false;
       }
     });
@@ -138,7 +90,7 @@ public class EventCreateActivity extends AppCompatActivity {
         EventCreateActivity.this.googleMap = googleMap;
         CameraUpdate cameraUpdate = CameraUpdateFactory.zoomTo(15);
         googleMap.animateCamera(cameraUpdate);
-        updateEventLocation(data.getEventLatLng());
+        updateEventLocation();
         googleMap.getUiSettings().setScrollGesturesEnabled(false);
         googleMap.setMyLocationEnabled(true);
       }
@@ -152,7 +104,9 @@ public class EventCreateActivity extends AppCompatActivity {
       public void onLocationChanged(Location location) {
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         data.userLocation = latLng;
-        updateEventLocation(latLng);
+        if (data.getEventLatLng() == null) {
+          setEventLocation(latLng);
+        }
       }
 
       @Override
@@ -169,112 +123,49 @@ public class EventCreateActivity extends AppCompatActivity {
     }, null);
   }
 
-  private boolean updateEventLocation(LatLng latLng) {
-    if (latLng == null) {
-      return false;
-    }
-    try {
-      Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-      List<Address> addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
-      if (addresses.isEmpty()) {
-        return false;
-      }
-      updateEventLocation(addresses.get(0), latLng);
-      return true;
-    } catch (IOException e) {
-      Log.e(TAG, "Geocoding failed", e);
-    }
-
-    return false;
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu) {
+    // Inflate the menu; this adds items to the action bar if it is present.
+    getMenuInflater().inflate(R.menu.menu_event_create, menu);
+    progressItem = menu.findItem(R.id.actionProgress);
+    ProgressBar v =  (ProgressBar) MenuItemCompat.getActionView(progressItem);
+    return true;
   }
 
-  class UpdateEventLocationTask extends AsyncTask<String, Void, Address> {
-    static final double SEARCH_BOUNDS_PRECISION = .2;
-    static final int MAX_RESULTS = 5;
+  @Override
+  protected void onSaveInstanceState(Bundle outState) {
+    super.onSaveInstanceState(outState);
+    this.data.saveState(outState);
+  }
 
-    @Override
-    protected void onPreExecute() {
-      progressItem.setVisible(true);
-    }
+  @Override
+  protected void onRestoreInstanceState(Bundle savedInstanceState) {
+    super.onRestoreInstanceState(savedInstanceState);
+    this.data = new EventCreateData(savedInstanceState);
+    updatePhotoImageView();
+    updateTimeTextViews();
+  }
 
-    @Override
-    protected Address doInBackground(String... params) {
-      String locationName = params[0];
-      LatLng target = (data.userLocation == null) ? data.getEventLatLng() : data.userLocation;
+  private void updateTimeTextViews() {
+    setTextView(startTimeTextView, data.startTime);
+    setTextView(endTimeTextView, data.endTime);
+  }
 
-      try {
-        Geocoder geocoder = new Geocoder(EventCreateActivity.this, Locale.getDefault());
-        List<Address> addresses = target == null ?
-            geocoder.getFromLocationName(
-                locationName,
-                1
-            ) : geocoder.getFromLocationName(
-                locationName,
-                MAX_RESULTS,
-                target.latitude - SEARCH_BOUNDS_PRECISION,
-                target.longitude - SEARCH_BOUNDS_PRECISION,
-                target.latitude + SEARCH_BOUNDS_PRECISION,
-                target.longitude + SEARCH_BOUNDS_PRECISION
-            );
-        if (addresses.isEmpty()) {
-          return null;
-        }
-        if (target == null) {
-          return addresses.get(0);
-        }
-
-        Address closestAddress = null;
-        float minDistance = Float.MAX_VALUE;
-        float[] results = new float[1];
-        for (Address address : addresses) {
-          Location.distanceBetween(target.latitude, target.longitude, address.getLatitude(), address.getLongitude(), results);
-          float distance = results[0];
-          if (distance < minDistance) {
-            minDistance = distance;
-            closestAddress = address;
-          }
-        }
-        return closestAddress;
-      } catch (IOException e) {
-        Log.e(TAG, "Geocoding failed", e);
-      }
-
-      return null;
-    }
-
-    @Override
-    protected void onPostExecute(Address address) {
-      if (address == null) {
-        Toast.makeText(EventCreateActivity.this, "Location could not be found", Toast.LENGTH_LONG).show();
-        data.setLocation(null, null);
-        if (locationMarker != null) {
-          locationMarker.remove();
-        }
-        locationMarker = null;
-      }
-      else {
-        LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
-        updateEventLocation(address, latLng);
-      }
-      progressItem.setVisible(false);
-    }
-  };
-
-  private void updateEventLocation(Address address, LatLng latLng) {
-    if ((address == null) || (latLng == null)) {
+  private void updateEventLocation() {
+    if ((data.getEventAddress() == null) || (data.getEventLatLng() == null)) {
       return;
     }
-    updateLocationEditText(address);
-    updateGoogleMap(latLng);
-    data.setLocation(latLng, address);
+    updateLocationEditText();
+    updateGoogleMap();
   }
 
-  private void updateGoogleMap(LatLng latLng) {
+  private void updateGoogleMap() {
     if (googleMap == null) {
       return;
     }
 
     // marker
+    LatLng latLng = data.getEventLatLng();
     if (this.locationMarker == null) {
       BitmapDescriptor defaultMarker =
           BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED);
@@ -288,30 +179,96 @@ public class EventCreateActivity extends AppCompatActivity {
     googleMap.animateCamera(cameraUpdate);
   }
 
-  private void updateLocationEditText(Address address) {
-    String addressStr = LocationHelper.addressToString(address);
-    locationEditText.setText(addressStr);
+  private void updateLocationEditText() {
+    locationEditText.setText(data.getEventAddress());
   }
 
-  @Override
-  public boolean onCreateOptionsMenu(Menu menu) {
-    // Inflate the menu; this adds items to the action bar if it is present.
-    getMenuInflater().inflate(R.menu.menu_event_create, menu);
-    progressItem = menu.findItem(R.id.actionProgress);
-    ProgressBar v =  (ProgressBar) MenuItemCompat.getActionView(progressItem);
-    return true;
+  private void updatePhotoImageView() {
+    // Load the selected image into a preview
+    photoImageView.setImageBitmap(data.eventImage);
+  }
+
+  private void setEventLocation(Address address, LatLng latLng) {
+    if ((address == null) || (latLng == null)) {
+      return;
+    }
+    data.setLocation(latLng, address);
+    updateEventLocation();
+  }
+
+  private boolean setEventLocation(LatLng latLng) {
+    if (latLng == null) {
+      return false;
+    }
+    try {
+      Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+      List<Address> addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
+      if (addresses.isEmpty()) {
+        return false;
+      }
+      setEventLocation(addresses.get(0), latLng);
+      return true;
+    } catch (IOException e) {
+      Log.e(TAG, "Geocoding failed", e);
+    }
+
+    return false;
+  }
+
+  public void setEventImage(Bitmap bitmap) {
+    data.eventImage = bitmap;
+    updatePhotoImageView();
+  }
+
+  private void setStartTime(Calendar time) {
+    data.startTime = time;
+    setTextView(startTimeTextView, time);
+  }
+
+  private void onLocationEditTextChanged(final String locationName) {
+    new AsyncTask<Void, Void, Address>() {
+      @Override
+      protected void onPreExecute() {
+        progressItem.setVisible(true);
+      }
+
+      @Override
+      protected Address doInBackground(Void... params) {
+        final double SEARCH_BOUNDS_PRECISION = .2;
+        final int MAX_RESULTS = 5;
+        Geocoder geocoder = new Geocoder(EventCreateActivity.this, Locale.getDefault());
+        LatLng target = (data.userLocation == null) ? data.getEventLatLng() : data.userLocation;
+        return LocationHelper.findAddress(geocoder, locationName, target, SEARCH_BOUNDS_PRECISION, MAX_RESULTS);
+      }
+
+      @Override
+      protected void onPostExecute(Address address) {
+        if (address == null) {
+          Toast.makeText(EventCreateActivity.this, "Location could not be found", Toast.LENGTH_LONG).show();
+          data.setLocation(null, null);
+          if (locationMarker != null) {
+            locationMarker.remove();
+          }
+          locationMarker = null;
+        } else {
+          LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+          setEventLocation(address, latLng);
+        }
+        progressItem.setVisible(false);
+      }
+    }.execute();
   }
 
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     if (item.getItemId() == R.id.action_save) {
-      saveEvent();
+      onSave();
     }
 
     return super.onOptionsItemSelected(item);
   }
 
-  private void saveEvent() {
+  private void onSave() {
     // required
     String title = nameEditText.getText().toString();
     String minStr = minAttendeesEditText.getText().toString();
@@ -340,31 +297,6 @@ public class EventCreateActivity extends AppCompatActivity {
     });
   }
 
-  public void onAttachPhoto(View btn) {
-    Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-    startActivityForResult(intent, PICK_PHOTO_CODE);
-  }
-
-  public void onTakePhoto(View view) {
-    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-    intent.putExtra(MediaStore.EXTRA_OUTPUT, getPhotoFileUri());
-    startActivityForResult(intent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
-  }
-
-  private Uri getPhotoFileUri() {
-    // Get safe storage directory for photos
-    File mediaStorageDir = new File(
-        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), APP_TAG);
-
-    // Create the storage directory if it does not exist
-    if (!mediaStorageDir.exists() && !mediaStorageDir.mkdirs()){
-      Log.d(APP_TAG, "failed to create directory");
-    }
-
-    // Return the file target for the photo based on filename
-    return Uri.fromFile(new File(mediaStorageDir.getPath() + File.separator + "photo.jpg"));
-  }
-
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent activityData) {
     if (resultCode != RESULT_OK) {
@@ -373,44 +305,55 @@ public class EventCreateActivity extends AppCompatActivity {
     }
 
     if (requestCode == PICK_PHOTO_CODE) {
-      if (data != null) {
-        Uri photoUri = activityData.getData();
-        try {
-          data.eventImage = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoUri);
-          setPhotoImageView();
-        } catch (IOException ex) {
-          Log.e(TAG, "Error loading image", ex);
-        }
-      }
+      onPhotoPicked(activityData);
     } else if (requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE) {
-      Uri takenPhotoUri = getPhotoFileUri();
-      final String imagePath = takenPhotoUri.getPath();
-
-      new AsyncTask<Void,Void,String>() {
-        @Override
-        protected String doInBackground(Void... params) {
-          try {
-            return getRightAngleImage(imagePath);
-          }catch (Throwable e){
-            e.printStackTrace();
-          }
-          return imagePath;
-        }
-
-        @Override
-        protected void onPostExecute(String imagePath) {
-          super.onPostExecute(imagePath);
-          photoImageView.setImageBitmap(decodeFile(imagePath));
-        }
-      }.execute();
+      onPhotoTaken();
     } else {
       Log.w(TAG, "Unhandled result code: " + resultCode);
     }
   }
 
-  private void setPhotoImageView() {
-    // Load the selected image into a preview
-    photoImageView.setImageBitmap(data.eventImage);
+  public void onAttachPhoto(View btn) {
+    Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+    startActivityForResult(intent, PICK_PHOTO_CODE);
+  }
+
+  public void onTakePhoto(View view) {
+    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+    intent.putExtra(MediaStore.EXTRA_OUTPUT, CameraHelper.getPhotoFileUri(FlashmobApplication.APP_TAG));
+    startActivityForResult(intent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
+  }
+
+  private void onPhotoPicked(Intent activityData) {
+    if (activityData != null) {
+      Uri photoUri = activityData.getData();
+      try {
+        setEventImage(MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoUri));
+      } catch (IOException ex) {
+        Log.e(TAG, "Error loading image", ex);
+      }
+    }
+  }
+
+  private void onPhotoTaken() {
+    new AsyncTask<Void,Void,String>() {
+      @Override
+      protected String doInBackground(Void... params) {
+        final String imagePath = CameraHelper.getPhotoFileUri(FlashmobApplication.APP_TAG).getPath();
+        try {
+          return CameraHelper.getRightAngleImage(imagePath);
+        } catch (Throwable e){
+          Log.e(TAG, e.getMessage(), e);
+        }
+        return imagePath;
+      }
+
+      @Override
+      protected void onPostExecute(String imagePath) {
+        super.onPostExecute(imagePath);
+        setEventImage(CameraHelper.decodeFile(imagePath));
+      }
+    }.execute();
   }
 
   public void onClickStartTimeTextView(View view) {
@@ -421,15 +364,10 @@ public class EventCreateActivity extends AppCompatActivity {
     showTimeDialog(hour, minute, new TimePickerDialog.OnTimeSetListener() {
       @Override
       public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-        Calendar time = createAfter(now, hourOfDay, minute);
+        Calendar time = TimeHelper.createAfter(now, hourOfDay, minute);
         setStartTime(time);
       }
     });
-  }
-
-  private void setStartTime(Calendar time) {
-    setTime(startTimeTextView, time);
-    data.startTime = time;
   }
 
   public void onClickEndTimeTextView(View view) {
@@ -441,11 +379,11 @@ public class EventCreateActivity extends AppCompatActivity {
     showTimeDialog(hour, minute, new TimePickerDialog.OnTimeSetListener() {
       @Override
       public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-        Calendar time = createAfter(reference, hourOfDay, minute);
+        Calendar time = TimeHelper.createAfter(reference, hourOfDay, minute);
         if (data.startTime == null) {
           setStartTime(reference);
         }
-        setTime(timeTextView, time);
+        setTextView(timeTextView, time);
         data.endTime = time;
       }
     });
@@ -455,117 +393,13 @@ public class EventCreateActivity extends AppCompatActivity {
     new TimePickerDialog(this, listener, hour, minute, DateFormat.is24HourFormat(this)).show();
   }
 
-  private Calendar createAfter(Calendar reference, int hourOfDay, int minute) {
-    Calendar time = new GregorianCalendar(reference.get(Calendar.YEAR), reference.get(Calendar.MONTH), reference.get(Calendar.DAY_OF_MONTH), hourOfDay, minute);
-    if (time.before(reference)) {
-      time.add(Calendar.DAY_OF_MONTH, 1);
-    }
-    return time;
-  }
-
-  private void setTime(TextView timeTextView, Calendar time) {
+  private void setTextView(TextView timeTextView, Calendar time) {
     if (time == null) {
       timeTextView.setText("");
     }
     else {
-      String timeStr = DateFormat.getTimeFormat(EventCreateActivity.this).format(time.getTime());
+      String timeStr = DateFormat.getTimeFormat(this).format(time.getTime());
       timeTextView.setText(timeStr);
     }
-  }
-
-  // Handle Image Rotation on Camera Intent
-
-  private String getRightAngleImage(String photoPath) {
-
-    try {
-      ExifInterface ei = new ExifInterface(photoPath);
-      int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-      int degree = 0;
-
-      switch (orientation) {
-        case ExifInterface.ORIENTATION_NORMAL:
-          degree = 0;
-          break;
-        case ExifInterface.ORIENTATION_ROTATE_90:
-          degree = 90;
-          break;
-        case ExifInterface.ORIENTATION_ROTATE_180:
-          degree = 180;
-          break;
-        case ExifInterface.ORIENTATION_ROTATE_270:
-          degree = 270;
-          break;
-        case ExifInterface.ORIENTATION_UNDEFINED:
-          degree = 0;
-          break;
-        default:
-          degree = 90;
-      }
-
-      return rotateImage(degree,photoPath);
-
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-
-    return photoPath;
-  }
-
-  private String rotateImage(int degree, String imagePath){
-
-    if(degree<=0){
-      return imagePath;
-    }
-    try{
-      Bitmap b= BitmapFactory.decodeFile(imagePath);
-
-      Matrix matrix = new Matrix();
-      if(b.getWidth()>b.getHeight()){
-        matrix.setRotate(degree);
-        b = Bitmap.createBitmap(b, 0, 0, b.getWidth(), b.getHeight(),
-                matrix, true);
-      }
-
-      FileOutputStream fOut = new FileOutputStream(imagePath);
-      String imageName = imagePath.substring(imagePath.lastIndexOf("/") + 1);
-      String imageType = imageName.substring(imageName.lastIndexOf(".") + 1);
-
-      FileOutputStream out = new FileOutputStream(imagePath);
-      if (imageType.equalsIgnoreCase("png")) {
-        b.compress(Bitmap.CompressFormat.PNG, 100, out);
-      }else if (imageType.equalsIgnoreCase("jpeg")|| imageType.equalsIgnoreCase("jpg")) {
-        b.compress(Bitmap.CompressFormat.JPEG, 100, out);
-      }
-      fOut.flush();
-      fOut.close();
-
-      b.recycle();
-    }catch (Exception e){
-      e.printStackTrace();
-    }
-    return imagePath;
-  }
-
-  public Bitmap decodeFile(String path) {
-    try {
-      // Decode deal_image size
-      BitmapFactory.Options o = new BitmapFactory.Options();
-      o.inJustDecodeBounds = true;
-      BitmapFactory.decodeFile(path, o);
-      // The new size we want to sxcale to
-      final int REQUIRED_SIZE = 64;
-
-      // Find the correct scale value. It should be the power of 2.
-      int scale = 1;
-      while (o.outWidth / scale / 2 >= REQUIRED_SIZE && o.outHeight / scale / 2 >= REQUIRED_SIZE)
-        scale *= 2;
-      // Decode with inSampleSize
-      BitmapFactory.Options o2 = new BitmapFactory.Options();
-      o2.inSampleSize = scale;
-      return BitmapFactory.decodeFile(path, o2);
-    } catch (Throwable e) {
-      e.printStackTrace();
-    }
-    return null;
   }
 }

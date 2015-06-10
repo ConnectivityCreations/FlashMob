@@ -12,6 +12,8 @@ import com.stridera.connectivitycreations.flashmob.models.FlashUser;
 import com.stridera.connectivitycreations.flashmob.models.Flashmob;
 
 public class FlashmobApplication extends Application {
+    public static final String APP_TAG = "FlashMob";
+
     @Override
     public void onCreate() {
         super.onCreate();
