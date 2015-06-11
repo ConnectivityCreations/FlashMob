@@ -23,24 +23,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StreamListFragment extends Fragment {
-    private static final String LOG_TAG = "FlashmobStreamFragment";
+    private static final String LOG_TAG = "FlashmobStreamFragmentList";
 
     private OnItemSelectedListener listener;
+
+    // Called from the activity whenever it wants us to update date... for example on item created
+    public void update() {
+        getUpcomingEvents();
+    }
+
     public interface OnItemSelectedListener {
         public void onFlashmobSelected(String flashmob_id);
     }
 
-    ArrayAdapter<Flashmob> arrayAdapter; // Temp.  Will go to fragment.
+    ArrayAdapter<Flashmob> arrayAdapter;
     ArrayList<Flashmob> items;
     SwipeRefreshLayout swipeRefreshLayout;
 
     ParseGeoPoint point = new ParseGeoPoint(37.4020619, -122.1144424);
-
-    // newInstance constructor for creating fragment with arguments
-    public static StreamListFragment newInstance(String flashmob_id) {
-        StreamListFragment streamListFragment = new StreamListFragment();
-        return streamListFragment;
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -89,7 +89,7 @@ public class StreamListFragment extends Fragment {
         return view;
     }
 
-    public void getUpcomingEvents() {
+    private void getUpcomingEvents() {
         if (false) {
             // Only items owned/accepted
         } else {

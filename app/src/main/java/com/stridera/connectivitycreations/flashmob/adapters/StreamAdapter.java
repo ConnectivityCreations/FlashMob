@@ -7,7 +7,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,15 +15,14 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.github.curioustechizen.ago.RelativeTimeTextView;
 import com.google.android.gms.maps.model.LatLng;
 import com.parse.ParseFile;
 import com.parse.ParseGeoPoint;
 import com.squareup.picasso.Picasso;
 import com.stridera.connectivitycreations.flashmob.R;
-import com.stridera.connectivitycreations.flashmob.models.FlashUser;
 import com.stridera.connectivitycreations.flashmob.models.Flashmob;
 
-import java.util.Date;
 import java.util.List;
 
 public class StreamAdapter extends ArrayAdapter<Flashmob> {
@@ -39,7 +37,7 @@ public class StreamAdapter extends ArrayAdapter<Flashmob> {
         TextView tvAddress;
         TextView tvTimes;
         TextView tvDistance;
-        TextView tvTimeTo;
+        RelativeTimeTextView tvTimeTo;
     }
 
     public StreamAdapter(Context context, List<Flashmob> items) {
@@ -84,11 +82,11 @@ public class StreamAdapter extends ArrayAdapter<Flashmob> {
             viewHolder = new ViewHolder();
             viewHolder.rlCard = (RelativeLayout) convertView.findViewById(R.id.rlCard);
             viewHolder.ivImage = (ImageView) convertView.findViewById(R.id.ivImage);
-            viewHolder.tvTitle = (TextView) convertView.findViewById(R.id.tvTitle);
+            viewHolder.tvTitle = (TextView) convertView.findViewById(R.id.tvDrawerItemTitle);
             viewHolder.tvAddress = (TextView) convertView.findViewById(R.id.tvAddress);
             viewHolder.tvTimes = (TextView) convertView.findViewById(R.id.tvTimes);
             viewHolder.tvDistance = (TextView) convertView.findViewById(R.id.tvDistance);
-            viewHolder.tvTimeTo = (TextView) convertView.findViewById(R.id.tvTimeTo);
+            viewHolder.tvTimeTo = (RelativeTimeTextView) convertView.findViewById(R.id.tvTimeTo);
 
             convertView.setTag(viewHolder);
         } else {
@@ -130,10 +128,7 @@ public class StreamAdapter extends ArrayAdapter<Flashmob> {
         } else {
             viewHolder.tvDistance.setText("");
         }
-        Date event_time = flashmob.getEventDate();
-        String relativeDate = DateUtils.getRelativeTimeSpanString(event_time.getTime(),
-                System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS).toString();
-        viewHolder.tvTimeTo.setText(relativeDate);
+        viewHolder.tvTimeTo.setReferenceTime(flashmob.getEventDate().getTime());
 
         return convertView;
     }

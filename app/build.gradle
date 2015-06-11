@@ -28,6 +28,7 @@ dependencies {
     // Android Support Libraries
     compile 'com.android.support:appcompat-v7:22.2.0'
     compile 'com.android.support:design:22.2.0'
+    compile 'com.android.support:recyclerview-v7:21.0.3'
 
     // Google Play required for map Fragments
     compile 'com.google.android.gms:play-services:7.3.0'
@@ -40,6 +41,12 @@ dependencies {
     compile 'com.facebook.android:facebook-android-sdk:4.1.2'
     compile fileTree(dir: 'libs', include: 'Parse-*.jar')
     compile fileTree(dir: 'libs', include: 'ParseFacebookUtilsV4-*.jar')
+
+    // Rounded Image View
+    compile 'de.hdodenhof:circleimageview:1.2.1'
+
+    // Auto-Updating Timestamps
+    compile 'com.github.curioustechizen.android-ago:library:1.3.0'
 
     compile 'org.droidparts:droidparts:2.7.4'
 }

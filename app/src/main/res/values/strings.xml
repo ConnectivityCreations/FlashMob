@@ -26,4 +26,6 @@
   <string name="title_activity_event_details">Details</string>
   <string name="title_activity_event_comments">Comments</string>
   <string name="loading">Loading...</string>
+  <string name="openDrawer">Open</string>
+  <string name="closeDrawer">Close</string>
 </resources>

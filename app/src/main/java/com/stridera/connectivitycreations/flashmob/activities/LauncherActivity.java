@@ -10,6 +10,11 @@ public class LauncherActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
 
         ParseUser currentUser = ParseUser.getCurrentUser();
         Intent intent;

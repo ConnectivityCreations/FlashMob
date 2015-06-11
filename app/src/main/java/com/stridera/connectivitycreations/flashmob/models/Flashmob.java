@@ -3,6 +3,7 @@ package com.stridera.connectivitycreations.flashmob.models;
 import android.graphics.Bitmap;
 import android.util.Log;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseClassName;
@@ -99,6 +100,11 @@ public class Flashmob extends ParseObject {
 
     public ParseGeoPoint getLocation() {
         return getParseGeoPoint("location");
+    }
+
+    public LatLng getLocationLatLong() {
+        ParseGeoPoint loc = getParseGeoPoint("location");
+        return new LatLng(loc.getLatitude(), loc.getLongitude());
     }
 
     public String getAddress() {
@@ -209,4 +215,6 @@ public class Flashmob extends ParseObject {
     public boolean isAttending() {
         return this.getAttendees().contains(FlashUser.getCurrentUser());
     }
+
+
 }
