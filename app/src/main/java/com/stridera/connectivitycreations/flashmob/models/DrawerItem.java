@@ -9,7 +9,8 @@ public class DrawerItem extends DrawerBaseItem {
         return TYPE_ITEM;
     }
 
-    public DrawerItem(String title, int imgResID) {
+    public DrawerItem(int id, String title, int imgResID) {
+        this.itemId = id;
         this.title = title;
         this.imgResID = imgResID;
     }

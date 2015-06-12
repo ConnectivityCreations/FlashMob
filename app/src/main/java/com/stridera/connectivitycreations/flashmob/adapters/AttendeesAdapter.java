@@ -45,7 +45,7 @@ public class AttendeesAdapter extends ArrayAdapter<FlashUser> {
 
         // Fill in the views
         // TODO: Fill in the image of the attendee
-        tvAttendeeName.setText(attendee.getString("name"));
+        tvAttendeeName.setText(attendee.getName());
 
         return convertView;
     }

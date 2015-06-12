@@ -18,9 +18,12 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
 
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
@@ -34,6 +37,7 @@ import com.stridera.connectivitycreations.flashmob.models.DrawerBaseItem;
 import com.stridera.connectivitycreations.flashmob.models.DrawerHeader;
 import com.stridera.connectivitycreations.flashmob.models.DrawerItem;
 import com.stridera.connectivitycreations.flashmob.models.DrawerSeparator;
+import com.stridera.connectivitycreations.flashmob.models.FlashUser;
 import com.stridera.connectivitycreations.flashmob.models.Flashmob;
 
 import java.util.ArrayList;
@@ -42,8 +46,16 @@ import java.util.Date;
 public class StreamActivity extends AppCompatActivity implements StreamListFragment.OnItemSelectedListener {
     private static final String LOG_TAG = "FlashmobStreamActivity";
 
+    // Fragment State
+    private static final int VIEW_NOT_LOADED = -1;
     private static final int VIEW_LIST = 0;
     private static final int VIEW_MAP = 1;
+
+    // Menu Items
+    private static final int MENU_ITEM_SEPARATOR = 0;
+    private static final int MENU_ITEM_HEADER = 2;
+    private static final int MENU_ITEM_ALL_ITEMS = 3;
+    private static final int MENU_ITEM_MY_ITEMS = 4;
 
     private int current_view;
 
@@ -70,6 +82,8 @@ public class StreamActivity extends AppCompatActivity implements StreamListFragm
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stream);
 
+        current_view = VIEW_NOT_LOADED;
+
         setupToolbarAndDrawer();
         setupFab();
         initLocation();
@@ -87,15 +101,67 @@ public class StreamActivity extends AppCompatActivity implements StreamListFragm
         recyclerView = (RecyclerView) findViewById(R.id.rvDrawerItems);
         recyclerView.setHasFixedSize(true);
 
-        ArrayList drawerItems = new ArrayList<DrawerBaseItem>();
-        drawerItems.add(new DrawerHeader("Test Name", "blah@BLah.com", R.drawable.unknown_user));
-        drawerItems.add(new DrawerSeparator("Separator"));
-        drawerItems.add(new DrawerItem("All Items", R.drawable.ic_action_add));
+        final ArrayList drawerItems = new ArrayList<>();
+        FlashUser user = FlashUser.getCurrentUser();
 
-        drawerAdapter = new StreamDrawerAdapter(drawerItems);
+        drawerItems.add(new DrawerHeader(MENU_ITEM_HEADER, user.getName(), user.getEmail(), user.getBio(), user.getAvatarURL()));
+        drawerItems.add(new DrawerSeparator(MENU_ITEM_SEPARATOR, "Separator"));
+        drawerItems.add(new DrawerItem(MENU_ITEM_ALL_ITEMS, "All Items", R.drawable.ic_action_add));
+        drawerItems.add(new DrawerItem(MENU_ITEM_MY_ITEMS, "My Items", R.drawable.ic_action_add));
+
+        drawerAdapter = new StreamDrawerAdapter(drawerItems, this);
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setAdapter(drawerAdapter);
+
+        // Handle clicks
+        final GestureDetector gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
+            @Override public boolean onSingleTapUp(MotionEvent e) {
+                return true;
+            }
+        });
+
+        recyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
+            @Override
+            public boolean onInterceptTouchEvent(RecyclerView recyclerView, MotionEvent motionEvent) {
+                View childViewUnder = recyclerView.findChildViewUnder(motionEvent.getX(), motionEvent.getY());
+
+                if (childViewUnder != null && gestureDetector.onTouchEvent(motionEvent)) {
+                    int itemClicked = recyclerView.getChildPosition(childViewUnder);
+                    DrawerBaseItem item = (DrawerBaseItem) drawerItems.get(itemClicked);
+                    int itemId = item.getItemId();
+
+                    switch (itemId) {
+                        case MENU_ITEM_HEADER:
+                            drawerLayout.closeDrawers();
+                            Toast.makeText(StreamActivity.this, "Profile Edit Ability Forthcoming!", Toast.LENGTH_SHORT).show();
+                            return true;
+                        case MENU_ITEM_ALL_ITEMS:
+                            drawerLayout.closeDrawers();
+                            startListView();
+                            ((StreamListFragment) fragment).viewAllItems();
+                            setTitle("All Items");
+                            return true;
+                        case MENU_ITEM_MY_ITEMS:
+                            drawerLayout.closeDrawers();
+                            startListView();
+                            ((StreamListFragment) fragment).viewMyItems();
+                            setTitle("My Items");
+                            return true;
+                        case MENU_ITEM_SEPARATOR:
+                        default:
+                            return false;
+                    }
+                }
+
+                return false;
+            }
+
+            @Override
+            public void onTouchEvent(RecyclerView recyclerView, MotionEvent motionEvent) {
+
+            }
+        });
 
         // Finally setup the drawer
         drawerLayout = (DrawerLayout) findViewById(R.id.dlStreamDrawer);
@@ -115,6 +181,8 @@ public class StreamActivity extends AppCompatActivity implements StreamListFragm
     }
 
     private void startListView() {
+        if (current_view == VIEW_LIST)
+            return;
         current_view = VIEW_LIST;
         if (muList != null)
             muList.setVisible(false);
@@ -124,10 +192,14 @@ public class StreamActivity extends AppCompatActivity implements StreamListFragm
         fragment = new StreamListFragment();
         ft.replace(R.id.flFragments, fragment);
         ft.commit();
+
+        setTitle("Local Flashmobs");
     }
 
     private void startMapView() {
-        current_view = VIEW_LIST;
+        if (current_view == VIEW_MAP)
+            return;
+        current_view = VIEW_MAP;
         if (muList != null)
             muList.setVisible(true);
         if (muMap != null)
@@ -136,6 +208,8 @@ public class StreamActivity extends AppCompatActivity implements StreamListFragm
         fragment = new StreamMapFragment();
         ft.replace(R.id.flFragments, fragment);
         ft.commit();
+
+        setTitle("Local Flashmobs");
     }
 
     private void setupFab() {
@@ -223,23 +297,23 @@ public class StreamActivity extends AppCompatActivity implements StreamListFragm
     }
 
     private void initLocation() {
-      LocationManager locationManager = (LocationManager) getSystemService(Activity.LOCATION_SERVICE);
-      locationManager.requestSingleUpdate(new Criteria(), new LocationListener() {
-          @Override
-          public void onLocationChanged(Location location) {
-              point = new ParseGeoPoint(location.getLatitude(), location.getLongitude());
+        LocationManager locationManager = (LocationManager) getSystemService(Activity.LOCATION_SERVICE);
+        locationManager.requestSingleUpdate(new Criteria(), new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                point = new ParseGeoPoint(location.getLatitude(), location.getLongitude());
 //              updateFragment();
-          }
+            }
 
-          @Override
-          public void onStatusChanged(String provider, int status, Bundle extras) {
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
           }
 
           @Override
           public void onProviderEnabled(String provider) {
           }
 
-          @Override
+            @Override
           public void onProviderDisabled(String provider) {
           }
       }, null);

@@ -138,7 +138,7 @@ public class Flashmob extends ParseObject {
 
     // Static Accessors
     private static ParseQuery<Flashmob> createQuery() {
-        ParseQuery<Flashmob> query = new ParseQuery<Flashmob>(Flashmob.class);
+        ParseQuery<Flashmob> query = new ParseQuery<>(Flashmob.class);
         query.include("owner");
         query.include("attendees");
         //query.setCachePolicy(ParseQuery.CachePolicy.CACHE_THEN_NETWORK);
@@ -170,16 +170,24 @@ public class Flashmob extends ParseObject {
         });
     }
 
-    public static void findInBackground(String title,
-                                        final GetCallback<Flashmob> callback) {
-        ParseQuery<Flashmob> flashmobQuery = ParseQuery.getQuery(Flashmob.class);
-        flashmobQuery.whereEqualTo("title", title);
-        flashmobQuery.getFirstInBackground(new GetCallback<Flashmob>() {
+    public static void findMyItemsInBackground(final FindCallback<Flashmob> callback) {
+        ParseUser user = ParseUser.getCurrentUser();
+        ParseQuery<Flashmob> myItems = ParseQuery.getQuery(Flashmob.class);
+        myItems.whereEqualTo("owner", user);
 
+        ParseQuery<Flashmob> joinedItems = ParseQuery.getQuery(Flashmob.class);
+        joinedItems.whereEqualTo("attendees", user);
+
+        List<ParseQuery<Flashmob>> queryList = new ArrayList<>();
+        queryList.add(myItems);
+        queryList.add(joinedItems);
+
+        ParseQuery flashmobQuery = ParseQuery.or(queryList);
+        flashmobQuery.findInBackground(new FindCallback<Flashmob>() {
             @Override
-            public void done(Flashmob flashmob, ParseException e) {
+            public void done(List<Flashmob> flashmobs, ParseException e) {
                 if (e == null) {
-                    callback.done(flashmob, null);
+                    callback.done(flashmobs, null);
                 } else {
                     callback.done(null, e);
                 }

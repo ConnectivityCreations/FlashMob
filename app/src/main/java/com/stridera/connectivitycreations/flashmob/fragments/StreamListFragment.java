@@ -11,6 +11,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.parse.FindCallback;
 import com.parse.ParseException;
@@ -24,11 +26,34 @@ import java.util.List;
 
 public class StreamListFragment extends Fragment {
     private static final String LOG_TAG = "FlashmobStreamFragmentList";
+    private static final int VIEW_ALL_ITEMS = 0;
+    private static final int VIEW_MY_ITEMS = 1;
 
     private OnItemSelectedListener listener;
+    TextView tvNoItemsFound;
+    ProgressBar pbLoading;
+
+    private int current_view = VIEW_ALL_ITEMS;
 
     // Called from the activity whenever it wants us to update date... for example on item created
     public void update() {
+        getUpcomingEvents();
+    }
+
+    // Called from the activity to switch to All Items
+    public void viewAllItems() {
+        if (current_view == VIEW_ALL_ITEMS)
+            return;
+
+        current_view = VIEW_ALL_ITEMS;
+        getUpcomingEvents();
+    }
+
+    public void viewMyItems() {
+        if (current_view == VIEW_MY_ITEMS)
+            return;
+
+        current_view = VIEW_MY_ITEMS;
         getUpcomingEvents();
     }
 
@@ -84,13 +109,28 @@ public class StreamListFragment extends Fragment {
             }
         });
 
+        tvNoItemsFound = (TextView) view.findViewById(R.id.tvNoItems);
+        pbLoading = (ProgressBar) view.findViewById(R.id.pbStreamProgress);
+
         getUpcomingEvents();
 
         return view;
     }
 
     private void getUpcomingEvents() {
-        if (false) {
+        pbLoading.setVisibility(View.VISIBLE);
+        if (current_view == VIEW_MY_ITEMS) {
+            Flashmob.findMyItemsInBackground(
+                    new FindCallback<Flashmob>() {
+                        @Override
+                        public void done(List<Flashmob> list, ParseException e) {
+                            arrayAdapter.clear();
+                            pbLoading.setVisibility(View.GONE);
+                            updateNoItemsFound(!list.isEmpty());
+                            arrayAdapter.addAll(list);
+                            swipeRefreshLayout.setRefreshing(false);
+                        }
+                    });
             // Only items owned/accepted
         } else {
             Flashmob.findNearbyEventsInBackground(
@@ -100,10 +140,19 @@ public class StreamListFragment extends Fragment {
                         @Override
                         public void done(List<Flashmob> list, ParseException e) {
                             arrayAdapter.clear();
+                            pbLoading.setVisibility(View.GONE);
+                            updateNoItemsFound(!list.isEmpty());
                             arrayAdapter.addAll(list);
                             swipeRefreshLayout.setRefreshing(false);
                         }
                     });
         }
+    }
+
+    private void updateNoItemsFound(Boolean itemsFound) {
+        if (itemsFound)
+            tvNoItemsFound.setVisibility(View.GONE);
+        else
+            tvNoItemsFound.setVisibility(View.VISIBLE);
     }
 }

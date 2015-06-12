@@ -8,7 +8,8 @@ public class DrawerSeparator extends DrawerBaseItem {
         return TYPE_SEPARATOR;
     }
 
-    public DrawerSeparator(String title) {
+    public DrawerSeparator(int id, String title) {
+        this.itemId = id;
         this.title = title;
     }
 
