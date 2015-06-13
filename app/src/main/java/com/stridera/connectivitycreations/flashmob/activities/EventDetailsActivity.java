@@ -143,19 +143,11 @@ public class EventDetailsActivity extends ActionBarActivity {
             tvJoinOrEditLabel.setText("Edit");
             // TODO: Set onclick listener for edit view clicked
         } else {
-            ivJoinOrEditImage.setImageResource(R.drawable.ic_join_image);
-            tvJoinOrEditLabel.setText("Join");
-
-            rlJoinOrEditViews.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-
-                    // TODO: Prevent user from joining multiple times
-                    event.join();
-                    updateAttendingCount();
-                    Toast.makeText(EventDetailsActivity.this, "Event joined!", Toast.LENGTH_SHORT).show();
-                }
-            });
+            if (event.isAttending()) {
+                displayUnjoinView();
+            } else {
+                displayJoinView();
+            }
         }
 
         rlAttendingViews.setOnClickListener(new View.OnClickListener() {
@@ -173,6 +165,36 @@ public class EventDetailsActivity extends ActionBarActivity {
                 Intent i = new Intent(EventDetailsActivity.this, CommentsActivity.class);
                 i.putExtra("event_id", event.getObjectId());
                 startActivity(i);
+            }
+        });
+    }
+
+    protected void displayJoinView() {
+        ivJoinOrEditImage.setImageResource(R.drawable.ic_join_image);
+        tvJoinOrEditLabel.setText("Join");
+
+        rlJoinOrEditViews.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                event.join();
+                updateAttendingCount();
+                displayUnjoinView();
+                Toast.makeText(EventDetailsActivity.this, "Event joined!", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    protected void displayUnjoinView() {
+        ivJoinOrEditImage.setImageResource(R.drawable.ic_unjoin_image);
+        tvJoinOrEditLabel.setText("Unjoin");
+
+        rlJoinOrEditViews.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                event.unjoin();
+                updateAttendingCount();
+                displayJoinView();
+                Toast.makeText(EventDetailsActivity.this, "Event joined!", Toast.LENGTH_SHORT).show();
             }
         });
     }

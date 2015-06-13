@@ -128,6 +128,19 @@ public class Flashmob extends ParseObject {
         });
     }
 
+    public void unjoin() {
+        this.remove("attendees");
+        this.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                Log.d("Blah", "Object saved.");
+                if (e != null) {
+                    Log.d("Blah", e.toString());
+                }
+            }
+        });
+    }
+
     @Override
     public String toString() {
       StringBuilder stringBuilder = new StringBuilder(getTitle()).append("\n")
