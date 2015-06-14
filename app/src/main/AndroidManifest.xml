@@ -45,8 +45,7 @@
             android:name=".activities.LoginActivity"
             android:label="@string/title_activity_login" />
         <activity
-            android:name=".activities.EventCreateActivity"
-            android:label="@string/title_activity_location">
+            android:name=".activities.EventCreateActivity">
         </activity>
 
         <!-- This is used for the facebook Login -->

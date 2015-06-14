@@ -3,7 +3,8 @@
 
   <string name="app_name">Flashmob</string>
   <string name="title_activity_login">Login Activity</string>
-  <string name="title_activity_location">Event Creation</string>
+  <string name="title_create">Create Event</string>
+  <string name="title_edit">Edit Event</string>
 
   <string name="action_settings">Settings</string>
   <string name="title_activity_stream">Stream Activity</string>
