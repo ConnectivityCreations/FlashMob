@@ -141,7 +141,15 @@ public class EventDetailsActivity extends ActionBarActivity {
         if (currentUser == event.getOwner()) {
             ivJoinOrEditImage.setImageResource(R.drawable.ic_edit_image);
             tvJoinOrEditLabel.setText("Edit");
-            // TODO: Set onclick listener for edit view clicked
+            rlJoinOrEditViews.setOnClickListener(new View.OnClickListener() {
+              @Override
+              public void onClick(View view) {
+                Intent i = new Intent(EventDetailsActivity.this, EventCreateActivity.class);
+                i.putExtra(EventCreateActivity.EVENT_ID, event.getObjectId());
+                i.putExtra(EventCreateActivity.SHOW_DETAILS_POST_SAVE, false);
+                startActivity(i);
+              }
+            });
         } else {
             if (event.isAttending()) {
                 displayUnjoinView();

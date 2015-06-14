@@ -1,6 +1,7 @@
 package com.stridera.connectivitycreations.flashmob.utils;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 
 public class TimeHelper {
@@ -9,12 +10,14 @@ public class TimeHelper {
   private static final int MILLIS_IN_A_MINUTE = MILLIS_IN_A_SECOND * SECONDS_IN_A_MINUTE;
 
   public static Integer getDurationInMinutes(Calendar startTime, Calendar endTime) {
-    Integer duration = null;
-    if (endTime != null) {
-      long differenceInMillis = endTime.getTimeInMillis() - startTime.getTimeInMillis();
-      duration = (int)(differenceInMillis / MILLIS_IN_A_MINUTE);
-    }
-    return duration;
+    if ((startTime == null) || (endTime == null)) return null;
+    return getDurationInMinutes(startTime.getTime(), endTime.getTime());
+  }
+
+  public static Integer getDurationInMinutes(Date startTime, Date endTime) {
+    if ((startTime == null) || (endTime == null)) return null;
+    long differenceInMillis = endTime.getTime() - startTime.getTime();
+    return (int)(differenceInMillis / MILLIS_IN_A_MINUTE);
   }
 
   public static Calendar createAfter(Calendar reference, int hourOfDay, int minute) {
