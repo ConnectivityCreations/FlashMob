@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -97,13 +98,21 @@ public class EventCreateActivity extends AppCompatActivity {
     initLocation();
     initMap();
     initLocationEditText();
-    initData();
+    boolean newEvent = initData();
+    initToolbar(newEvent);
   }
 
-  private void initData() {
+  private void initToolbar(boolean newEvent) {
+    Toolbar toolbar = (Toolbar) findViewById(R.id.tool_bar);
+    int titleId = newEvent ? R.string.title_create : R.string.title_edit;
+    toolbar.setTitle(titleId);
+    setSupportActionBar(toolbar);
+  }
+
+  private boolean initData() {
     String eventId = getIntent().getStringExtra(EVENT_ID);
     if (eventId == null) {
-      return;
+      return true;
     }
 
     Flashmob.getInBackground(eventId, new GetCallback<Flashmob>() {
@@ -125,6 +134,7 @@ public class EventCreateActivity extends AppCompatActivity {
         }
       }
     });
+    return false;
   }
 
   private void initLocationEditText() {
