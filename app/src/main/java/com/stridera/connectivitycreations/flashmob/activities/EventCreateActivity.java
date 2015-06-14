@@ -110,11 +110,11 @@ public class EventCreateActivity extends AppCompatActivity {
       @Override
       public void done(Flashmob flashmob, ParseException e) {
         if (e == null) {
+          setData(new EventCreateData(flashmob, data.userLocation));
           ParseFile imageFile = flashmob.getImage();
           if (imageFile != null) {
             setEventImage(imageFile.getUrl());
           }
-          setData(new EventCreateData(flashmob, data.userLocation));
           nameEditText.setText(flashmob.getTitle());
           setTextView(minAttendeesEditText, flashmob.getMinAttendees());
           setTextView(maxAttendeesEditText, flashmob.getMaxAttendees());
@@ -276,22 +276,30 @@ public class EventCreateActivity extends AppCompatActivity {
   }
 
   private void setEventImage(String url) {
-    Picasso.with(EventCreateActivity.this).load(url).into(new Target() {
-      @Override
-      public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-        setEventImage(bitmap);
-      }
+    Log.d(TAG, "Loading image from URL: " + url);
+    Target target = (Target) photoImageView.getTag();
+    if (target == null) {
+      target = new Target() {
+        @Override
+        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+          setEventImage(bitmap);
+        }
 
-      @Override
-      public void onBitmapFailed(Drawable errorDrawable) {
-      }
+        @Override
+        public void onBitmapFailed(Drawable errorDrawable) {
+          Toast.makeText(EventCreateActivity.this, "Error fetching the image", Toast.LENGTH_SHORT).show();
+        }
 
-      @Override
-      public void onPrepareLoad(Drawable placeHolderDrawable) {}
-    });
+        @Override
+        public void onPrepareLoad(Drawable placeHolderDrawable) {}
+      };
+      photoImageView.setTag(target);
+    }
+    Picasso.with(EventCreateActivity.this).load(url).into(target);
   }
 
   public void setEventImage(Bitmap bitmap) {
+    Log.d(TAG, "Setting event image to: " + bitmap);
     data.eventImage = bitmap;
     updatePhotoImageView();
   }
