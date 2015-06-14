@@ -65,9 +65,9 @@ public class EventCreateData {
 
     // optional
     Date when = startTime == null ? null : startTime.getTime();
-    Integer duration = TimeHelper.getDurationInMinutes(startTime, endTime);
+    Date end = endTime == null ? null : endTime.getTime();
 
-    final Flashmob event = new Flashmob(title, eventImage, when, duration, minAttendees, maxAttendees, location, eventAddress);
+    final Flashmob event = new Flashmob(title, eventImage, when, end, minAttendees, maxAttendees, location, eventAddress);
     event.saveInBackground(new com.parse.SaveCallback() {
       @Override
       public void done(com.parse.ParseException e) {

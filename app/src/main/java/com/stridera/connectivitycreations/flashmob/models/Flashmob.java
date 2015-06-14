@@ -17,7 +17,9 @@ import com.parse.SaveCallback;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,7 +38,7 @@ public class Flashmob extends ParseObject {
         super();
     }
 
-    public Flashmob(String title, Bitmap image, Date when, Integer duration, Integer min_attendees, Integer max_attendees, ParseGeoPoint location, String address) {
+    public Flashmob(String title, Bitmap image, Date when, Date end, Integer min_attendees, Integer max_attendees, ParseGeoPoint location, String address) {
         super();
 
         if (image != null) {
@@ -51,8 +53,16 @@ public class Flashmob extends ParseObject {
         }
 
         put("name", title);
-        put("eventAt", (when == null ? new Date() : when));
-        put("duration", (duration == null ? DEFAULT_DURATION : duration));
+        if (when == null) when = new Date();
+        put("eventAt", when);
+
+        if (end == null) {
+          Calendar calendar = new GregorianCalendar();
+          calendar.setTime(when);
+          calendar.add(Calendar.MINUTE, DEFAULT_DURATION);
+          end = calendar.getTime();
+        }
+        put("eventEnd", end);
         if (min_attendees != null) {
           put("minAttendees", min_attendees);
         }
