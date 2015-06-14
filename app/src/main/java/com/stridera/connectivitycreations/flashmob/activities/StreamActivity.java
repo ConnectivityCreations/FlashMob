@@ -271,7 +271,7 @@ public class StreamActivity extends AppCompatActivity implements StreamListFragm
                     "Test Event",
                     BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher),
                     inTwoHours,
-                    2,
+                    null,
                     2,
                     4,
                     new ParseGeoPoint(37.4020619, -122.1144424),
