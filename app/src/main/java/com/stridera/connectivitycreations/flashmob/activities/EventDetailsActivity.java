@@ -12,14 +12,18 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseUser;
 import com.squareup.picasso.Picasso;
 import com.stridera.connectivitycreations.flashmob.R;
+import com.stridera.connectivitycreations.flashmob.models.Comments;
 import com.stridera.connectivitycreations.flashmob.models.FlashUser;
 import com.stridera.connectivitycreations.flashmob.models.Flashmob;
+
+import java.util.List;
 
 public class EventDetailsActivity extends ActionBarActivity {
 
@@ -131,8 +135,7 @@ public class EventDetailsActivity extends ActionBarActivity {
 
         updateAttendingCount();
 
-        // TODO: Set the number of comments
-        // tvCommentsCount.setText(flashmob.getTitle());
+        updateCommentsCount();
 
         tvEventName.setText(event.getTitle());
         tvEventTime.setText(event.getEventDate().toString());
@@ -164,7 +167,7 @@ public class EventDetailsActivity extends ActionBarActivity {
             public void onClick(View view) {
                 Intent i = new Intent(EventDetailsActivity.this, CommentsActivity.class);
                 i.putExtra("event_id", event.getObjectId());
-                startActivity(i);
+                startActivityForResult(i, 255);
             }
         });
     }
@@ -201,6 +204,22 @@ public class EventDetailsActivity extends ActionBarActivity {
 
     protected void updateAttendingCount() {
         tvAttendingCount.setText(String.valueOf(event.getAttendees().size()));
+    }
+
+    public void updateCommentsCount()
+    {
+        Comments.findCommentsInBackground(event, new FindCallback<Comments>() {
+            @Override
+            public void done(List<Comments> retrievedComments, ParseException e) {
+                tvCommentsCount.setText(retrievedComments.size() + "");
+            }
+        });
+    }
+
+    @Override
+    public void onRestart() {
+        super.onRestart();
+        updateCommentsCount();
     }
 
 }

@@ -7,6 +7,7 @@ import com.parse.Parse;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseInstallation;
 import com.parse.ParseObject;
+import com.stridera.connectivitycreations.flashmob.models.Comments;
 import com.stridera.connectivitycreations.flashmob.models.FlashUser;
 import com.stridera.connectivitycreations.flashmob.models.Flashmob;
 
@@ -26,6 +27,7 @@ public class FlashmobApplication extends Application {
         // Register ParseObject Subclasses
         ParseObject.registerSubclass(Flashmob.class);
         ParseObject.registerSubclass(FlashUser.class);
+        ParseObject.registerSubclass(Comments.class);
 
         // Initialize!
         Parse.initialize(this,

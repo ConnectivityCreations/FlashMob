@@ -9,18 +9,18 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.stridera.connectivitycreations.flashmob.R;
-
-// TODO: Replace this with our own custom Comment model. Not even sure what this is.
-import org.w3c.dom.Comment;
+import com.stridera.connectivitycreations.flashmob.models.Comments;
 
 import java.util.List;
 
-public class CommentsAdapter extends ArrayAdapter<Comment> {
+// TODO: Replace this with our own custom Comment model. Not even sure what this is.
+
+public class CommentsAdapter extends ArrayAdapter<Comments> {
 
     private final Context context;
-    private final List<Comment> comments;
+    private final List<Comments> comments;
 
-    public CommentsAdapter(Context context, List<Comment> comments) {
+    public CommentsAdapter(Context context, List<Comments> comments) {
         super(context, android.R.layout.simple_list_item_1, comments);
         this.context = context;
         this.comments = comments;
@@ -29,7 +29,7 @@ public class CommentsAdapter extends ArrayAdapter<Comment> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         // Get the data item for this position
-        Comment comment = getItem(position);
+        Comments comment = getItem(position);
 
         // Check if we are using a recycled view, if not we need to inflate
         if (convertView == null) {
@@ -46,7 +46,7 @@ public class CommentsAdapter extends ArrayAdapter<Comment> {
         // Clear out the views if it was recycled (right away)
         ivCommenterProfilePicture.setImageResource(0);
         tvCommenterName.setText("");
-        tvComment.setText("");
+        tvComment.setText(comment.getCommentText());
         tvCommentCreatedTime.setText("");
 
         // Fill in the views
