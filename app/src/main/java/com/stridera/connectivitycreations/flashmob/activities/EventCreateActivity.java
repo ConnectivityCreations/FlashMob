@@ -4,7 +4,13 @@ import android.app.Activity;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.location.*;
+import android.graphics.drawable.Drawable;
+import android.location.Address;
+import android.location.Criteria;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -17,10 +23,28 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.*;
-import com.google.android.gms.maps.*;
-import com.google.android.gms.maps.model.*;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.TimePicker;
+import android.widget.Toast;
+
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.parse.GetCallback;
 import com.parse.ParseException;
+import com.parse.ParseFile;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 import com.stridera.connectivitycreations.flashmob.FlashmobApplication;
 import com.stridera.connectivitycreations.flashmob.R;
 import com.stridera.connectivitycreations.flashmob.models.Flashmob;
@@ -35,6 +59,9 @@ import java.util.Locale;
 
 
 public class EventCreateActivity extends AppCompatActivity {
+
+  public static final String EVENT_ID = "event_id";
+  public static final String SHOW_DETAILS_POST_SAVE = "show_details_post_save";
 
   private static final int PICK_PHOTO_CODE = 1;
   private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 2;
@@ -70,6 +97,34 @@ public class EventCreateActivity extends AppCompatActivity {
     initLocation();
     initMap();
     initLocationEditText();
+    initData();
+  }
+
+  private void initData() {
+    String eventId = getIntent().getStringExtra(EVENT_ID);
+    if (eventId == null) {
+      return;
+    }
+
+    Flashmob.getInBackground(eventId, new GetCallback<Flashmob>() {
+      @Override
+      public void done(Flashmob flashmob, ParseException e) {
+        if (e == null) {
+          ParseFile imageFile = flashmob.getImage();
+          if (imageFile != null) {
+            setEventImage(imageFile.getUrl());
+          }
+          setData(new EventCreateData(flashmob, data.userLocation));
+          nameEditText.setText(flashmob.getTitle());
+          setTextView(minAttendeesEditText, flashmob.getMinAttendees());
+          setTextView(maxAttendeesEditText, flashmob.getMaxAttendees());
+        } else {
+          Log.e(TAG, "Error retrieving the event", e);
+          Toast.makeText(EventCreateActivity.this, "Unable to load your event", Toast.LENGTH_LONG);
+          finish();
+        }
+      }
+    });
   }
 
   private void initLocationEditText() {
@@ -92,7 +147,7 @@ public class EventCreateActivity extends AppCompatActivity {
         googleMap.animateCamera(cameraUpdate);
         updateEventLocation();
         googleMap.getUiSettings().setScrollGesturesEnabled(false);
-        googleMap.setMyLocationEnabled(true);
+        googleMap.getUiSettings().setZoomControlsEnabled(true);
       }
     });
   }
@@ -141,9 +196,7 @@ public class EventCreateActivity extends AppCompatActivity {
   @Override
   protected void onRestoreInstanceState(Bundle savedInstanceState) {
     super.onRestoreInstanceState(savedInstanceState);
-    this.data = new EventCreateData(savedInstanceState);
-    updatePhotoImageView();
-    updateTimeTextViews();
+    setData(new EventCreateData(savedInstanceState));
   }
 
   private void updateTimeTextViews() {
@@ -188,6 +241,13 @@ public class EventCreateActivity extends AppCompatActivity {
     photoImageView.setImageBitmap(data.eventImage);
   }
 
+  public void setData(EventCreateData data) {
+    this.data = data;
+    updatePhotoImageView();
+    updateTimeTextViews();
+    updateEventLocation();
+  }
+
   private void setEventLocation(Address address, LatLng latLng) {
     if ((address == null) || (latLng == null)) {
       return;
@@ -213,6 +273,22 @@ public class EventCreateActivity extends AppCompatActivity {
     }
 
     return false;
+  }
+
+  private void setEventImage(String url) {
+    Picasso.with(EventCreateActivity.this).load(url).into(new Target() {
+      @Override
+      public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+        setEventImage(bitmap);
+      }
+
+      @Override
+      public void onBitmapFailed(Drawable errorDrawable) {
+      }
+
+      @Override
+      public void onPrepareLoad(Drawable placeHolderDrawable) {}
+    });
   }
 
   public void setEventImage(Bitmap bitmap) {
@@ -281,9 +357,11 @@ public class EventCreateActivity extends AppCompatActivity {
       public void onSuccess(Flashmob event) {
         progressItem.setVisible(false);
         finish();
-        Intent i = new Intent(EventCreateActivity.this, EventDetailsActivity.class);
-        i.putExtra(EventDetailsActivity.EVENT_ID, event.getObjectId());
-        startActivity(i);
+        if (getIntent().getBooleanExtra(SHOW_DETAILS_POST_SAVE, true)) {
+          Intent i = new Intent(EventCreateActivity.this, EventDetailsActivity.class);
+          i.putExtra(EventDetailsActivity.EVENT_ID, event.getObjectId());
+          startActivity(i);
+        }
       }
 
       @Override
@@ -358,8 +436,9 @@ public class EventCreateActivity extends AppCompatActivity {
 
   public void onClickStartTimeTextView(View view) {
     final Calendar now = Calendar.getInstance();
-    int hour = now.get(Calendar.HOUR_OF_DAY);
-    int minute = now.get(Calendar.MINUTE);
+    Calendar initialDisplayTime = data.startTime == null ? now : data.startTime;
+    int hour = initialDisplayTime.get(Calendar.HOUR_OF_DAY);
+    int minute = initialDisplayTime.get(Calendar.MINUTE);
 
     showTimeDialog(hour, minute, new TimePickerDialog.OnTimeSetListener() {
       @Override
@@ -401,5 +480,9 @@ public class EventCreateActivity extends AppCompatActivity {
       String timeStr = DateFormat.getTimeFormat(this).format(time.getTime());
       timeTextView.setText(timeStr);
     }
+  }
+
+  private void setTextView(TextView numberTextView, Integer number) {
+    numberTextView.setText(number == null ? "" : number + "");
   }
 }

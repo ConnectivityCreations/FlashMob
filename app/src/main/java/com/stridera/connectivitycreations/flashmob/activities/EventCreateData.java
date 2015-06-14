@@ -1,11 +1,15 @@
 package com.stridera.connectivitycreations.flashmob.activities;
 
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.os.Bundle;
 import com.google.android.gms.maps.model.LatLng;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
+import com.stridera.connectivitycreations.flashmob.R;
 import com.stridera.connectivitycreations.flashmob.models.Flashmob;
 import com.stridera.connectivitycreations.flashmob.utils.LocationHelper;
 import com.stridera.connectivitycreations.flashmob.utils.TimeHelper;
@@ -26,8 +30,18 @@ public class EventCreateData {
   Calendar startTime = null;
   Calendar endTime = null;
   Bitmap eventImage = null;
+  String eventId = null;
 
   public EventCreateData() {}
+
+  public EventCreateData(Flashmob flashmob, LatLng userLocation) {
+    eventLatLng = flashmob.getLocationLatLong();
+    eventAddress = flashmob.getAddress();
+    startTime = getCalendar(flashmob.getEventDate());
+    endTime = getCalendar(flashmob.getEventEnd());
+    this.userLocation = userLocation;
+    eventId = flashmob.getObjectId();
+  }
 
   public EventCreateData(Bundle savedInstanceState) {
     eventLatLng = savedInstanceState.getParcelable("event_location");
@@ -67,7 +81,8 @@ public class EventCreateData {
     Date when = startTime == null ? null : startTime.getTime();
     Date end = endTime == null ? null : endTime.getTime();
 
-    final Flashmob event = new Flashmob(title, eventImage, when, end, minAttendees, maxAttendees, location, eventAddress);
+    final Flashmob event = eventId == null ? new Flashmob() : Flashmob.createWithoutData(Flashmob.class, eventId);
+    event.set(title, eventImage, when, end, minAttendees, maxAttendees, location, eventAddress);
     event.saveInBackground(new com.parse.SaveCallback() {
       @Override
       public void done(com.parse.ParseException e) {
@@ -101,5 +116,14 @@ public class EventCreateData {
       return cal;
     }
     return null;
+  }
+
+  static Calendar getCalendar(Date time) {
+    if (time == null) {
+      return null;
+    }
+    Calendar cal = new GregorianCalendar();
+    cal.setTime(time);
+    return cal;
   }
 }

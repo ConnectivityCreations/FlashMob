@@ -31,6 +31,9 @@ public class Flashmob extends ParseObject {
 
     public static final int DEFAULT_DURATION = 60;
     public static final int QUERY_LIMIT = 20;
+  public static final String EVENT_END = "eventEnd";
+  public static final String MIN_ATTENDEES = "minAttendees";
+  public static final String MAX_ATTENDEES = "maxAttendees";
 
     // Constructor
 
@@ -41,6 +44,10 @@ public class Flashmob extends ParseObject {
     public Flashmob(String title, Bitmap image, Date when, Date end, Integer min_attendees, Integer max_attendees, ParseGeoPoint location, String address) {
         super();
 
+        set(title, image, when, end, min_attendees, max_attendees, location, address);
+    }
+
+    public void set(String title, Bitmap image, Date when, Date end, Integer min_attendees, Integer max_attendees, ParseGeoPoint location, String address) {
         if (image != null) {
           ByteArrayOutputStream stream = new ByteArrayOutputStream();
           image.compress(Bitmap.CompressFormat.JPEG, 100, stream);
@@ -62,12 +69,12 @@ public class Flashmob extends ParseObject {
           calendar.add(Calendar.MINUTE, DEFAULT_DURATION);
           end = calendar.getTime();
         }
-        put("eventEnd", end);
+        put(EVENT_END, end);
         if (min_attendees != null) {
-          put("minAttendees", min_attendees);
+          put(MIN_ATTENDEES, min_attendees);
         }
         if (max_attendees != null) {
-          put("maxAttendees", max_attendees);
+          put(MAX_ATTENDEES, max_attendees);
         }
         put("location", location);
         put("address", address);
@@ -87,16 +94,16 @@ public class Flashmob extends ParseObject {
         return (FlashUser) get("owner");
     }
 
-    public int getDuration() {
-        return getInt("duration");
+    public Date getEventEnd() {
+      return getDate(EVENT_END);
     }
 
-    public int getMinAttendees() {
-        return getInt("minAttendees");
+    public Integer getMinAttendees() {
+        return has(MIN_ATTENDEES) ? getInt(MIN_ATTENDEES) : null;
     }
 
-    public int getMaxAttendees() {
-        return getInt("maxAttendees");
+    public Integer getMaxAttendees() {
+        return has(MAX_ATTENDEES) ? getInt(MAX_ATTENDEES) : null;
     }
 
     public List<FlashUser> getAttendees() {

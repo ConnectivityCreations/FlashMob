@@ -22,6 +22,7 @@ import com.parse.ParseGeoPoint;
 import com.squareup.picasso.Picasso;
 import com.stridera.connectivitycreations.flashmob.R;
 import com.stridera.connectivitycreations.flashmob.models.Flashmob;
+import com.stridera.connectivitycreations.flashmob.utils.TimeHelper;
 
 import java.util.List;
 
@@ -120,7 +121,8 @@ public class StreamAdapter extends ArrayAdapter<Flashmob> {
         }
         viewHolder.tvTitle.setText(flashmob.getTitle());
         viewHolder.tvAddress.setText(flashmob.getAddress());
-        viewHolder.tvTimes.setText(String.format("%s for %s m", flashmob.getEventDate().toString(), flashmob.getDuration()));
+        Integer duration = TimeHelper.getDurationInMinutes(flashmob.getEventDate(), flashmob.getEventEnd());
+        viewHolder.tvTimes.setText(String.format("%s for %s m", flashmob.getEventDate().toString(), duration));
 
         if (userLocation != null) {
             double distance = flashmob.getLocation().distanceInMilesTo(new ParseGeoPoint(userLocation.latitude, userLocation.longitude));
