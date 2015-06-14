@@ -28,4 +28,6 @@
   <string name="loading">Loading...</string>
   <string name="openDrawer">Open</string>
   <string name="closeDrawer">Close</string>
+
+  <string name="comment_button_text">Enter</string>
 </resources>

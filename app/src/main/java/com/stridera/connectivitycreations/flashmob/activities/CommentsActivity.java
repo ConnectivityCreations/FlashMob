@@ -4,6 +4,9 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 
 import com.stridera.connectivitycreations.flashmob.models.Flashmob;
@@ -21,6 +24,10 @@ public class CommentsActivity extends ActionBarActivity {
     private ArrayList<Comment> comments;
     private CommentsAdapter aComments;
 
+    private Button btnCommentSubmit;
+    private EditText etComment;
+    private ListView lvComments;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,9 +35,10 @@ public class CommentsActivity extends ActionBarActivity {
 
         comments = new ArrayList<>();
         aComments = new CommentsAdapter(this, comments);
-        ListView lvComments = (ListView) findViewById(R.id.lvComments);
+        lvComments = (ListView) findViewById(R.id.lvComments);
         lvComments.setAdapter(aComments);
 
+        setupViews();
         // TODO: Fetch the data to populate the ListView
     }
 
@@ -56,5 +64,17 @@ public class CommentsActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    public void setupViews() {
+        btnCommentSubmit = (Button) findViewById(R.id.btnSubmitComment);
+        btnCommentSubmit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // TODO: Submit the comment
+                etComment.setText("");
+                aComments.notifyDataSetChanged();
+            }
+        });
 
+        etComment = (EditText) findViewById(R.id.etComment);
+    }
 }
