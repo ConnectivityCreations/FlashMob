@@ -132,6 +132,21 @@ public class Flashmob extends ParseObject {
         return getDate("eventAt");
     }
 
+    public void leave() {
+        ArrayList<ParseUser> user = new ArrayList<>();
+        user.add(ParseUser.getCurrentUser());
+        this.removeAll("attendees", user);
+        this.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                Log.d("Blah", "Object saved.");
+                if (e != null) {
+                    Log.d("Blah", e.toString());
+                }
+            }
+        });
+    }
+
     public void join() {
         this.add("attendees", FlashUser.getCurrentUser());
         this.saveInBackground(new SaveCallback() {
