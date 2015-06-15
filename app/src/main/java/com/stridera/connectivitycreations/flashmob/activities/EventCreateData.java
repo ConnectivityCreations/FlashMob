@@ -10,13 +10,16 @@ import com.parse.ParseGeoPoint;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.stridera.connectivitycreations.flashmob.R;
+import com.stridera.connectivitycreations.flashmob.models.Category;
 import com.stridera.connectivitycreations.flashmob.models.Flashmob;
 import com.stridera.connectivitycreations.flashmob.utils.LocationHelper;
 import com.stridera.connectivitycreations.flashmob.utils.TimeHelper;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 public class EventCreateData {
   public interface SaveCallback {
@@ -31,6 +34,7 @@ public class EventCreateData {
   Calendar endTime = null;
   Bitmap eventImage = null;
   String eventId = null;
+  List<Category> categories = new ArrayList<>();
 
   public EventCreateData() {}
 
@@ -66,6 +70,10 @@ public class EventCreateData {
   }
 
   public void saveFlashmob(String title, Integer minAttendees, Integer maxAttendees, final SaveCallback callback) {
+    if (!categories.isEmpty()) {
+      callback.onFailure(null, "Saving categories not implemented");
+      return;
+    }
     if (title.isEmpty()) {
       callback.onFailure(null, "Event name is required");
       return;

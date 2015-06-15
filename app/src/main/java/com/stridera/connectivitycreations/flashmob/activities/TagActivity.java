@@ -26,6 +26,7 @@ import java.util.List;
 public class TagActivity extends AppCompatActivity {
 
   private static final String TAG = TagActivity.class.getSimpleName();
+  public static final String CATEGORIES = "categories";
 
   EditText categoryEditText;
   CategoryFragment categoryFragment;

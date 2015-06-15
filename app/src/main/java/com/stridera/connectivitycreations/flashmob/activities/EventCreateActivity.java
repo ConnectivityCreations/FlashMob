@@ -25,6 +25,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -66,6 +67,7 @@ public class EventCreateActivity extends AppCompatActivity {
 
   private static final int PICK_PHOTO_CODE = 1;
   private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 2;
+  private static final int CATEGORIES_REQUEST_CODE = 3;
   private static final String TAG = EventCreateActivity.class.getSimpleName();
 
   private GoogleMap googleMap;
@@ -100,6 +102,17 @@ public class EventCreateActivity extends AppCompatActivity {
     initLocationEditText();
     boolean newEvent = initData();
     initToolbar(newEvent);
+    initCategories();
+  }
+
+  private void initCategories() {
+    FrameLayout categoryFrameLayout = (FrameLayout) findViewById(R.id.categoryFrameLayout);
+    categoryFrameLayout.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        onCategoriesClick();
+      }
+    });
   }
 
   private void initToolbar(boolean newEvent) {
@@ -129,7 +142,7 @@ public class EventCreateActivity extends AppCompatActivity {
           setTextView(maxAttendeesEditText, flashmob.getMaxAttendees());
         } else {
           Log.e(TAG, "Error retrieving the event", e);
-          Toast.makeText(EventCreateActivity.this, "Unable to load your event", Toast.LENGTH_LONG);
+          Toast.makeText(EventCreateActivity.this, "Unable to load your event", Toast.LENGTH_LONG).show();
           finish();
         }
       }
@@ -484,6 +497,16 @@ public class EventCreateActivity extends AppCompatActivity {
         data.endTime = time;
       }
     });
+  }
+
+  public void onCategoriesClick() {
+    Intent intent = new Intent(this, TagActivity.class);
+    String[] categoriesIds = new String[data.categories.size()];
+    for (int i = 0; i < data.categories.size(); i++) {
+      categoriesIds[i] = data.categories.get(i).getObjectId();
+    }
+    intent.putExtra(TagActivity.CATEGORIES, categoriesIds);
+    startActivityForResult(intent, CATEGORIES_REQUEST_CODE);
   }
 
   private void showTimeDialog(int hour, int minute, TimePickerDialog.OnTimeSetListener listener) {

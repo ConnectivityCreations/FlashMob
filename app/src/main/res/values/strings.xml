@@ -35,4 +35,5 @@
 
   <!-- Category picker activity -->
   <string name="title_activity_tag">Select Categories</string>
+  <string name="categories">Categories</string>
 </resources>
