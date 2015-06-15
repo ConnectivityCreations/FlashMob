@@ -38,14 +38,14 @@
             android:theme="@android:style/Theme.Translucent.NoTitleBar" >
           <intent-filter>
             <action android:name="android.intent.action.MAIN" />
+
             <category android:name="android.intent.category.LAUNCHER" />
           </intent-filter>
         </activity>
         <activity
             android:name=".activities.LoginActivity"
             android:label="@string/title_activity_login" />
-        <activity
-            android:name=".activities.EventCreateActivity">
+        <activity android:name=".activities.EventCreateActivity" >
         </activity>
 
         <!-- This is used for the facebook Login -->
@@ -66,6 +66,10 @@
         <activity
             android:name=".activities.CommentsActivity"
             android:label="@string/title_activity_event_comments" />
+        <activity
+            android:name=".activities.TagActivity"
+            android:label="@string/title_activity_tag" >
+        </activity>
     </application>
 
 </manifest>

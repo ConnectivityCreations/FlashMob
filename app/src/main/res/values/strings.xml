@@ -32,4 +32,7 @@
   <string name="no_items_found">No Flashmobs found. Go start one!</string>
   <string name="cityorzip">City or Zip</string>
   <string name="edit_filters">Edit Filters</string>
+
+  <!-- Category picker activity -->
+  <string name="title_activity_tag">Select Categories</string>
 </resources>
