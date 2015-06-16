@@ -1,6 +1,8 @@
 package com.stridera.connectivitycreations.flashmob.fragments;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
@@ -16,6 +18,9 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.LocationSource;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
@@ -26,21 +31,43 @@ import com.stridera.connectivitycreations.flashmob.models.Flashmob;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StreamListFragment extends Fragment {
+public class StreamListFragment extends Fragment implements LocationSource.OnLocationChangedListener {
     private static final String LOG_TAG = "FlashmobStreamFragList";
     private static final int VIEW_ALL_ITEMS = 0;
     private static final int VIEW_MY_ITEMS = 1;
+    private static final String SEARCH_RADIUS = "SearchRadius";
+    private static final String SEARCH_LOCATION = "SearchLocation";
+    private static final int DEFAULT_SEARCH_RADIUS = 20;
+    private static final int DEFAULT_MAX_SEARCH_RADIUS = 100;
 
     private OnItemSelectedListener listener;
+
+    GoogleApiClient googleApiClient;
+
     TextView tvNoItemsFound;
     ProgressBar pbLoading;
     TabLayout tlTabs;
 
     private int current_view = VIEW_ALL_ITEMS;
+    private Location searchLocation;
+    private int searchRadius;
 
     // Called from the activity whenever it wants us to update date... for example on item created
     public void update() {
         getUpcomingEvents();
+    }
+    public void updatePrefs() {
+        getPrefs();
+        getUpcomingEvents();
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        float distance = location.distanceTo(searchLocation);
+        if (distance > 1.0f) {
+            searchLocation = location;
+            getUpcomingEvents();
+        }
     }
 
     public interface OnItemSelectedListener {
@@ -50,8 +77,6 @@ public class StreamListFragment extends Fragment {
     ArrayAdapter<Flashmob> arrayAdapter;
     ArrayList<Flashmob> items;
     SwipeRefreshLayout swipeRefreshLayout;
-
-    ParseGeoPoint point = new ParseGeoPoint(37.4020619, -122.1144424);
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -97,7 +122,13 @@ public class StreamListFragment extends Fragment {
 
         tvNoItemsFound = (TextView) view.findViewById(R.id.tvNoItems);
         pbLoading = (ProgressBar) view.findViewById(R.id.pbStreamProgress);
+        pbLoading.setVisibility(View.VISIBLE);
+
         tlTabs = (TabLayout) view.findViewById(R.id.streamTabs);
+
+        buildGoogleApiClient();
+
+        getPrefs();
 
         setupTabs();
 
@@ -106,9 +137,39 @@ public class StreamListFragment extends Fragment {
         return view;
     }
 
+    protected synchronized void buildGoogleApiClient() {
+        googleApiClient = new GoogleApiClient.Builder(getActivity())
+                .addApi(LocationServices.API)
+                .build();
+    }
+
+    private void getPrefs() {
+        SharedPreferences settings = getActivity().getSharedPreferences("Settings", 0);
+        String savedLocation = settings.getString(SEARCH_LOCATION, "");
+        int savedRadius = settings.getInt(SEARCH_RADIUS, DEFAULT_SEARCH_RADIUS);
+
+        if (savedLocation.isEmpty()) {
+            Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+            if (lastLocation == null) {
+                searchLocation = new Location("Saved");
+                searchLocation.setLongitude(37.4020619);
+                searchLocation.setLongitude(-122.1144424);
+//                LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, new LocationRequest(), this);
+            } else {
+                searchLocation = lastLocation;
+                getUpcomingEvents();
+            }
+        } else {
+            // TODO: Search for location
+        }
+
+        searchRadius = savedRadius;
+    }
+
     private void setupTabs() {
         tlTabs.addTab(tlTabs.newTab().setText("All Flashmobs"));
         tlTabs.addTab(tlTabs.newTab().setText("My Flashmobs"));
+        tlTabs.setTabMode(TabLayout.MODE_FIXED);
         tlTabs.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -149,9 +210,9 @@ public class StreamListFragment extends Fragment {
 
 
     private void getUpcomingEvents() {
-        pbLoading.setVisibility(View.VISIBLE);
         if (current_view == VIEW_MY_ITEMS) {
             Log.d(LOG_TAG, "Loading My Items");
+
             Flashmob.findMyItemsInBackground(
                     new FindCallback<Flashmob>() {
                         @Override
@@ -167,8 +228,8 @@ public class StreamListFragment extends Fragment {
         } else {
             Log.d(LOG_TAG, "Loading Nearby Items");
             Flashmob.findNearbyEventsInBackground(
-                    this.point,
-                    100,
+                    new ParseGeoPoint(searchLocation.getLatitude(), searchLocation.getLongitude()),
+                    searchRadius,
                     new FindCallback<Flashmob>() {
                         @Override
                         public void done(List<Flashmob> list, ParseException e) {

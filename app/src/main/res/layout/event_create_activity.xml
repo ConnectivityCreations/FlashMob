@@ -120,7 +120,7 @@
         <org.droidparts.widget.ClearableEditText
             android:layout_width="40dp"
             android:layout_height="wrap_content"
-            android:id="@+id/maxAttendeesEditText"
+            android:id="@+id/cetLocation"
             android:hint="@string/maximum"
             android:singleLine="true"
             android:inputType="number"

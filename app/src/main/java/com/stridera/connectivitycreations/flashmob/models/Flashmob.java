@@ -31,9 +31,12 @@ public class Flashmob extends ParseObject {
 
     public static final int DEFAULT_DURATION = 60;
     public static final int QUERY_LIMIT = 20;
-  public static final String EVENT_END = "eventEnd";
-  public static final String MIN_ATTENDEES = "minAttendees";
-  public static final String MAX_ATTENDEES = "maxAttendees";
+    public static final String EVENT_NAME = "name";
+    public static final String EVENT_OWNER = "owner";
+    public static final String EVENT_IMAGE = "image";
+    public static final String EVENT_END = "eventEnd";
+    public static final String MIN_ATTENDEES = "minAttendees";
+    public static final String MAX_ATTENDEES = "maxAttendees";
 
     // Constructor
 
@@ -83,19 +86,15 @@ public class Flashmob extends ParseObject {
 
     // Accessor Methods
     public String getTitle() {
-        return getString("name");
+        return getString(EVENT_NAME);
     }
 
     public ParseFile getImage() {
-        return getParseFile("image");
+        return getParseFile(EVENT_IMAGE);
     }
 
     public FlashUser getOwner() {
-        return (FlashUser) get("owner");
-    }
-
-    public Date getEventEnd() {
-      return getDate(EVENT_END);
+        return (FlashUser) get(EVENT_OWNER);
     }
 
     public Integer getMinAttendees() {
@@ -128,8 +127,35 @@ public class Flashmob extends ParseObject {
         return getString("address");
     }
 
+    public Date getEventEnd() {
+        return getDate(EVENT_END);
+    }
+
     public Date getEventDate() {
         return getDate("eventAt");
+    }
+
+    public String getEventDurationString() {
+
+        long duration = getEventEnd().getTime() - getEventDate().getTime();
+        int minutes = Math.round(duration / 60000);
+        int hours = 0;
+
+        while (minutes >= 60) {
+            hours++;
+            minutes -= 60;
+        }
+
+        String result;
+        if (hours > 0)
+            if (minutes == 0)
+                result = String.format("%d hours", hours);
+            else
+                result = String.format("%d hours, %d minutes", hours, minutes);
+        else
+            result = String.format("%d minutes", minutes);
+
+        return result;
     }
 
     public void leave() {
@@ -175,10 +201,7 @@ public class Flashmob extends ParseObject {
 
     @Override
     public String toString() {
-      StringBuilder stringBuilder = new StringBuilder(getTitle()).append("\n")
-          .append(getAddress()).append("\n")
-          .append(getEventDate());
-      return stringBuilder.toString();
+        return getTitle() + "\n" + getAddress() + "\n" + getEventDate();
     }
 
     // Static Accessors

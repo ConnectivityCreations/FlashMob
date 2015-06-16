@@ -22,7 +22,6 @@ import com.parse.ParseGeoPoint;
 import com.squareup.picasso.Picasso;
 import com.stridera.connectivitycreations.flashmob.R;
 import com.stridera.connectivitycreations.flashmob.models.Flashmob;
-import com.stridera.connectivitycreations.flashmob.utils.TimeHelper;
 
 import java.util.List;
 
@@ -119,17 +118,18 @@ public class StreamAdapter extends ArrayAdapter<Flashmob> {
         } else {
           viewHolder.ivImage.setImageBitmap(null);
         }
+
         viewHolder.tvTitle.setText(flashmob.getTitle());
         viewHolder.tvAddress.setText(flashmob.getAddress());
-        Integer duration = TimeHelper.getDurationInMinutes(flashmob.getEventDate(), flashmob.getEventEnd());
-        viewHolder.tvTimes.setText(String.format("%s for %s m", flashmob.getEventDate().toString(), duration));
+        viewHolder.tvTimes.setText(String.format("%s for %s", flashmob.getEventDate().toString(), flashmob.getEventDurationString()));
 
         if (userLocation != null) {
             double distance = flashmob.getLocation().distanceInMilesTo(new ParseGeoPoint(userLocation.latitude, userLocation.longitude));
-            viewHolder.tvDistance.setText(String.format("%.2f mi", distance)); // TODO: Compute these.
+            viewHolder.tvDistance.setText(String.format("%.2f mi", distance));
         } else {
             viewHolder.tvDistance.setText("");
         }
+
         viewHolder.tvTimeTo.setReferenceTime(flashmob.getEventDate().getTime());
 
         return convertView;

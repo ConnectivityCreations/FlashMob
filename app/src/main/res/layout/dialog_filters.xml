@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/filterLayout"
+    android:paddingLeft="25dp"
+    android:paddingTop="25dp"
+    android:paddingRight="25dp">
+
+    <Switch
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Use Current Location: "
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:id="@+id/sUseCurrentLocation"
+        android:layout_below="@+id/txtFilters"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:checked="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Specify Location:"
+        style="@style/Base.TextAppearance.AppCompat.Medium"
+        android:id="@+id/tvFilterLocation"
+        android:layout_marginTop="25dp"
+        android:layout_below="@+id/sUseCurrentLocation"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <org.droidparts.widget.ClearableEditText
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/cetLocation"
+        android:hint="@string/cityorzip"
+        android:singleLine="true"
+        android:layout_marginTop="10dp"
+
+        android:layout_weight="1"
+        android:layout_alignBaseline="@+id/tvFilterLocation"
+        android:layout_alignBottom="@+id/tvFilterLocation"
+        android:layout_toRightOf="@+id/tvFilterLocation"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="10 mi"
+        android:layout_marginTop="10dp"
+        android:id="@+id/tvDistance"
+        android:layout_below="@+id/cetLocation"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignBottom="@+id/sbDistance"
+        android:gravity="center_vertical" />
+
+
+    <SeekBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/sbDistance"
+        android:layout_below="@+id/tvFilterLocation"
+        android:layout_toRightOf="@+id/tvDistance"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:indeterminate="false"
+        android:layout_marginTop="25dp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Save"
+        android:id="@+id/btnSave"
+        android:layout_toRightOf="@+id/space"
+        android:layout_alignTop="@+id/space"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <Space
+        android:layout_width="20px"
+        android:layout_height="20px"
+        android:layout_below="@+id/sbDistance"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/space"
+        android:layout_marginTop="25dp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cancel"
+        android:id="@+id/btnCancel"
+        android:layout_alignTop="@+id/space"
+        android:layout_toLeftOf="@+id/space"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+</RelativeLayout>

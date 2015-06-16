@@ -91,7 +91,7 @@ public class EventCreateActivity extends AppCompatActivity {
     endTimeTextView = (TextView) findViewById(R.id.endTimeTextView);
     nameEditText = (EditText) findViewById(R.id.nameEditText);
     minAttendeesEditText = (EditText) findViewById(R.id.minAttendeesEditText);
-    maxAttendeesEditText = (EditText) findViewById(R.id.maxAttendeesEditText);
+    maxAttendeesEditText = (EditText) findViewById(R.id.cetLocation);
     photoImageView = (ImageView) findViewById(R.id.photoImageView);
 
     // init all the things

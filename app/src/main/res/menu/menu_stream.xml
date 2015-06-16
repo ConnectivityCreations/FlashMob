@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.stridera.connectivitycreations.flashmob.activities.StreamActivity">
 
+    <item android:id="@+id/action_set_filters" android:title="Set Filters" android:icon="@drawable/ic_action_filters" app:showAsAction="ifRoom" />
+
     <item android:id="@+id/action_map_view" android:title="Show Map" android:icon="@drawable/ic_action_mapview" app:showAsAction="always" />
     <item android:id="@+id/action_list_view" android:title="Show List" android:icon="@drawable/ic_action_listview" app:showAsAction="always" android:visible="false" />
 

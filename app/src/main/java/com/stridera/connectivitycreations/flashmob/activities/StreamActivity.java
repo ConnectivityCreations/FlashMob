@@ -10,6 +10,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -23,13 +24,14 @@ import com.parse.ParseGeoPoint;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.stridera.connectivitycreations.flashmob.R;
+import com.stridera.connectivitycreations.flashmob.fragments.FiltersDialog;
 import com.stridera.connectivitycreations.flashmob.fragments.StreamListFragment;
 import com.stridera.connectivitycreations.flashmob.fragments.StreamMapFragment;
 import com.stridera.connectivitycreations.flashmob.models.Flashmob;
 
 import java.util.Date;
 
-public class StreamActivity extends AppCompatActivity implements StreamListFragment.OnItemSelectedListener {
+public class StreamActivity extends AppCompatActivity implements StreamListFragment.OnItemSelectedListener, FiltersDialog.FiltersChangedListener {
     private static final String LOG_TAG = "FlashmobStreamActivity";
 
     // Fragment State
@@ -162,6 +164,9 @@ public class StreamActivity extends AppCompatActivity implements StreamListFragm
             startListView();
         } else if (id == R.id.action_settings) {
             return true;
+        } else if (id == R.id.action_set_filters) {
+            set_filters();
+            return true;
         } else if (id == R.id.action_add_test_data) {
             Date now = new Date();
             Date inTwoHours = new Date(now.getTime() + (1000 * 60 * 60 * 2));
@@ -177,7 +182,7 @@ public class StreamActivity extends AppCompatActivity implements StreamListFragm
             ).saveInBackground(new SaveCallback() {
                 @Override
                 public void done(ParseException e) {
-                    updateFrament();
+                    updateFrament(false);
                 }
             });
 
@@ -187,9 +192,23 @@ public class StreamActivity extends AppCompatActivity implements StreamListFragm
         return super.onOptionsItemSelected(item);
     }
 
-    private void updateFrament() {
+    private void set_filters() {
+        FragmentManager fm = getSupportFragmentManager();
+        FiltersDialog editFiltersDialog = new FiltersDialog();
+        editFiltersDialog.show(fm, "edit_filters_dialog");
+    }
+
+    @Override
+    public void onFiltersChanged() {
+        updateFrament(true);
+    }
+
+    private void updateFrament(boolean prefsUpdated) {
         if (current_view == VIEW_LIST)
-            ((StreamListFragment) fragment).update();
+            if (prefsUpdated)
+                ((StreamListFragment) fragment).updatePrefs();
+            else
+                ((StreamListFragment) fragment).update();
         else
             ((StreamMapFragment) fragment).update();
     }
@@ -205,16 +224,16 @@ public class StreamActivity extends AppCompatActivity implements StreamListFragm
 
             @Override
             public void onStatusChanged(String provider, int status, Bundle extras) {
-          }
-
-          @Override
-          public void onProviderEnabled(String provider) {
-          }
+            }
 
             @Override
-          public void onProviderDisabled(String provider) {
-          }
-      }, null);
+            public void onProviderEnabled(String provider) {
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+            }
+        }, null);
     }
 
 
@@ -237,4 +256,5 @@ public class StreamActivity extends AppCompatActivity implements StreamListFragm
         i.putExtra("event_id", flashmob_id);
         startActivity(i);
     }
+
 }
