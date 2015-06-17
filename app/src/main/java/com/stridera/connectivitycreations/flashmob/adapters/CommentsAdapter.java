@@ -8,12 +8,11 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
 import com.stridera.connectivitycreations.flashmob.R;
 import com.stridera.connectivitycreations.flashmob.models.Comments;
 
 import java.util.List;
-
-// TODO: Replace this with our own custom Comment model. Not even sure what this is.
 
 public class CommentsAdapter extends ArrayAdapter<Comments> {
 
@@ -46,14 +45,18 @@ public class CommentsAdapter extends ArrayAdapter<Comments> {
         // Clear out the views if it was recycled (right away)
         ivCommenterProfilePicture.setImageResource(0);
         tvCommenterName.setText("");
-        tvComment.setText(comment.getCommentText());
+        tvComment.setText("");
         tvCommentCreatedTime.setText("");
 
         // Fill in the views
-        // TODO: Fill in the image of the commenter
-        // TODO: Fill in the commenter's name
-        // TODO: Fill in the comment's text
-        // TODO: Fill in the comment's created time
+        Picasso.with(getContext())
+                .load(comment.getOwner().getAvatarURL())
+                .placeholder(R.mipmap.ic_launcher)
+                .error(R.mipmap.ic_launcher)
+                .into(ivCommenterProfilePicture);
+        tvCommenterName.setText(comment.getOwner().getName());
+        tvComment.setText(comment.getCommentText());
+        tvCommentCreatedTime.setText(comment.getRelativeTimeAgo() + "");
 
         return convertView;
     }
