@@ -146,6 +146,7 @@ public class EventCreateActivity extends AppCompatActivity {
           nameEditText.setText(flashmob.getTitle());
           setTextView(minAttendeesEditText, flashmob.getMinAttendees());
           setTextView(maxAttendeesEditText, flashmob.getMaxAttendees());
+          updateCategories();
         } else {
           Log.e(TAG, "Error retrieving the event", e);
           Toast.makeText(EventCreateActivity.this, "Unable to load your event", Toast.LENGTH_LONG).show();
@@ -226,6 +227,10 @@ public class EventCreateActivity extends AppCompatActivity {
   protected void onRestoreInstanceState(Bundle savedInstanceState) {
     super.onRestoreInstanceState(savedInstanceState);
     setData(new EventCreateData(savedInstanceState));
+  }
+
+  private void updateCategories() {
+    categoryFragment.setSelectedCategories(data.categories);
   }
 
   private void updateTimeTextViews() {
@@ -338,6 +343,11 @@ public class EventCreateActivity extends AppCompatActivity {
     setTextView(startTimeTextView, time);
   }
 
+  private void setCategories(List<Category> categories) {
+    data.categories = categories;
+    updateCategories();
+  }
+
   private void onLocationEditTextChanged(final String locationName) {
     new AsyncTask<Void, Void, Address>() {
       @Override
@@ -445,8 +455,7 @@ public class EventCreateActivity extends AppCompatActivity {
           Toast.makeText(EventCreateActivity.this, msg, Toast.LENGTH_LONG).show();
           return;
         }
-
-        categoryFragment.setSelectedCategories(list);
+        setCategories(list);
       }
     });
   }

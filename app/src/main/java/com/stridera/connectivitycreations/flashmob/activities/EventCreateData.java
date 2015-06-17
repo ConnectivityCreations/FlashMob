@@ -45,6 +45,14 @@ public class EventCreateData {
     endTime = getCalendar(flashmob.getEventEnd());
     this.userLocation = userLocation;
     eventId = flashmob.getObjectId();
+    categories = new ArrayList<>(flashmob.getCategories());
+    try {
+      for (Category category : categories) {
+          category.fetchIfNeeded();
+      }
+    } catch (ParseException e) {
+      e.printStackTrace();
+    }
   }
 
   public EventCreateData(Bundle savedInstanceState) {
@@ -70,10 +78,6 @@ public class EventCreateData {
   }
 
   public void saveFlashmob(String title, Integer minAttendees, Integer maxAttendees, final SaveCallback callback) {
-    if (!categories.isEmpty()) {
-      callback.onFailure(null, "Saving categories not implemented");
-      return;
-    }
     if (title.isEmpty()) {
       callback.onFailure(null, "Event name is required");
       return;

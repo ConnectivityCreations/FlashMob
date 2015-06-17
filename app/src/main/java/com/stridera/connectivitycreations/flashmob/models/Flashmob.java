@@ -32,6 +32,7 @@ public class Flashmob extends ParseObject {
     public static final String EVENT_END = "eventEnd";
     public static final String MIN_ATTENDEES = "minAttendees";
     public static final String MAX_ATTENDEES = "maxAttendees";
+    public static final String CATEGORIES = "categories";
 
     // Constructor
 
@@ -98,7 +99,7 @@ public class Flashmob extends ParseObject {
         if (categories == null) {
             categories = new ArrayList<>();
         }
-        put("categories", categories);
+        put(CATEGORIES, categories);
     }
 
     // Accessor Methods
@@ -128,6 +129,15 @@ public class Flashmob extends ParseObject {
             return new ArrayList<>();
         } else {
             return attendees;
+        }
+    }
+
+    public List<Category> getCategories() {
+        List<Category> categories = getList(CATEGORIES);
+        if (categories == null) {
+            return new ArrayList<>();
+        } else {
+            return categories;
         }
     }
 

@@ -41,6 +41,9 @@ public class Category extends ParseObject {
 
   @Override
   public int hashCode() {
+    if (getObjectId() != null) {
+      return getObjectId().hashCode();
+    }
     return getName().hashCode();
   }
 
