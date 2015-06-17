@@ -106,7 +106,7 @@ public class EventCreateActivity extends AppCompatActivity {
     initLocation();
     initMap();
     initLocationEditText();
-    boolean newEvent = initData();
+    boolean newEvent = initData(savedInstanceState);
     initToolbar(newEvent);
     initCategories();
   }
@@ -128,17 +128,19 @@ public class EventCreateActivity extends AppCompatActivity {
     setSupportActionBar(toolbar);
   }
 
-  private boolean initData() {
+  private boolean initData(Bundle savedInstanceState) {
     String eventId = getIntent().getStringExtra(EVENT_ID);
     if (eventId == null) {
       return true;
+    } else if (savedInstanceState != null) {
+      return false;
     }
 
     Flashmob.getInBackground(eventId, new GetCallback<Flashmob>() {
       @Override
       public void done(Flashmob flashmob, ParseException e) {
         if (e == null) {
-          setData(new EventCreateData(flashmob, data.userLocation));
+          setData(EventCreateData.fromFlashmob(flashmob, data.userLocation));
           ParseFile imageFile = flashmob.getImage();
           if (imageFile != null) {
             setEventImage(imageFile.getUrl());
@@ -146,7 +148,6 @@ public class EventCreateActivity extends AppCompatActivity {
           nameEditText.setText(flashmob.getTitle());
           setTextView(minAttendeesEditText, flashmob.getMinAttendees());
           setTextView(maxAttendeesEditText, flashmob.getMaxAttendees());
-          updateCategories();
         } else {
           Log.e(TAG, "Error retrieving the event", e);
           Toast.makeText(EventCreateActivity.this, "Unable to load your event", Toast.LENGTH_LONG).show();
@@ -226,7 +227,7 @@ public class EventCreateActivity extends AppCompatActivity {
   @Override
   protected void onRestoreInstanceState(Bundle savedInstanceState) {
     super.onRestoreInstanceState(savedInstanceState);
-    setData(new EventCreateData(savedInstanceState));
+    setData(EventCreateData.fromBundle(savedInstanceState));
   }
 
   private void updateCategories() {
@@ -280,6 +281,7 @@ public class EventCreateActivity extends AppCompatActivity {
     updatePhotoImageView();
     updateTimeTextViews();
     updateEventLocation();
+    updateCategories();
   }
 
   private void setEventLocation(Address address, LatLng latLng) {
