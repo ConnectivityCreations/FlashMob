@@ -178,7 +178,8 @@ public class StreamActivity extends AppCompatActivity implements StreamListFragm
                     2,
                     4,
                     new ParseGeoPoint(37.4020619, -122.1144424),
-                    "Box 4440 El Camino Real Los Altos, CA 94022"
+                    "Box 4440 El Camino Real Los Altos, CA 94022",
+                    null
             ).saveInBackground(new SaveCallback() {
                 @Override
                 public void done(ParseException e) {

@@ -16,12 +16,7 @@ import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * The base class for all flashmobs.
@@ -37,6 +32,7 @@ public class Flashmob extends ParseObject {
     public static final String EVENT_END = "eventEnd";
     public static final String MIN_ATTENDEES = "minAttendees";
     public static final String MAX_ATTENDEES = "maxAttendees";
+    public static final String CATEGORIES = "categories";
 
     // Constructor
 
@@ -44,13 +40,31 @@ public class Flashmob extends ParseObject {
         super();
     }
 
-    public Flashmob(String title, Bitmap image, Date when, Date end, Integer min_attendees, Integer max_attendees, ParseGeoPoint location, String address) {
+    public Flashmob(
+            String title,
+            Bitmap image,
+            Date when,
+            Date end,
+            Integer min_attendees,
+            Integer max_attendees,
+            ParseGeoPoint location,
+            String address,
+            Collection<Category> categories) {
         super();
 
-        set(title, image, when, end, min_attendees, max_attendees, location, address);
+        set(title, image, when, end, min_attendees, max_attendees, location, address, categories);
     }
 
-    public void set(String title, Bitmap image, Date when, Date end, Integer min_attendees, Integer max_attendees, ParseGeoPoint location, String address) {
+    public void set(
+            String title,
+            Bitmap image,
+            Date when,
+            Date end,
+            Integer min_attendees,
+            Integer max_attendees,
+            ParseGeoPoint location,
+            String address,
+            Collection<Category> categories) {
         if (image != null) {
           ByteArrayOutputStream stream = new ByteArrayOutputStream();
           image.compress(Bitmap.CompressFormat.JPEG, 100, stream);
@@ -82,6 +96,10 @@ public class Flashmob extends ParseObject {
         put("location", location);
         put("address", address);
         put("owner", ParseUser.getCurrentUser());
+        if (categories == null) {
+            categories = new ArrayList<>();
+        }
+        put(CATEGORIES, categories);
     }
 
     // Accessor Methods
@@ -111,6 +129,15 @@ public class Flashmob extends ParseObject {
             return new ArrayList<>();
         } else {
             return attendees;
+        }
+    }
+
+    public List<Category> getCategories() {
+        List<Category> categories = getList(CATEGORIES);
+        if (categories == null) {
+            return new ArrayList<>();
+        } else {
+            return categories;
         }
     }
 

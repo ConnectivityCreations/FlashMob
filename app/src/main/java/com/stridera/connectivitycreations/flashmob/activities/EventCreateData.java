@@ -10,13 +10,16 @@ import com.parse.ParseGeoPoint;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.stridera.connectivitycreations.flashmob.R;
+import com.stridera.connectivitycreations.flashmob.models.Category;
 import com.stridera.connectivitycreations.flashmob.models.Flashmob;
 import com.stridera.connectivitycreations.flashmob.utils.LocationHelper;
 import com.stridera.connectivitycreations.flashmob.utils.TimeHelper;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 public class EventCreateData {
   public interface SaveCallback {
@@ -31,6 +34,7 @@ public class EventCreateData {
   Calendar endTime = null;
   Bitmap eventImage = null;
   String eventId = null;
+  List<Category> categories = new ArrayList<>();
 
   public EventCreateData() {}
 
@@ -41,6 +45,14 @@ public class EventCreateData {
     endTime = getCalendar(flashmob.getEventEnd());
     this.userLocation = userLocation;
     eventId = flashmob.getObjectId();
+    categories = new ArrayList<>(flashmob.getCategories());
+    try {
+      for (Category category : categories) {
+          category.fetchIfNeeded();
+      }
+    } catch (ParseException e) {
+      e.printStackTrace();
+    }
   }
 
   public EventCreateData(Bundle savedInstanceState) {
@@ -82,7 +94,7 @@ public class EventCreateData {
     Date end = endTime == null ? null : endTime.getTime();
 
     final Flashmob event = eventId == null ? new Flashmob() : Flashmob.createWithoutData(Flashmob.class, eventId);
-    event.set(title, eventImage, when, end, minAttendees, maxAttendees, location, eventAddress);
+    event.set(title, eventImage, when, end, minAttendees, maxAttendees, location, eventAddress, categories);
     event.saveInBackground(new com.parse.SaveCallback() {
       @Override
       public void done(com.parse.ParseException e) {

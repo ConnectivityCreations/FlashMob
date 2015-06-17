@@ -96,6 +96,29 @@
       <LinearLayout
           android:layout_width="fill_parent"
           android:layout_height="wrap_content"
+          android:layout_gravity="top"
+          android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/categories"
+            style="@style/Base.TextAppearance.AppCompat.Medium"
+            android:padding="3dp"/>
+        <FrameLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:id="@+id/categoryFrameLayout">
+          <fragment
+              android:name="com.stridera.connectivitycreations.flashmob.fragments.CategoryFragment"
+              android:id="@+id/categoryFragment"
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content"/>
+        </FrameLayout>
+      </LinearLayout>
+      <LinearLayout
+          android:layout_width="fill_parent"
+          android:layout_height="wrap_content"
           android:gravity="center_vertical">
         <TextView
             android:layout_width="wrap_content"

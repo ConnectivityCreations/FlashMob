@@ -50,4 +50,10 @@ dependencies {
     compile 'com.github.curioustechizen.android-ago:library:1.3.0'
 
     compile 'org.droidparts:droidparts:2.7.4'
+
+    // StringUtils
+    compile 'org.apache.commons:commons-lang3:3.0'
+
+    // FlowLayout
+    compile 'org.apmem.tools:layouts:1.9@aar'
 }
