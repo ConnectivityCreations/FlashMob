@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
@@ -21,6 +22,7 @@ import com.stridera.connectivitycreations.flashmob.adapters.CategorySuggestionAd
 import com.stridera.connectivitycreations.flashmob.fragments.CategoryFragment;
 import com.stridera.connectivitycreations.flashmob.models.Category;
 
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -46,7 +48,23 @@ public class TagActivity extends AppCompatActivity {
     initToolbar();
     initEditText();
     initSuggestionsListView();
+    initCategoryFragment();
     displayDefaultSuggestions();
+  }
+
+  private void initCategoryFragment() {
+    Category.findInBackground(Arrays.asList(getIntent().getStringArrayExtra(CATEGORIES)), new FindCallback<Category>() {
+      @Override
+      public void done(List<Category> list, ParseException e) {
+        if (e != null) {
+          String msg = "Error retrieving categories";
+          Log.e(TAG, msg, e);
+          Toast.makeText(TagActivity.this, msg, Toast.LENGTH_LONG).show();
+          return;
+        }
+        categoryFragment.setSelectedCategories(list);
+      }
+    });
   }
 
   private void initSuggestionsListView() {
@@ -144,6 +162,7 @@ public class TagActivity extends AppCompatActivity {
   }
 
   private void addCategory(Category item) {
+    if (item.isDirty()) item.saveInBackground();
     categoryFragment.add(item);
   }
 }

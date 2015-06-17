@@ -26,6 +26,11 @@ public class CategoryFragment extends Fragment {
     return view;
   }
 
+  private void clear() {
+    selectedCategories.clear();
+    categoryFlowLayout.removeAllViews();
+  }
+
   public void add(Category item) {
     selectedCategories.add(item);
     TextView categoryTextView = new TextView(getActivity());
@@ -38,6 +43,7 @@ public class CategoryFragment extends Fragment {
   }
 
   public void setSelectedCategories(List<Category> selectedCategories) {
+    clear();
     for (Category category : selectedCategories) {
       add(category);
     }
