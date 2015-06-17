@@ -6,17 +6,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 import com.stridera.connectivitycreations.flashmob.R;
 import com.stridera.connectivitycreations.flashmob.models.Category;
-
 import org.apmem.tools.layouts.FlowLayout;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
 
 public class CategoryFragment extends Fragment {
   FlowLayout categoryFlowLayout;
-  HashSet<Category> selectedCategories = new HashSet<>();
+  LinkedHashSet<Category> selectedCategories = new LinkedHashSet<>();
 
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -32,5 +31,15 @@ public class CategoryFragment extends Fragment {
     TextView categoryTextView = new TextView(getActivity());
     categoryTextView.setText(item.getName());
     categoryFlowLayout.addView(categoryTextView);
+  }
+
+  public LinkedHashSet<Category> getSelectedCategories() {
+    return this.selectedCategories;
+  }
+
+  public void setSelectedCategories(List<Category> selectedCategories) {
+    for (Category category : selectedCategories) {
+      add(category);
+    }
   }
 }

@@ -42,6 +42,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
@@ -49,12 +50,15 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.stridera.connectivitycreations.flashmob.FlashmobApplication;
 import com.stridera.connectivitycreations.flashmob.R;
+import com.stridera.connectivitycreations.flashmob.fragments.CategoryFragment;
+import com.stridera.connectivitycreations.flashmob.models.Category;
 import com.stridera.connectivitycreations.flashmob.models.Flashmob;
 import com.stridera.connectivitycreations.flashmob.utils.CameraHelper;
 import com.stridera.connectivitycreations.flashmob.utils.LocationHelper;
 import com.stridera.connectivitycreations.flashmob.utils.TimeHelper;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
@@ -78,6 +82,7 @@ public class EventCreateActivity extends AppCompatActivity {
   private EditText minAttendeesEditText;
   private EditText maxAttendeesEditText;
   private ImageView photoImageView;
+  private CategoryFragment categoryFragment;
   private Marker locationMarker;
   private MenuItem progressItem;
   private EventCreateData data = new EventCreateData();
@@ -95,6 +100,7 @@ public class EventCreateActivity extends AppCompatActivity {
     minAttendeesEditText = (EditText) findViewById(R.id.minAttendeesEditText);
     maxAttendeesEditText = (EditText) findViewById(R.id.cetLocation);
     photoImageView = (ImageView) findViewById(R.id.photoImageView);
+    categoryFragment = (CategoryFragment) getSupportFragmentManager().findFragmentById(R.id.categoryFragment);
 
     // init all the things
     initLocation();
@@ -413,13 +419,36 @@ public class EventCreateActivity extends AppCompatActivity {
       return;
     }
 
-    if (requestCode == PICK_PHOTO_CODE) {
-      onPhotoPicked(activityData);
-    } else if (requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE) {
-      onPhotoTaken();
-    } else {
-      Log.w(TAG, "Unhandled result code: " + resultCode);
+    switch(requestCode) {
+      case PICK_PHOTO_CODE: {
+        onPhotoPicked(activityData);
+      } break;
+      case CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE: {
+        onPhotoTaken();
+      } break;
+      case CATEGORIES_REQUEST_CODE: {
+        onCategoriesPicked(activityData);
+      } break;
+      default: {
+        Log.w(TAG, "Unhandled result code: " + resultCode);
+      } break;
     }
+  }
+
+  private void onCategoriesPicked(Intent activityData) {
+    Category.findInBackground(Arrays.asList(activityData.getStringArrayExtra(TagActivity.CATEGORIES)), new FindCallback<Category>() {
+      @Override
+      public void done(List<Category> list, ParseException e) {
+        if (e != null) {
+          String msg = "Error retrieving categories";
+          Log.e(TAG, msg, e);
+          Toast.makeText(EventCreateActivity.this, msg, Toast.LENGTH_LONG).show();
+          return;
+        }
+
+        categoryFragment.setSelectedCategories(list);
+      }
+    });
   }
 
   public void onAttachPhoto(View btn) {

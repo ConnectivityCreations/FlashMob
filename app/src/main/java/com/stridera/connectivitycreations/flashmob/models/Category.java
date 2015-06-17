@@ -1,15 +1,9 @@
 package com.stridera.connectivitycreations.flashmob.models;
 
-import com.parse.FindCallback;
-import com.parse.GetCallback;
-import com.parse.ParseClassName;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
-
+import com.parse.*;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.List;
+import java.util.Collection;
 
 @ParseClassName("Categories")
 public class Category extends ParseObject {
@@ -62,6 +56,13 @@ public class Category extends ParseObject {
     ParseQuery<Category> query = ParseQuery.getQuery(Category.class);
     query.whereEqualTo(NAME, sanitizeCategoryName(name));
     query.getFirstInBackground(callback);
+  }
+
+  public static void findInBackground(Collection<String> ids, final FindCallback<Category> callback) {
+    ParseQuery<Category> query = ParseQuery.getQuery(Category.class);
+    query.whereContainedIn("objectId", ids);
+
+    query.findInBackground(callback);
   }
 
   public static String sanitizeCategoryName(String name) {

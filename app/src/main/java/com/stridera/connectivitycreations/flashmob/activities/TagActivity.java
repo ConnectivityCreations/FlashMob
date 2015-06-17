@@ -1,5 +1,6 @@
 package com.stridera.connectivitycreations.flashmob.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -7,11 +8,11 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
-
 import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
@@ -20,6 +21,7 @@ import com.stridera.connectivitycreations.flashmob.adapters.CategorySuggestionAd
 import com.stridera.connectivitycreations.flashmob.fragments.CategoryFragment;
 import com.stridera.connectivitycreations.flashmob.models.Category;
 
+import java.util.LinkedHashSet;
 import java.util.List;
 
 
@@ -86,6 +88,29 @@ public class TagActivity extends AppCompatActivity {
     // Inflate the menu; this adds items to the action bar if it is present.
     getMenuInflater().inflate(R.menu.menu_tag, menu);
     return true;
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    if (item.getItemId() == R.id.action_done) {
+      onSave();
+    }
+
+    return super.onOptionsItemSelected(item);
+  }
+
+  private void onSave() {
+    Intent data = new Intent();
+    LinkedHashSet<Category> categories = categoryFragment.getSelectedCategories();
+    String[] categoryIds = new String[categories.size()];
+    int i = 0;
+    for (Category category : categories) {
+      categoryIds[i] = category.getObjectId();
+      i++;
+    }
+    data.putExtra(CATEGORIES, categoryIds);
+    setResult(RESULT_OK, data);
+    finish();
   }
 
   private void updateSuggestions() {
