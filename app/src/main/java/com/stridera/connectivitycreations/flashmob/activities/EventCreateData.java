@@ -90,7 +90,7 @@ public class EventCreateData {
     Date end = endTime == null ? null : endTime.getTime();
 
     final Flashmob event = eventId == null ? new Flashmob() : Flashmob.createWithoutData(Flashmob.class, eventId);
-    event.set(title, eventImage, when, end, minAttendees, maxAttendees, location, eventAddress);
+    event.set(title, eventImage, when, end, minAttendees, maxAttendees, location, eventAddress, categories);
     event.saveInBackground(new com.parse.SaveCallback() {
       @Override
       public void done(com.parse.ParseException e) {
