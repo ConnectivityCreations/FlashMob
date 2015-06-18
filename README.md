@@ -66,4 +66,10 @@ the following are **bonus** features:
 Wireframes for the project can be found [here](https://stridera.app.box.com/s/bbqp6b94msx8bql0g2i189rl8piw9cbi).
 
 ## Core Flows Walkthrough
+End of Sprint 2
+
 ![Core Flows](http://i.imgur.com/IC8rmwK.gif)
+
+End of Sprint 3
+
+![Core Flows](Flashmob_Walkthrough.gif)
