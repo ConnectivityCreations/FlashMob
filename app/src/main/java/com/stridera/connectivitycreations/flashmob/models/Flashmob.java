@@ -33,6 +33,7 @@ public class Flashmob extends ParseObject {
     public static final String MIN_ATTENDEES = "minAttendees";
     public static final String MAX_ATTENDEES = "maxAttendees";
     public static final String CATEGORIES = "categories";
+    private static final String TAG = Flashmob.class.getSimpleName();
 
     // Constructor
 
@@ -246,10 +247,32 @@ public class Flashmob extends ParseObject {
         return query;
     }
 
+    public static void getMostLocalInBackground(final String objectId, final GetCallback<Flashmob> callback) {
+        getInBackground(objectId, true, new GetCallback<Flashmob>() {
+            @Override
+            public void done(Flashmob flashmob, ParseException e) {
+                if (flashmob != null) {
+                    callback.done(flashmob, e);
+                    return;
+                }
+
+                getInBackground(objectId, false, callback);
+            }
+        });
+    }
+
     public static void getInBackground(final String objectId,
+                                       final GetCallback<Flashmob> callback) {
+        getInBackground(objectId, false, callback);
+    }
+
+    public static void getInBackground(final String objectId,
+                                       final boolean useLocalDataStore,
                                        final GetCallback<Flashmob> callback) {
 
         ParseQuery<Flashmob> query = Flashmob.createQuery();
+        if (useLocalDataStore) query = query.fromLocalDatastore();
+        Log.d(TAG, "Fetching from " + (useLocalDataStore ? "local" : "remote") + " datastore");
         query.whereEqualTo("objectId", objectId);
         query.findInBackground(new FindCallback<Flashmob>() {
             @Override
@@ -262,7 +285,7 @@ public class Flashmob extends ParseObject {
                                 ParseException.OBJECT_NOT_FOUND,
                                 "No flashmob with id " + objectId + " was found."));
                     } else {
-                        callback.done(objects.get(0), e);
+                        objects.get(0).fetchIfNeededInBackground(callback);
                     }
                 } else {
                     callback.done(null, e);
