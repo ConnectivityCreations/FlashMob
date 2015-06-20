@@ -174,13 +174,19 @@ public class Flashmob extends ParseObject {
         }
 
         String result;
+        String hourPlural = "";
+        String minutePlural = "";
+
+        if (minutes > 1) minutePlural = "s";
+        if (hours > 1) hourPlural = "s";
+
         if (hours > 0)
             if (minutes == 0)
-                result = String.format("%d hours", hours);
+                result = String.format("%d hour%s", hours, hourPlural);
             else
-                result = String.format("%d hours, %d minutes", hours, minutes);
+                result = String.format("%d hour%s, %d minute%s", hours, hourPlural, minutes, minutePlural);
         else
-            result = String.format("%d minutes", minutes);
+            result = String.format("%d minute%s", minutes, minutePlural);
 
         return result;
     }

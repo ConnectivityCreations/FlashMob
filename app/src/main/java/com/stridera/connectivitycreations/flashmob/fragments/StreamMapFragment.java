@@ -34,6 +34,7 @@ import com.parse.ParseGeoPoint;
 import com.stridera.connectivitycreations.flashmob.R;
 import com.stridera.connectivitycreations.flashmob.models.Flashmob;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class StreamMapFragment extends Fragment implements
@@ -52,6 +53,7 @@ public class StreamMapFragment extends Fragment implements
     private long FASTEST_INTERVAL = 5000; /* 5 secs */
 
     String flashmob_id;
+    ArrayList<String> mapped_ids;
 
     // newInstance constructor for creating fragment with arguments
     public static StreamMapFragment newInstance(String flashmob_id) {
@@ -71,6 +73,7 @@ public class StreamMapFragment extends Fragment implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mapped_ids = new ArrayList<>();
     }
 
     @Override
@@ -229,13 +232,18 @@ public class StreamMapFragment extends Fragment implements
 
                         map.clear();
                         for (Flashmob flashmob : list) {
-                            Marker marker = map.addMarker(new MarkerOptions()
-                                    .position(flashmob.getLocationLatLong())
-                                    .title(flashmob.getTitle())
-                                    .snippet(flashmob.getEventDate().toString())
-                                    .icon(defaultMarker));
-                            dropPinEffect(marker);
-                            Log.d("blah", "Added marker for " + flashmob.getTitle());
+                                Marker marker = map.addMarker(new MarkerOptions()
+                                        .position(flashmob.getLocationLatLong())
+                                        .title(flashmob.getTitle())
+                                        .snippet(flashmob.getEventDate().toString())
+                                        .icon(defaultMarker));
+                            if (!mapped_ids.contains(flashmob.getObjectId())) {
+                                dropPinEffect(marker);
+                                mapped_ids.add(flashmob.getObjectId());
+                                Log.d("blah", "Added marker for " + flashmob.getTitle());
+                            } else {
+                                Log.d("blah", "Skipped marker for " + flashmob.getTitle());
+                            }
                         }
                     }
                 });

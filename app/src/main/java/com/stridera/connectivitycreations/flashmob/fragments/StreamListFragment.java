@@ -17,8 +17,11 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.LocationSource;
 import com.parse.FindCallback;
@@ -139,6 +142,7 @@ public class StreamListFragment extends Fragment implements LocationSource.OnLoc
 
     protected synchronized void buildGoogleApiClient() {
         googleApiClient = new GoogleApiClient.Builder(getActivity())
+                .addConnectionCallbacks(connectionCallbacks)
                 .addApi(LocationServices.API)
                 .build();
     }
@@ -152,15 +156,12 @@ public class StreamListFragment extends Fragment implements LocationSource.OnLoc
             Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
             if (lastLocation == null) {
                 searchLocation = new Location("Saved");
-                searchLocation.setLongitude(37.4020619);
+                searchLocation.setLatitude(37.4020619);
                 searchLocation.setLongitude(-122.1144424);
-//                LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, new LocationRequest(), this);
             } else {
                 searchLocation = lastLocation;
                 getUpcomingEvents();
             }
-        } else {
-            // TODO: Search for location
         }
 
         searchRadius = savedRadius;
@@ -224,7 +225,6 @@ public class StreamListFragment extends Fragment implements LocationSource.OnLoc
                             swipeRefreshLayout.setRefreshing(false);
                         }
                     });
-            // Only items owned/accepted
         } else {
             Log.d(LOG_TAG, "Loading Nearby Items");
             Flashmob.findNearbyEventsInBackground(
@@ -249,4 +249,39 @@ public class StreamListFragment extends Fragment implements LocationSource.OnLoc
         else
             tvNoItemsFound.setVisibility(View.VISIBLE);
     }
+
+    GoogleApiClient.ConnectionCallbacks connectionCallbacks = new GoogleApiClient.ConnectionCallbacks() {
+        @Override
+        public void onConnected(Bundle bundle) {
+            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, new LocationRequest(), locationListener);
+        }
+
+        @Override
+        public void onConnectionSuspended(int i) {
+
+        }
+    };
+
+    LocationListener locationListener = new LocationListener() {
+        public void onLocationChanged(Location location) {
+            if (location.distanceTo(searchLocation) > 1) {
+                Toast.makeText(getActivity(), "Location Updated", Toast.LENGTH_SHORT).show();
+                searchLocation = location;
+                getUpcomingEvents();
+                saveLocation();
+            }
+        }
+
+        public void onStatusChanged(String provider, int status, Bundle extras) {}
+
+        public void onProviderEnabled(String provider) {}
+
+        public void onProviderDisabled(String provider) {}
+    };
+
+
+    private void saveLocation() {
+//        SharedPreferences.Editor editor =
+    }
+
 }
