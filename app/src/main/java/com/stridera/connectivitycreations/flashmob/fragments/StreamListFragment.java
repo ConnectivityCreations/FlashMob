@@ -115,6 +115,7 @@ public class StreamListFragment extends Fragment implements LocationSource.OnLoc
             }
         });
 
+
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeContainer);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override

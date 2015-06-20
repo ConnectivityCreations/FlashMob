@@ -195,7 +195,7 @@ public class StreamMapFragment extends Fragment implements
                     // Post this event again 15ms from now.
                     handler.postDelayed(this, 15);
                 } else { // done elapsing, show window
-                    marker.showInfoWindow();
+//                    marker.showInfoWindow();
                 }
             }
         });
@@ -230,14 +230,13 @@ public class StreamMapFragment extends Fragment implements
                                         BitmapDescriptorFactory.HUE_GREEN
                                 );
 
-                        map.clear();
                         for (Flashmob flashmob : list) {
+                            if (!mapped_ids.contains(flashmob.getObjectId())) {
                                 Marker marker = map.addMarker(new MarkerOptions()
                                         .position(flashmob.getLocationLatLong())
                                         .title(flashmob.getTitle())
                                         .snippet(flashmob.getEventDate().toString())
                                         .icon(defaultMarker));
-                            if (!mapped_ids.contains(flashmob.getObjectId())) {
                                 dropPinEffect(marker);
                                 mapped_ids.add(flashmob.getObjectId());
                                 Log.d("blah", "Added marker for " + flashmob.getTitle());

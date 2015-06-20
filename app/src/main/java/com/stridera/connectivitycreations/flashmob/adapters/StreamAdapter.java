@@ -82,7 +82,7 @@ public class StreamAdapter extends ArrayAdapter<Flashmob> {
             viewHolder = new ViewHolder();
             viewHolder.rlCard = (RelativeLayout) convertView.findViewById(R.id.rlCard);
             viewHolder.ivImage = (ImageView) convertView.findViewById(R.id.ivImage);
-            viewHolder.tvTitle = (TextView) convertView.findViewById(R.id.tvDrawerItemTitle);
+            viewHolder.tvTitle = (TextView) convertView.findViewById(R.id.tvStreamTitle);
             viewHolder.tvAddress = (TextView) convertView.findViewById(R.id.tvAddress);
             viewHolder.tvTimes = (TextView) convertView.findViewById(R.id.tvTimes);
             viewHolder.tvDistance = (TextView) convertView.findViewById(R.id.tvDistance);
