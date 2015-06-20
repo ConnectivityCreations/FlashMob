@@ -72,7 +72,7 @@ public class StreamAdapter extends ArrayAdapter<Flashmob> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder viewHolder;
+        final ViewHolder viewHolder;
         Flashmob flashmob = getItem(position);
 
         if (convertView == null) {
@@ -81,7 +81,7 @@ public class StreamAdapter extends ArrayAdapter<Flashmob> {
 
             viewHolder = new ViewHolder();
             viewHolder.rlCard = (RelativeLayout) convertView.findViewById(R.id.rlCard);
-            viewHolder.ivImage = (ImageView) convertView.findViewById(R.id.ivImage);
+            viewHolder.ivImage = (ImageView) convertView.findViewById(R.id.ivStreamImage);
             viewHolder.tvTitle = (TextView) convertView.findViewById(R.id.tvStreamTitle);
             viewHolder.tvAddress = (TextView) convertView.findViewById(R.id.tvAddress);
             viewHolder.tvTimes = (TextView) convertView.findViewById(R.id.tvTimes);
@@ -93,30 +93,20 @@ public class StreamAdapter extends ArrayAdapter<Flashmob> {
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        if (flashmob.isOwner()) {
-            viewHolder.rlCard.setBackgroundColor(convertView.getResources().getColor(R.color.light_red));
-        } else if (flashmob.isAttending()) {
-            viewHolder.rlCard.setBackgroundColor(convertView.getResources().getColor(R.color.light_blue));
-        } else {
-            viewHolder.rlCard.setBackgroundColor(convertView.getResources().getColor(R.color.bright_foreground_material_dark));
-        }
+//        if (flashmob.isOwner()) {
+//            viewHolder.rlCard.setBackgroundColor(convertView.getResources().getColor(R.color.light_red));
+//        } else if (flashmob.isAttending()) {
+//            viewHolder.rlCard.setBackgroundColor(convertView.getResources().getColor(R.color.light_blue));
+//        } else {
+//            viewHolder.rlCard.setBackgroundColor(convertView.getResources().getColor(R.color.bright_foreground_material_dark));
+//        }
 
         ParseFile pfImage = flashmob.getImage();
-        // TODO: Move to background.  Really slow!  No cacheing.
-//        Bitmap image = null;
-//        if (pfImage != null) {
-//            try {
-//                byte[] imageData = pfImage.getData();
-//                image = BitmapFactory.decodeByteArray(imageData, 0, imageData.length);
-//                image = Bitmap.createScaledBitmap(image, 102, 102, true);
-//            } catch (ParseException e) {
-//                e.printStackTrace();
-//            }
-//        }
         if (pfImage != null) {
-          Picasso.with(getContext()).load(pfImage.getUrl()).resize(102, 102).into(viewHolder.ivImage);
+            viewHolder.ivImage.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+            Picasso.with(getContext()).load(pfImage.getUrl()).resize(200, viewHolder.ivImage.getMeasuredWidth()).into(viewHolder.ivImage);
         } else {
-          viewHolder.ivImage.setImageBitmap(null);
+            viewHolder.ivImage.setImageBitmap(null);
         }
 
         viewHolder.tvTitle.setText(flashmob.getTitle());

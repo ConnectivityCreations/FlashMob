@@ -1,28 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" >
+
 <android.support.v7.widget.CardView
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/cvStream"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     card_view:cardCornerRadius="4dp"
-    android:layout_margin="5dp">
+    card_view:cardElevation="2dp"
+    android:layout_marginTop="18dp"
+    android:layout_marginLeft="18dp"
+    android:layout_marginRight="18dp">
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/rlCard"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
 
         <ImageView
-            android:layout_width="102dp"
-            android:layout_height="102dp"
-            android:id="@+id/ivImage"
+            android:layout_width="fill_parent"
+            android:layout_height="200dp"
+            android:id="@+id/ivStreamImage"
             android:contentDescription="Profile Image"
             android:layout_alignParentTop="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
+            android:layout_alignParentRight="true"
             android:src="@mipmap/ic_launcher"
-            android:paddingRight="10dp" />
+            android:scaleType="centerCrop" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -30,10 +40,16 @@
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="Flashmob Title"
             android:id="@+id/tvStreamTitle"
-            android:layout_alignParentTop="true"
-            android:layout_toRightOf="@+id/ivImage"
-            android:layout_toEndOf="@+id/ivImage"
-            android:layout_marginTop="10dp" />
+            android:textColor="@color/link_text_material_dark"
+            android:background="#60303030"
+            android:layout_alignBottom="@+id/ivStreamImage"
+            android:layout_alignRight="@+id/tvTimeTo"
+            android:layout_alignEnd="@+id/tvTimeTo"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentRight="true"
+            android:gravity="center|center_vertical"
+            android:padding="15dp" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -44,8 +60,7 @@
             android:singleLine="true"
             android:id="@+id/tvAddress"
             android:layout_below="@+id/tvStreamTitle"
-            android:layout_toRightOf="@+id/ivImage"
-            android:layout_toEndOf="@+id/ivImage"
+            android:layout_alignParentLeft="true"
             android:layout_toLeftOf="@+id/tvDistance"
             android:layout_toStartOf="@+id/tvDistance"
             android:layout_marginTop="8dp" />
@@ -72,9 +87,8 @@
             android:id="@+id/tvTimes"
             android:ellipsize="end"
             android:singleLine="true"
+            android:layout_alignParentLeft="true"
             android:layout_below="@+id/tvAddress"
-            android:layout_toRightOf="@+id/ivImage"
-            android:layout_toEndOf="@+id/ivImage"
             android:layout_toLeftOf="@+id/tvTimeTo"
             android:layout_toStartOf="@+id/tvTimeTo"
             android:layout_marginTop="10dp" />
@@ -94,3 +108,4 @@
     </RelativeLayout>
 
 </android.support.v7.widget.CardView>
+</FrameLayout>
