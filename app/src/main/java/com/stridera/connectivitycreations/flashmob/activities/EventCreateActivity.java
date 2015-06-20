@@ -136,7 +136,7 @@ public class EventCreateActivity extends AppCompatActivity {
       return false;
     }
 
-    Flashmob.getInBackground(eventId, new GetCallback<Flashmob>() {
+    Flashmob.getMostLocalInBackground(eventId, new GetCallback<Flashmob>() {
       @Override
       public void done(Flashmob flashmob, ParseException e) {
         if (e == null) {
@@ -174,8 +174,6 @@ public class EventCreateActivity extends AppCompatActivity {
       @Override
       public void onMapReady(GoogleMap googleMap) {
         EventCreateActivity.this.googleMap = googleMap;
-        CameraUpdate cameraUpdate = CameraUpdateFactory.zoomTo(15);
-        googleMap.animateCamera(cameraUpdate);
         updateEventLocation();
         googleMap.getUiSettings().setScrollGesturesEnabled(false);
         googleMap.getUiSettings().setZoomControlsEnabled(true);
@@ -263,7 +261,7 @@ public class EventCreateActivity extends AppCompatActivity {
     }
 
     // map camera
-    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(latLng);
+    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
     googleMap.animateCamera(cameraUpdate);
   }
 

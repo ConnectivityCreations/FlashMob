@@ -1,20 +1,17 @@
 package com.stridera.connectivitycreations.flashmob.activities;
 
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.os.Bundle;
 import android.util.Log;
+
 import com.google.android.gms.maps.model.LatLng;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
-import com.stridera.connectivitycreations.flashmob.R;
+import com.parse.SaveCallback;
 import com.stridera.connectivitycreations.flashmob.models.Category;
 import com.stridera.connectivitycreations.flashmob.models.Flashmob;
 import com.stridera.connectivitycreations.flashmob.utils.LocationHelper;
-import com.stridera.connectivitycreations.flashmob.utils.TimeHelper;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -154,12 +151,17 @@ public class EventCreateData {
     event.set(title, eventImage, when, end, minAttendees, maxAttendees, location, eventAddress, categories);
     event.saveInBackground(new com.parse.SaveCallback() {
       @Override
-      public void done(com.parse.ParseException e) {
-        if (e == null) {
-          callback.onSuccess(event);
-        } else {
-          callback.onFailure(e, "Error saving your event");
+      public void done(ParseException e) {
+        if (e != null) {
+          callback.onFailure(e, "Unable to save event");
+          return;
         }
+        event.pinInBackground(new com.parse.SaveCallback() {
+          @Override
+          public void done(ParseException e) {
+            callback.onSuccess(event);
+          }
+        });
       }
     });
   }

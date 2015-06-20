@@ -59,7 +59,7 @@ public class EventDetailsActivity extends ActionBarActivity {
         getAllViews();
 
         eventId = getIntent().getStringExtra(EVENT_ID);
-        Flashmob.getInBackground(eventId, new GetCallback<Flashmob>() {
+        Flashmob.getMostLocalInBackground(eventId, new GetCallback<Flashmob>() {
             @Override
             public void done(Flashmob flashmob, ParseException e) {
                 if (e == null) {
