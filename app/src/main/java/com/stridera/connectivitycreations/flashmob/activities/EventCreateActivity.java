@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Criteria;
@@ -23,6 +24,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -42,6 +44,9 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.melnykov.fab.FloatingActionButton;
+import com.oguzdev.circularfloatingactionmenu.library.FloatingActionMenu;
+import com.oguzdev.circularfloatingactionmenu.library.SubActionButton;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
@@ -83,6 +88,7 @@ public class EventCreateActivity extends AppCompatActivity {
   private EditText maxAttendeesEditText;
   private ImageView photoImageView;
   private CategoryFragment categoryFragment;
+  private FloatingActionButton fab;
   private Marker locationMarker;
   private MenuItem progressItem;
   private EventCreateData data = new EventCreateData();
@@ -101,6 +107,7 @@ public class EventCreateActivity extends AppCompatActivity {
     maxAttendeesEditText = (EditText) findViewById(R.id.cetLocation);
     photoImageView = (ImageView) findViewById(R.id.photoImageView);
     categoryFragment = (CategoryFragment) getSupportFragmentManager().findFragmentById(R.id.categoryFragment);
+    fab = (FloatingActionButton) findViewById(R.id.fab);
 
     // init all the things
     initLocation();
@@ -109,6 +116,76 @@ public class EventCreateActivity extends AppCompatActivity {
     boolean newEvent = initData(savedInstanceState);
     initToolbar(newEvent);
     initCategories();
+    initFAB();
+    initEventImage(newEvent);
+  }
+
+  private void initEventImage(boolean newEvent) {
+    if (!newEvent) return;
+
+    Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.default_event_image);
+    this.photoImageView.setImageBitmap(bitmap);
+  }
+
+  private void initFAB() {
+    SubActionButton.Builder itemBuilder = new SubActionButton.Builder(this);
+
+    SubActionButton attachButton = createSubActionButton(itemBuilder, R.drawable.ic_attachment_white_24dp);
+    SubActionButton cameraButton = createSubActionButton(itemBuilder, R.drawable.ic_camera_iris_white_24dp);
+
+    final FloatingActionMenu actionMenu = new FloatingActionMenu.Builder(this)
+        .addSubActionView(attachButton)
+        .addSubActionView(cameraButton)
+        .attachTo(fab)
+        .build();
+
+    actionMenu.setStateChangeListener(new FloatingActionMenu.MenuStateChangeListener() {
+      @Override
+      public void onMenuOpened(FloatingActionMenu floatingActionMenu) {
+        fab.setImageDrawable(getResources().getDrawable(R.drawable.ic_close_white_24dp));
+      }
+
+      @Override
+      public void onMenuClosed(FloatingActionMenu floatingActionMenu) {
+        fab.setImageDrawable(getResources().getDrawable(R.drawable.ic_camera_white_24dp));
+      }
+    });
+
+    attachButton.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        onAttachPhoto(v);
+        actionMenu.close(false);
+      }
+    });
+
+    cameraButton.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        onTakePhoto(v);
+        actionMenu.close(false);
+      }
+    });
+
+    findViewById(R.id.everythingOverlay).setOnTouchListener(new View.OnTouchListener() {
+      @Override
+      public boolean onTouch(View v, MotionEvent event) {
+        Log.d(TAG, v.toString() + " - " + actionMenu.isOpen());
+        if (actionMenu.isOpen()) actionMenu.close(true);
+        return false;
+      }
+    });
+  }
+
+  private SubActionButton createSubActionButton(SubActionButton.Builder itemBuilder, int id) {
+    ImageView itemIcon = new ImageView(this);
+    Drawable drawable = getResources().getDrawable(id);
+    itemIcon.setImageDrawable(drawable);
+    final float scale = getResources().getDisplayMetrics().density;
+    int pixels = (int) (56 * scale + 0.5f);
+    SubActionButton subActionButton = itemBuilder.setContentView(itemIcon).setLayoutParams(new FrameLayout.LayoutParams(pixels, pixels)).build();
+    subActionButton.setBackground(fab.getBackground());
+    return subActionButton;
   }
 
   private void initCategories() {
@@ -424,6 +501,8 @@ public class EventCreateActivity extends AppCompatActivity {
 
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent activityData) {
+    // this is needed after an activity... *shrug*
+    fab.setType(FloatingActionButton.TYPE_NORMAL);
     if (resultCode != RESULT_OK) {
       Log.d(TAG, "Ignoring activity result with code: " + resultCode);
       return;

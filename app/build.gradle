@@ -56,4 +56,8 @@ dependencies {
 
     // FlowLayout
     compile 'org.apmem.tools:layouts:1.9@aar'
+
+    // Sub-options for FAB
+    compile 'com.melnykov:floatingactionbutton:1.3.0'
+    compile 'com.oguzdev:CircularFloatingActionMenu:1.0.2'
 }
