@@ -2,6 +2,7 @@ package com.stridera.connectivitycreations.flashmob.adapters;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -17,10 +18,13 @@ import android.widget.TextView;
 
 import com.github.curioustechizen.ago.RelativeTimeTextView;
 import com.google.android.gms.maps.model.LatLng;
+import com.parse.GetCallback;
+import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseGeoPoint;
 import com.squareup.picasso.Picasso;
 import com.stridera.connectivitycreations.flashmob.R;
+import com.stridera.connectivitycreations.flashmob.activities.EventCreateActivity;
 import com.stridera.connectivitycreations.flashmob.models.Flashmob;
 
 import java.util.List;
@@ -38,6 +42,7 @@ public class StreamAdapter extends ArrayAdapter<Flashmob> {
         TextView tvTimes;
         TextView tvDistance;
         RelativeTimeTextView tvTimeTo;
+        TextView tvButton;
     }
 
     public StreamAdapter(Context context, List<Flashmob> items) {
@@ -87,19 +92,32 @@ public class StreamAdapter extends ArrayAdapter<Flashmob> {
             viewHolder.tvTimes = (TextView) convertView.findViewById(R.id.tvTimes);
             viewHolder.tvDistance = (TextView) convertView.findViewById(R.id.tvDistance);
             viewHolder.tvTimeTo = (RelativeTimeTextView) convertView.findViewById(R.id.tvTimeTo);
+            viewHolder.tvButton = (TextView) convertView.findViewById(R.id.streamButton);
 
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
-//        if (flashmob.isOwner()) {
-//            viewHolder.rlCard.setBackgroundColor(convertView.getResources().getColor(R.color.light_red));
-//        } else if (flashmob.isAttending()) {
-//            viewHolder.rlCard.setBackgroundColor(convertView.getResources().getColor(R.color.light_blue));
-//        } else {
-//            viewHolder.rlCard.setBackgroundColor(convertView.getResources().getColor(R.color.bright_foreground_material_dark));
-//        }
+        viewHolder.tvButton.setTag(flashmob.getObjectId());
+        if (flashmob.isOwner()) {
+            viewHolder.tvButton.setText("Edit");
+            viewHolder.tvButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_edit_image, 0, 0, 0);
+            viewHolder.tvButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String id = (String) v.getTag();
+                    Intent i = new Intent(context, EventCreateActivity.class);
+                    i.putExtra(EventCreateActivity.EVENT_ID, id);
+                    i.putExtra(EventCreateActivity.SHOW_DETAILS_POST_SAVE, false);
+                    context.startActivity(i);
+                }
+            });
+        } else if (flashmob.isAttending()) {
+            setupLeave(viewHolder.tvButton);
+        } else {
+            setupJoin(viewHolder.tvButton);
+        }
 
         ParseFile pfImage = flashmob.getImage();
         if (pfImage != null) {
@@ -123,6 +141,42 @@ public class StreamAdapter extends ArrayAdapter<Flashmob> {
         viewHolder.tvTimeTo.setReferenceTime(flashmob.getEventDate().getTime());
 
         return convertView;
+    }
+
+    private void setupLeave(TextView v) {
+        v.setText("Leave");
+        v.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_unjoin_image, 0, 0, 0);
+        v.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                String id = (String) v.getTag();
+                Flashmob.getInBackground(id, new GetCallback<Flashmob>() {
+                    @Override
+                    public void done(Flashmob flashmob, ParseException e) {
+                        flashmob.leave();
+                        setupJoin((TextView) v);
+                    }
+                });
+            }
+        });
+    }
+
+    private void setupJoin(TextView v) {
+        v.setText("Join");
+        v.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_join_image, 0, 0, 0);
+        v.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                String id = (String) v.getTag();
+                Flashmob.getInBackground(id, new GetCallback<Flashmob>() {
+                    @Override
+                    public void done(Flashmob flashmob, ParseException e) {
+                        flashmob.join();
+                        setupLeave((TextView) v);
+                    }
+                });
+            }
+        });
     }
 }
 
