@@ -12,10 +12,10 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     card_view:cardCornerRadius="4dp"
-    card_view:cardElevation="2dp"
-    android:layout_marginTop="18dp"
-    android:layout_marginLeft="18dp"
-    android:layout_marginRight="18dp">
+    card_view:cardElevation="5dp"
+    android:layout_marginTop="10dp"
+    android:layout_marginLeft="10dp"
+    android:layout_marginRight="10dp">
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/rlCard"
@@ -40,8 +40,8 @@
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="Flashmob Title"
             android:id="@+id/tvStreamTitle"
-            android:textColor="@color/link_text_material_dark"
-            android:background="#60303030"
+            android:textColor="#FFF"
+            android:background="#A0303030"
             android:layout_alignBottom="@+id/ivStreamImage"
             android:layout_alignRight="@+id/tvTimeTo"
             android:layout_alignEnd="@+id/tvTimeTo"
@@ -63,7 +63,8 @@
             android:layout_alignParentLeft="true"
             android:layout_toLeftOf="@+id/tvDistance"
             android:layout_toStartOf="@+id/tvDistance"
-            android:layout_marginTop="8dp" />
+            android:layout_marginTop="8dp"
+            android:layout_marginLeft="10dp"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -91,7 +92,8 @@
             android:layout_below="@+id/tvAddress"
             android:layout_toLeftOf="@+id/tvTimeTo"
             android:layout_toStartOf="@+id/tvTimeTo"
-            android:layout_marginTop="10dp" />
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"/>
 
         <com.github.curioustechizen.ago.RelativeTimeTextView
             android:id="@+id/tvTimeTo"
@@ -105,6 +107,29 @@
             android:layout_alignParentEnd="true"
             android:layout_marginRight="10dp"
             android:layout_marginEnd="10dp"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:id="@+id/streamDivider"
+            android:layout_below="@+id/tvTimes"
+            android:layout_marginTop="10dp"
+            android:background="@android:color/darker_gray" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:id="@+id/streamButton"
+            android:layout_below="@+id/streamDivider"
+            android:text="Join"
+            android:layout_alignParentLeft="true"
+            android:gravity="center_vertical"
+            android:paddingLeft="15dp"
+            android:layout_gravity="center"
+            android:textSize="@dimen/abc_text_size_title_material"
+            android:drawableLeft="@drawable/ic_join_image"
+            android:textStyle="bold" />
+
     </RelativeLayout>
 
 </android.support.v7.widget.CardView>
