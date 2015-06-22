@@ -169,4 +169,30 @@
             android:layout_centerVertical="true"/>
     </RelativeLayout>
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:id="@+id/rlMinMaxAttendees">
+
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:id="@+id/ivAttendeesIcon"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:src="@drawable/ic_attendees_image"
+            android:layout_margin="10dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="Min-Max Attendees"
+            android:id="@+id/tvMinMaxAttendees"
+            android:layout_toRightOf="@+id/ivAttendeesIcon"
+            android:layout_centerVertical="true"/>
+    </RelativeLayout>
+
 </LinearLayout>

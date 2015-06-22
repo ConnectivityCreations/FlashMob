@@ -33,6 +33,8 @@ public class EventDetailsActivity extends ActionBarActivity {
     protected ImageView ivEventDetailsImage;
     protected TextView tvEventName;
 
+    private FloatingActionButton fabJoinOrEdit;
+
     protected RelativeLayout rlAttendingViews;
     protected TextView tvAttendingCount;
 
@@ -42,10 +44,11 @@ public class EventDetailsActivity extends ActionBarActivity {
     protected TextView tvEventTime;
     protected TextView tvEventLocation;
 
+    protected RelativeLayout rlMinMaxAttendees;
+    protected TextView tvMinMaxAttendees;
+
     protected Flashmob event;
     protected String eventId;
-
-    private FloatingActionButton fabJoinOrEdit;
 
     protected ParseUser currentUser;
 
@@ -99,6 +102,8 @@ public class EventDetailsActivity extends ActionBarActivity {
         ivEventDetailsImage = (ImageView) findViewById(R.id.ivEventDetailsImage);
         tvEventName = (TextView) findViewById(R.id.tvEventName);
 
+        fabJoinOrEdit = (FloatingActionButton) findViewById(R.id.fabJoinOrEdit);
+
         rlAttendingViews = (RelativeLayout) findViewById(R.id.rlAttendingViews);
         tvAttendingCount = (TextView) findViewById(R.id.tvAttendingCount);
 
@@ -108,10 +113,8 @@ public class EventDetailsActivity extends ActionBarActivity {
         tvEventTime = (TextView) findViewById(R.id.tvEventTime);
         tvEventLocation = (TextView) findViewById(R.id.tvEventLocation);
 
-        fabJoinOrEdit = (FloatingActionButton) findViewById(R.id.fabJoinOrEdit);
-
-
-        // TODO: Display the min and max number of attendees somewhere
+        rlMinMaxAttendees = (RelativeLayout) findViewById(R.id.rlMinMaxAttendees);
+        tvMinMaxAttendees = (TextView) findViewById(R.id.tvMinMaxAttendees);
     }
 
     private void setAllViews() {
@@ -175,6 +178,23 @@ public class EventDetailsActivity extends ActionBarActivity {
                 startActivityForResult(i, 255);
             }
         });
+
+        Integer minAttendees = event.getMinAttendees();
+        Integer maxAttendees = event.getMaxAttendees();
+
+        if (minAttendees == null && maxAttendees == null) {
+            rlMinMaxAttendees.setVisibility(View.GONE);
+        } else {
+            rlMinMaxAttendees.setVisibility(View.VISIBLE);
+            if (minAttendees != null && maxAttendees != null) {
+                tvMinMaxAttendees.setText("Min: " + minAttendees + "\t\t\t" + "Max: " + maxAttendees);
+            } else if (minAttendees != null) {
+                tvMinMaxAttendees.setText("Max: " + maxAttendees);
+            } else {
+                tvMinMaxAttendees.setText("Min: " + minAttendees);
+            }
+        }
+
     }
 
     protected void displayJoinView() {
