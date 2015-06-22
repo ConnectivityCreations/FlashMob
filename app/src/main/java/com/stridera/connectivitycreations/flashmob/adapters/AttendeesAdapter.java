@@ -8,6 +8,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
 import com.stridera.connectivitycreations.flashmob.models.FlashUser;
 import com.stridera.connectivitycreations.flashmob.R;
 
@@ -44,7 +45,12 @@ public class AttendeesAdapter extends ArrayAdapter<FlashUser> {
         tvAttendeeName.setText("");
 
         // Fill in the views
-        // TODO: Fill in the image of the attendee
+        // Fill in the views
+        Picasso.with(getContext())
+                .load(attendee.getAvatarURL())
+                .placeholder(R.mipmap.ic_launcher)
+                .error(R.mipmap.ic_launcher)
+                .into(ivAttendeeProfilePicture);
         tvAttendeeName.setText(attendee.getName());
 
         return convertView;
