@@ -12,6 +12,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.melnykov.fab.FloatingActionButton;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
@@ -32,10 +33,6 @@ public class EventDetailsActivity extends ActionBarActivity {
     protected ImageView ivEventDetailsImage;
     protected TextView tvEventName;
 
-    protected RelativeLayout rlJoinOrEditViews;
-    protected ImageView ivJoinOrEditImage;
-    protected TextView tvJoinOrEditLabel;
-
     protected RelativeLayout rlAttendingViews;
     protected TextView tvAttendingCount;
 
@@ -47,6 +44,8 @@ public class EventDetailsActivity extends ActionBarActivity {
 
     protected Flashmob event;
     protected String eventId;
+
+    private FloatingActionButton fabJoinOrEdit;
 
     protected ParseUser currentUser;
 
@@ -100,10 +99,6 @@ public class EventDetailsActivity extends ActionBarActivity {
         ivEventDetailsImage = (ImageView) findViewById(R.id.ivEventDetailsImage);
         tvEventName = (TextView) findViewById(R.id.tvEventName);
 
-        rlJoinOrEditViews = (RelativeLayout) findViewById(R.id.rlJoinOrEditViews);
-        ivJoinOrEditImage = (ImageView) findViewById(R.id.ivJoinOrEditImage);
-        tvJoinOrEditLabel = (TextView) findViewById(R.id.tvJoinOrEditLabel);
-
         rlAttendingViews = (RelativeLayout) findViewById(R.id.rlAttendingViews);
         tvAttendingCount = (TextView) findViewById(R.id.tvAttendingCount);
 
@@ -112,6 +107,9 @@ public class EventDetailsActivity extends ActionBarActivity {
 
         tvEventTime = (TextView) findViewById(R.id.tvEventTime);
         tvEventLocation = (TextView) findViewById(R.id.tvEventLocation);
+
+        fabJoinOrEdit = (FloatingActionButton) findViewById(R.id.fabJoinOrEdit);
+
 
         // TODO: Display the min and max number of attendees somewhere
     }
@@ -142,16 +140,15 @@ public class EventDetailsActivity extends ActionBarActivity {
         tvEventLocation.setText(event.getAddress());
 
         if (currentUser == event.getOwner()) {
-            ivJoinOrEditImage.setImageResource(R.drawable.ic_edit_image);
-            tvJoinOrEditLabel.setText("Edit");
-            rlJoinOrEditViews.setOnClickListener(new View.OnClickListener() {
-              @Override
-              public void onClick(View view) {
-                Intent i = new Intent(EventDetailsActivity.this, EventCreateActivity.class);
-                i.putExtra(EventCreateActivity.EVENT_ID, event.getObjectId());
-                i.putExtra(EventCreateActivity.SHOW_DETAILS_POST_SAVE, false);
-                startActivity(i);
-              }
+            fabJoinOrEdit.setImageResource(R.drawable.ic_edit_image_light);
+            fabJoinOrEdit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent i = new Intent(EventDetailsActivity.this, EventCreateActivity.class);
+                    i.putExtra(EventCreateActivity.EVENT_ID, event.getObjectId());
+                    i.putExtra(EventCreateActivity.SHOW_DETAILS_POST_SAVE, false);
+                    startActivity(i);
+                }
             });
         } else {
             if (event.isAttending()) {
@@ -181,12 +178,10 @@ public class EventDetailsActivity extends ActionBarActivity {
     }
 
     protected void displayJoinView() {
-        ivJoinOrEditImage.setImageResource(R.drawable.ic_join_image);
-        tvJoinOrEditLabel.setText("Join");
-
-        rlJoinOrEditViews.setOnClickListener(new View.OnClickListener() {
+        fabJoinOrEdit.setImageResource(R.drawable.ic_join_image_light);
+        fabJoinOrEdit.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(View v) {
                 event.join();
                 updateAttendingCount();
                 displayUnjoinView();
@@ -196,16 +191,14 @@ public class EventDetailsActivity extends ActionBarActivity {
     }
 
     protected void displayUnjoinView() {
-        ivJoinOrEditImage.setImageResource(R.drawable.ic_unjoin_image);
-        tvJoinOrEditLabel.setText("Unjoin");
-
-        rlJoinOrEditViews.setOnClickListener(new View.OnClickListener() {
+        fabJoinOrEdit.setImageResource(R.drawable.ic_unjoin_image_light);
+        fabJoinOrEdit.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(View v) {
                 event.unjoin();
                 updateAttendingCount();
                 displayJoinView();
-                Toast.makeText(EventDetailsActivity.this, "Event joined!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(EventDetailsActivity.this, "Event left.", Toast.LENGTH_SHORT).show();
             }
         });
     }
