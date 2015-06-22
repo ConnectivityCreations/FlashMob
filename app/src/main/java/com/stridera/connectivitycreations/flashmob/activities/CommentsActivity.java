@@ -2,6 +2,7 @@ package com.stridera.connectivitycreations.flashmob.activities;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,7 +27,6 @@ public class CommentsActivity extends ActionBarActivity {
     public static final String EVENT_ID = "event_id";
 
     private Flashmob flashmob;
-    // TODO: Make sure to use our own custom model for Comment
     private ArrayList<Comments> comments;
     private CommentsAdapter aComments;
 
@@ -47,6 +47,7 @@ public class CommentsActivity extends ActionBarActivity {
         lvComments.setAdapter(aComments);
 
         eventId = getIntent().getStringExtra(EVENT_ID);
+        initToolbar();
         Flashmob.getInBackground(eventId, new GetCallback<Flashmob>() {
             @Override
             public void done(Flashmob fm, ParseException e) {
@@ -120,7 +121,12 @@ public class CommentsActivity extends ActionBarActivity {
                 aComments.notifyDataSetChanged();
             }
         });
+    }
 
+    private void initToolbar() {
+        Toolbar toolbar = (Toolbar) findViewById(R.id.tool_bar);
+        toolbar.setTitle("Comments");
+        setSupportActionBar(toolbar);
     }
 
 }

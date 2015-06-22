@@ -2,22 +2,19 @@ package com.stridera.connectivitycreations.flashmob.activities;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
 
-import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
-import com.parse.ParseRelation;
 import com.stridera.connectivitycreations.flashmob.R;
 import com.stridera.connectivitycreations.flashmob.adapters.AttendeesAdapter;
 import com.stridera.connectivitycreations.flashmob.models.FlashUser;
 import com.stridera.connectivitycreations.flashmob.models.Flashmob;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class AttendeesActivity extends ActionBarActivity {
 
@@ -41,6 +38,7 @@ public class AttendeesActivity extends ActionBarActivity {
         lvAttendees.setAdapter(aAttendees);
 
         eventId = getIntent().getStringExtra(EVENT_ID);
+        initToolbar();
         populateList();
     }
 
@@ -80,6 +78,12 @@ public class AttendeesActivity extends ActionBarActivity {
     private void getAttendees() {
         attendees.addAll(flashmob.getAttendees());
         aAttendees.notifyDataSetChanged();
+    }
+
+    private void initToolbar() {
+        Toolbar toolbar = (Toolbar) findViewById(R.id.tool_bar);
+        toolbar.setTitle("Attendees");
+        setSupportActionBar(toolbar);
     }
 
 }
