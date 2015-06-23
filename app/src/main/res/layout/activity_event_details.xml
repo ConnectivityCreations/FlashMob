@@ -53,7 +53,8 @@
             android:elevation="@dimen/fab_elevation"
             fab:fab_shadow="true"
             android:focusable="true"
-            android:src="@drawable/ic_join_image_light"/>
+            android:src="@drawable/ic_join_image_light"
+            style="@style/fab_style"/>
     </FrameLayout>
 
     <LinearLayout

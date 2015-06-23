@@ -32,6 +32,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        app:fabSize="normal" />
+        app:fabSize="normal"
+        app:backgroundTint="@color/accent" />
 
 </RelativeLayout>

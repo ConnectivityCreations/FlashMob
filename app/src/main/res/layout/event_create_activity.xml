@@ -45,7 +45,8 @@
               android:elevation="@dimen/fab_elevation"
               fab:fab_shadow="true"
               android:focusable="true"
-              android:src="@drawable/ic_camera_white_24dp"/>
+              android:src="@drawable/ic_camera_white_24dp"
+              style="@style/fab_style" />
         </FrameLayout>
         <!-- Title -->
         <LinearLayout
@@ -66,7 +67,7 @@
               android:id="@+id/nameEditText"
               android:hint="@string/your_event"
               android:singleLine="true"
-              android:layout_weight="1"/>
+              android:layout_weight="1" />
         </LinearLayout>
         <!-- Time -->
         <LinearLayout
