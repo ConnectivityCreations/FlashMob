@@ -322,7 +322,7 @@ public class Flashmob extends ParseObject {
     public static void findNearbyEventsInBackground(ParseGeoPoint location, int distance,
                                                          final FindCallback<Flashmob> callback) {
         ParseQuery<Flashmob> flashmobQuery = ParseQuery.getQuery(Flashmob.class);
-        flashmobQuery.whereGreaterThan("eventAt", new Date());
+        flashmobQuery.whereGreaterThan("eventEnd", new Date());
         //flashmobQuery.whereNear("location", location);
         flashmobQuery.whereWithinMiles("location", location, distance);
         flashmobQuery.setLimit(QUERY_LIMIT);
