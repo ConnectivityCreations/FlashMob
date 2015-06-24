@@ -10,7 +10,7 @@
   <TextView
       android:layout_width="fill_parent"
       android:layout_height="wrap_content"
-      android:hint="@string/categories"
+      android:hint="@string/add_categories"
       style="@style/Base.TextAppearance.AppCompat.Medium"
       android:focusable="false"
       android:clickable="false"/>
