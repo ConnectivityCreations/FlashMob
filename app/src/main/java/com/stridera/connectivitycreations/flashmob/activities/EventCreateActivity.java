@@ -51,7 +51,10 @@ import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
+import com.parse.ParseInstallation;
 import com.parse.ParsePush;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
 import com.parse.SendCallback;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
@@ -502,8 +505,12 @@ public class EventCreateActivity extends AppCompatActivity {
   }
 
   private void sendPushNotification(String title) {
+    ParseQuery pushQuery = ParseInstallation.getQuery();
+    pushQuery.whereNotEqualTo("user_id", ParseUser.getCurrentUser().getObjectId());
+
     ParsePush push = new ParsePush();
     push.setMessage("New Flashmob nearby! " + title);
+    push.setQuery(pushQuery);
     push.sendInBackground(new SendCallback() {
       @Override
       public void done(ParseException e) {
