@@ -27,7 +27,7 @@
                 <!-- Picture -->
                 <ImageView
                     android:layout_width="fill_parent"
-                    android:layout_height="150dp"
+                    android:layout_height="200dp"
                     android:id="@+id/photoImageView"
                     android:adjustViewBounds="true"
                     android:scaleType="centerCrop"/>
