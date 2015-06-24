@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseClassName;
@@ -294,7 +295,7 @@ public class Flashmob extends ParseObject {
         });
     }
 
-    public static void findMyItemsInBackground(final FindCallback<Flashmob> callback) {
+    public static void findMyItemsInBackground(final boolean useLocalDataStore, final FindCallback<Flashmob> callback) {
         ParseUser user = ParseUser.getCurrentUser();
         ParseQuery<Flashmob> myItems = ParseQuery.getQuery(Flashmob.class);
         myItems.whereEqualTo("owner", user);
@@ -307,19 +308,12 @@ public class Flashmob extends ParseObject {
         queryList.add(joinedItems);
 
         ParseQuery flashmobQuery = ParseQuery.or(queryList);
-        flashmobQuery.findInBackground(new FindCallback<Flashmob>() {
-            @Override
-            public void done(List<Flashmob> flashmobs, ParseException e) {
-                if (e == null) {
-                    callback.done(flashmobs, null);
-                } else {
-                    callback.done(null, e);
-                }
-            }
-        });
+        if (useLocalDataStore) flashmobQuery = flashmobQuery.fromLocalDatastore();
+        Log.d(TAG, "Fetching my items from " + (useLocalDataStore ? "local" : "remote") + " datastore");
+        flashmobQuery.findInBackground(new CachedQueryCallback("my_items", useLocalDataStore, callback));
     }
 
-    public static void findNearbyEventsInBackground(ParseGeoPoint location, int distance,
+    public static void findNearbyEventsInBackground(ParseGeoPoint location, int distance, boolean useLocalDataStore,
                                                          final FindCallback<Flashmob> callback) {
         ParseQuery<Flashmob> flashmobQuery = ParseQuery.getQuery(Flashmob.class);
         flashmobQuery.whereGreaterThan("eventEnd", new Date());
@@ -327,17 +321,9 @@ public class Flashmob extends ParseObject {
         flashmobQuery.whereWithinMiles("location", location, distance);
         flashmobQuery.setLimit(QUERY_LIMIT);
         flashmobQuery.orderByAscending("eventAt");
-        flashmobQuery.findInBackground(new FindCallback<Flashmob>() {
-            @Override
-            public void done(List<Flashmob> flashmobs, ParseException e) {
-                if (e == null) {
-                    callback.done(flashmobs, null);
-                } else {
-                    callback.done(null, e);
-                }
-            }
-        });
-
+        if (useLocalDataStore) flashmobQuery = flashmobQuery.fromLocalDatastore();
+        Log.d(TAG, "Fetching nearby events from " + (useLocalDataStore ? "local" : "remote") + " datastore");
+        flashmobQuery.findInBackground(new CachedQueryCallback("nearby_events", useLocalDataStore, callback));
     }
 
     public boolean isOwner() {
@@ -348,4 +334,57 @@ public class Flashmob extends ParseObject {
         return this.getAttendees().contains(FlashUser.getCurrentUser());
     }
 
+}
+
+class CachedQueryCallback implements FindCallback<Flashmob> {
+  private static final String TAG = CachedQueryCallback.class.getSimpleName();
+  final FindCallback<Flashmob> innerCallback;
+  final boolean localDataStoreUsed;
+  final String key;
+
+  CachedQueryCallback(String key, boolean localDataStoreUsed, FindCallback<Flashmob> innerCallback) {
+    this.innerCallback = innerCallback;
+    this.localDataStoreUsed = localDataStoreUsed;
+    this.key = key;
+  }
+
+  @Override
+  public void done(final List<Flashmob> flashmobs, ParseException e) {
+    if (e != null) {
+      innerCallback.done(null, e);
+      return;
+    }
+
+    if (!localDataStoreUsed) {
+      Flashmob.fetchAllIfNeededInBackground(flashmobs, new FindCallback<Flashmob>() {
+        @Override
+        public void done(final List<Flashmob> list, ParseException e) {
+          if (e != null) {
+            Log.e(TAG, "Fetch failed", e);
+          }
+          Flashmob.unpinAllInBackground(key, new DeleteCallback() {
+            @Override
+            public void done(ParseException e) {
+              if (e != null) {
+                Log.e(TAG, "Unpin failed", e);
+              }
+              Flashmob.pinAllInBackground(key, list, new SaveCallback() {
+                @Override
+                public void done(ParseException e) {
+                  if (e != null) {
+                    Log.e(TAG, "Pin failed", e);
+                  } else {
+                    Log.i(TAG, "Pin successful");
+                  }
+                  innerCallback.done(list, null);
+                }
+              });
+            }
+          });
+        }
+      });
+    } else {
+      innerCallback.done(flashmobs, null);
+    }
+  }
 }

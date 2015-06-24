@@ -25,8 +25,11 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.LocationSource;
 import com.parse.FindCallback;
+import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
+import com.parse.ParseObject;
+import com.parse.SaveCallback;
 import com.stridera.connectivitycreations.flashmob.R;
 import com.stridera.connectivitycreations.flashmob.adapters.StreamAdapter;
 import com.stridera.connectivitycreations.flashmob.models.Flashmob;
@@ -42,6 +45,7 @@ public class StreamListFragment extends Fragment implements LocationSource.OnLoc
     private static final String SEARCH_LOCATION = "SearchLocation";
     private static final int DEFAULT_SEARCH_RADIUS = 20;
     private static final int DEFAULT_MAX_SEARCH_RADIUS = 100;
+    private static final String TAG = StreamListFragment.class.getSimpleName();
 
     private OnItemSelectedListener listener;
 
@@ -55,13 +59,14 @@ public class StreamListFragment extends Fragment implements LocationSource.OnLoc
     private Location searchLocation;
     private int searchRadius;
 
-    // Called from the activity whenever it wants us to update date... for example on item created
+    // Called from the activity whenever it wants us to update data... for example on item created
     public void update() {
-        getUpcomingEvents();
+        getUpcomingEvents(true);
     }
+
     public void updatePrefs() {
         getPrefs();
-        getUpcomingEvents();
+        getUpcomingEvents(true);
     }
 
     @Override
@@ -69,7 +74,7 @@ public class StreamListFragment extends Fragment implements LocationSource.OnLoc
         float distance = location.distanceTo(searchLocation);
         if (distance > 1.0f) {
             searchLocation = location;
-            getUpcomingEvents();
+            getUpcomingEvents(true);
         }
     }
 
@@ -77,7 +82,7 @@ public class StreamListFragment extends Fragment implements LocationSource.OnLoc
         public void onFlashmobSelected(String flashmob_id);
     }
 
-    ArrayAdapter<Flashmob> arrayAdapter;
+    StreamAdapter arrayAdapter;
     ArrayList<Flashmob> items;
     SwipeRefreshLayout swipeRefreshLayout;
 
@@ -110,8 +115,17 @@ public class StreamListFragment extends Fragment implements LocationSource.OnLoc
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Flashmob flashmob = items.get(position);
-                listener.onFlashmobSelected(flashmob.getObjectId());
+                items.get(position).fetchIfNeededInBackground(new GetCallback<Flashmob>() {
+                  @Override
+                  public void done(final Flashmob flashmob, ParseException e) {
+                    flashmob.pinInBackground(new SaveCallback() {
+                      @Override
+                      public void done(ParseException e) {
+                        listener.onFlashmobSelected(flashmob.getObjectId());
+                      }
+                    });
+                  }
+                });
             }
         });
 
@@ -120,7 +134,7 @@ public class StreamListFragment extends Fragment implements LocationSource.OnLoc
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                getUpcomingEvents();
+                getUpcomingEvents(false);
             }
         });
 
@@ -136,7 +150,7 @@ public class StreamListFragment extends Fragment implements LocationSource.OnLoc
 
         setupTabs();
 
-        getUpcomingEvents();
+        getUpcomingEvents(true);
 
         return view;
     }
@@ -161,7 +175,7 @@ public class StreamListFragment extends Fragment implements LocationSource.OnLoc
                 searchLocation.setLongitude(-122.1144424);
             } else {
                 searchLocation = lastLocation;
-                getUpcomingEvents();
+                getUpcomingEvents(true);
             }
         }
 
@@ -199,7 +213,7 @@ public class StreamListFragment extends Fragment implements LocationSource.OnLoc
 
         current_view = VIEW_ALL_ITEMS;
 
-        getUpcomingEvents();
+        getUpcomingEvents(true);
     }
 
     private void viewMyItems() {
@@ -207,40 +221,22 @@ public class StreamListFragment extends Fragment implements LocationSource.OnLoc
             return;
 
         current_view = VIEW_MY_ITEMS;
-        getUpcomingEvents();
+        getUpcomingEvents(true);
     }
 
 
-    private void getUpcomingEvents() {
+    private void getUpcomingEvents(boolean useLocalDataStore) {
         if (current_view == VIEW_MY_ITEMS) {
             Log.d(LOG_TAG, "Loading My Items");
 
-            Flashmob.findMyItemsInBackground(
-                    new FindCallback<Flashmob>() {
-                        @Override
-                        public void done(List<Flashmob> list, ParseException e) {
-                            arrayAdapter.clear();
-                            pbLoading.setVisibility(View.GONE);
-                            updateNoItemsFound(!list.isEmpty());
-                            arrayAdapter.addAll(list);
-                            swipeRefreshLayout.setRefreshing(false);
-                        }
-                    });
+            Flashmob.findMyItemsInBackground(useLocalDataStore, new UpdateEventsCallback(useLocalDataStore));
         } else {
             Log.d(LOG_TAG, "Loading Nearby Items");
             Flashmob.findNearbyEventsInBackground(
                     new ParseGeoPoint(searchLocation.getLatitude(), searchLocation.getLongitude()),
                     searchRadius,
-                    new FindCallback<Flashmob>() {
-                        @Override
-                        public void done(List<Flashmob> list, ParseException e) {
-                            arrayAdapter.clear();
-                            pbLoading.setVisibility(View.GONE);
-                            updateNoItemsFound(!list.isEmpty());
-                            arrayAdapter.addAll(list);
-                            swipeRefreshLayout.setRefreshing(false);
-                        }
-                    });
+                    useLocalDataStore,
+                    new UpdateEventsCallback(useLocalDataStore));
         }
     }
 
@@ -268,7 +264,7 @@ public class StreamListFragment extends Fragment implements LocationSource.OnLoc
             if (location.distanceTo(searchLocation) > 1) {
                 Toast.makeText(getActivity(), "Location Updated", Toast.LENGTH_SHORT).show();
                 searchLocation = location;
-                getUpcomingEvents();
+                getUpcomingEvents(true);
                 saveLocation();
             }
         }
@@ -285,4 +281,22 @@ public class StreamListFragment extends Fragment implements LocationSource.OnLoc
 //        SharedPreferences.Editor editor =
     }
 
+  class UpdateEventsCallback implements FindCallback<Flashmob> {
+    private final boolean localDatastoreUsed;
+
+    UpdateEventsCallback(boolean localDatastoreUsed) {
+      this.localDatastoreUsed = localDatastoreUsed;
+    }
+
+    @Override
+    public void done(List<Flashmob> list, ParseException e) {
+      arrayAdapter.set(list);
+      updateNoItemsFound(!list.isEmpty() || localDatastoreUsed);
+      if (localDatastoreUsed) getUpcomingEvents(false);
+      else {
+        pbLoading.setVisibility(View.GONE);
+        swipeRefreshLayout.setRefreshing(false);
+      }
+    }
+  }
 }

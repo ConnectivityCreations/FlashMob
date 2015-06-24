@@ -8,6 +8,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +31,7 @@ import com.stridera.connectivitycreations.flashmob.models.Flashmob;
 import java.util.List;
 
 public class StreamAdapter extends ArrayAdapter<Flashmob> {
+    private static final String TAG = StreamAdapter.class.getSimpleName();
     private final Context context;
     private final List<Flashmob> items;
     private LatLng userLocation;
@@ -73,6 +75,15 @@ public class StreamAdapter extends ArrayAdapter<Flashmob> {
             public void onProviderDisabled(String provider) {
             }
         }, null);
+    }
+
+    public void set(List<Flashmob> list) {
+      if (items.equals(list)) {
+          return;
+      }
+      Log.d(TAG, "Clearing/setting list");
+      clear();
+      addAll(list);
     }
 
     @Override
