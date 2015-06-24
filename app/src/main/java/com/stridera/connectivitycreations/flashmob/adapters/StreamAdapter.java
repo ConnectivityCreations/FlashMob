@@ -16,6 +16,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
 import com.github.curioustechizen.ago.RelativeTimeTextView;
 import com.google.android.gms.maps.model.LatLng;
 import com.parse.GetCallback;
@@ -25,9 +26,13 @@ import com.parse.ParseGeoPoint;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 import com.stridera.connectivitycreations.flashmob.R;
+import com.stridera.connectivitycreations.flashmob.activities.AttendeesActivity;
 import com.stridera.connectivitycreations.flashmob.activities.EventCreateActivity;
+import com.stridera.connectivitycreations.flashmob.models.FlashUser;
 import com.stridera.connectivitycreations.flashmob.models.Flashmob;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 public class StreamAdapter extends ArrayAdapter<Flashmob> {
@@ -45,6 +50,7 @@ public class StreamAdapter extends ArrayAdapter<Flashmob> {
         TextView tvDistance;
         RelativeTimeTextView tvTimeTo;
         TextView tvButton;
+        TextView tvAttendees;
     }
 
     public StreamAdapter(Context context, List<Flashmob> items) {
@@ -89,7 +95,7 @@ public class StreamAdapter extends ArrayAdapter<Flashmob> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         final ViewHolder viewHolder;
-        Flashmob flashmob = getItem(position);
+        final Flashmob flashmob = getItem(position);
 
         if (convertView == null) {
             // create a new view from template
@@ -104,6 +110,7 @@ public class StreamAdapter extends ArrayAdapter<Flashmob> {
             viewHolder.tvDistance = (TextView) convertView.findViewById(R.id.tvDistance);
             viewHolder.tvTimeTo = (RelativeTimeTextView) convertView.findViewById(R.id.tvTimeTo);
             viewHolder.tvButton = (TextView) convertView.findViewById(R.id.streamButton);
+            viewHolder.tvAttendees = (TextView) convertView.findViewById(R.id.textViewAttendees);
 
             convertView.setTag(viewHolder);
         } else {
@@ -125,10 +132,23 @@ public class StreamAdapter extends ArrayAdapter<Flashmob> {
                 }
             });
         } else if (flashmob.isAttending()) {
-            setupLeave(viewHolder.tvButton);
+            setupLeave(viewHolder);
         } else {
-            setupJoin(viewHolder.tvButton);
+            setupJoin(viewHolder);
         }
+
+        viewHolder.tvAttendees.setTag(flashmob.getObjectId());
+        ArrayList < FlashUser > attendees = (ArrayList) flashmob.getAttendees();
+        viewHolder.tvAttendees.setText(attendees.size() + "");
+        viewHolder.tvAttendees.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String id = (String) v.getTag();
+                Intent i = new Intent(context, AttendeesActivity.class);
+                i.putExtra("event_id", flashmob.getObjectId());
+                context.startActivity(i);
+            }
+        });
 
         ParseFile pfImage = flashmob.getImage();
         Picasso picasso = Picasso.with(getContext());
@@ -142,11 +162,11 @@ public class StreamAdapter extends ArrayAdapter<Flashmob> {
 
         viewHolder.tvTitle.setText(flashmob.getTitle());
         viewHolder.tvAddress.setText(flashmob.getAddress());
-        viewHolder.tvTimes.setText(String.format("%s for %s", flashmob.getEventDate().toString(), flashmob.getEventDurationString()));
+        viewHolder.tvTimes.setText(String.format("%s", new SimpleDateFormat("MMM d, h:mma").format(flashmob.getEventDate()) + "-" + new SimpleDateFormat("h:mma").format(flashmob.getEventEnd())));
 
         if (userLocation != null) {
             double distance = flashmob.getLocation().distanceInMilesTo(new ParseGeoPoint(userLocation.latitude, userLocation.longitude));
-            viewHolder.tvDistance.setText(String.format("%.2f mi", distance));
+            viewHolder.tvDistance.setText(String.format("%.2f mi away", distance));
         } else {
             viewHolder.tvDistance.setText("");
         }
@@ -156,10 +176,10 @@ public class StreamAdapter extends ArrayAdapter<Flashmob> {
         return convertView;
     }
 
-    private void setupLeave(TextView v) {
-        v.setText("Leave");
-        v.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_unjoin_image, 0, 0, 0);
-        v.setOnClickListener(new View.OnClickListener() {
+    private void setupLeave(final ViewHolder vh) {
+        vh.tvButton.setText("Leave");
+        vh.tvButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_unjoin_image, 0, 0, 0);
+        vh.tvButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
                 String id = (String) v.getTag();
@@ -167,17 +187,18 @@ public class StreamAdapter extends ArrayAdapter<Flashmob> {
                     @Override
                     public void done(Flashmob flashmob, ParseException e) {
                         flashmob.leave();
-                        setupJoin((TextView) v);
+                        updateAttendingCount(vh, flashmob.getAttendees().size());
+                        setupJoin(vh);
                     }
                 });
             }
         });
     }
 
-    private void setupJoin(TextView v) {
-        v.setText("Join");
-        v.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_join_image, 0, 0, 0);
-        v.setOnClickListener(new View.OnClickListener() {
+    private void setupJoin(final ViewHolder vh) {
+        vh.tvButton.setText("Join");
+        vh.tvButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_join_image, 0, 0, 0);
+        vh.tvButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
                 String id = (String) v.getTag();
@@ -185,11 +206,16 @@ public class StreamAdapter extends ArrayAdapter<Flashmob> {
                     @Override
                     public void done(Flashmob flashmob, ParseException e) {
                         flashmob.join();
-                        setupLeave((TextView) v);
+                        updateAttendingCount(vh, flashmob.getAttendees().size());
+                        setupLeave(vh);
                     }
                 });
             }
         });
+    }
+
+    protected void updateAttendingCount(ViewHolder vh, int newAttendeesCount) {
+        vh.tvAttendees.setText(String.valueOf(newAttendeesCount));
     }
 }
 
