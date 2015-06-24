@@ -35,6 +35,7 @@ import com.stridera.connectivitycreations.flashmob.models.Comments;
 import com.stridera.connectivitycreations.flashmob.models.FlashUser;
 import com.stridera.connectivitycreations.flashmob.models.Flashmob;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 public class EventDetailsActivity extends ActionBarActivity {
@@ -156,28 +157,8 @@ public class EventDetailsActivity extends ActionBarActivity {
         updateCommentsCount();
 
         tvEventName.setText(event.getTitle());
-        tvEventTime.setText(event.getEventDate().toString());
+        tvEventTime.setText(String.format("%s", new SimpleDateFormat("EEE MMM d, h:mma").format(event.getEventDate()) + "-" + new SimpleDateFormat("h:mma").format(event.getEventEnd())));
         tvEventLocation.setText(event.getAddress());
-
-//        Flashmob.getMostLocalInBackground(eventId, new GetCallback<Flashmob>() {
-//            @Override
-//            public void done(Flashmob flashmob, ParseException e) {
-//                if (e == null) {
-//                    setData(EventCreateData.fromFlashmob(flashmob, data.userLocation));
-//                    ParseFile imageFile = flashmob.getImage();
-//                    if (imageFile != null) {
-//                        setEventImage(imageFile.getUrl());
-//                    }
-//                    nameEditText.setText(flashmob.getTitle());
-//                    setTextView(minAttendeesEditText, flashmob.getMinAttendees());
-//                    setTextView(maxAttendeesEditText, flashmob.getMaxAttendees());
-//                } else {
-//                    Log.e(TAG, "Error retrieving the event", e);
-//                    Toast.makeText(EventCreateActivity.this, "Unable to load your event", Toast.LENGTH_LONG).show();
-//                    finish();
-//                }
-//            }
-//        });
 
         if (currentUser == event.getOwner()) {
             fabJoinOrEdit.setImageResource(R.drawable.ic_edit_image_light);
