@@ -36,4 +36,10 @@
   <!-- Category picker activity -->
   <string name="title_activity_tag">Select Categories</string>
   <string name="categories">Categories</string>
+    <string name="add_categories">Click to add categories</string>
+
+    <string name="where_hint">Enter Location</string>
+    <string name="where">Where</string>
+    <string name="when">When</string>
+    <string name="my_event">My Event</string>
 </resources>

@@ -3,7 +3,6 @@ package com.stridera.connectivitycreations.flashmob.fragments;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -80,7 +79,7 @@ public class CategoryFragment extends Fragment {
     clear();
     if (editText != null) {
       editText.setWidth(categoryFlowLayout.getWidth());
-      editText.setHint(R.string.categories);
+      editText.setHint(R.string.add_categories);
       categoryFlowLayout.addView(editText);
     }
     for (Category category : selectedCategories) {
