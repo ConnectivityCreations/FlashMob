@@ -3,9 +3,12 @@ package com.stridera.connectivitycreations.flashmob.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.parse.ParseException;
+import com.parse.ParseInstallation;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 import com.stridera.connectivitycreations.flashmob.R;
 
 public class LauncherActivity extends Activity {
@@ -25,6 +28,22 @@ public class LauncherActivity extends Activity {
         if (currentUser != null) {
             try {
                 currentUser.fetch();
+                // Save current installation for push notifications.
+                ParseUser user = ParseUser.getCurrentUser();
+                ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+                if (user != null) {
+                    installation.put("user_id", user.getObjectId());
+                }
+                installation.saveInBackground(new SaveCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        if (e == null) {
+                            Log.d("com.parse.push", "successfully saved device installation data.");
+                        } else {
+                            Log.e("com.parse.push", "failed to save device installation data", e);
+                        }
+                    }
+                });
             } catch (ParseException e) {
                 e.printStackTrace();
             }

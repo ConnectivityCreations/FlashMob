@@ -15,7 +15,9 @@ import android.widget.Toast;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
+import com.parse.ParseInstallation;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 import com.stridera.connectivitycreations.flashmob.R;
 
 import java.util.Arrays;
@@ -99,6 +101,23 @@ public class LoginActivity extends Activity {
     };
 
     private void doLoggedIn(boolean isNew) {
+        // Save current installation for push notifications.
+        ParseUser user = ParseUser.getCurrentUser();
+        ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+        if (user != null) {
+            installation.put("user_id", user.getObjectId());
+        }
+        installation.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null) {
+                    Log.d("com.parse.push", "successfully saved device installation data.");
+                } else {
+                    Log.e("com.parse.push", "failed to save device installation data", e);
+                }
+            }
+        });
+
         Intent intent = new Intent(LoginActivity.this, StreamActivity.class);
         intent.putExtra("new_user", isNew);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

@@ -7,9 +7,9 @@ import com.facebook.FacebookSdk;
 import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
-import com.parse.ParseInstallation;
 import com.parse.ParseObject;
 import com.parse.ParsePush;
+import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.stridera.connectivitycreations.flashmob.models.Category;
 import com.stridera.connectivitycreations.flashmob.models.Comments;
@@ -43,8 +43,7 @@ public class FlashmobApplication extends Application {
         // Enable Parse Facebook Utils
         ParseFacebookUtils.initialize(this);
 
-        // Save current installation for push notifications.
-        ParseInstallation.getCurrentInstallation().saveInBackground();
+        ParseUser user = ParseUser.getCurrentUser();
 
         // Set this device up to receive Push Notifications
         ParsePush.subscribeInBackground("", new SaveCallback() {

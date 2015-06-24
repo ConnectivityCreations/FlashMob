@@ -10,10 +10,13 @@ import com.parse.ParseClassName;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseGeoPoint;
+import com.parse.ParseInstallation;
 import com.parse.ParseObject;
+import com.parse.ParsePush;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
+import com.parse.SendCallback;
 
 import java.io.ByteArrayOutputStream;
 import java.util.*;
@@ -208,11 +211,30 @@ public class Flashmob extends ParseObject {
     }
 
     public void join() {
+        final String owner_id = this.getOwner().getObjectId();
         this.add("attendees", FlashUser.getCurrentUser());
         this.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
                 Log.d("Blah", "Object saved.");
+
+                ParseQuery pushQuery = ParseInstallation.getQuery();
+                pushQuery.whereMatches("user_id", owner_id);
+
+                ParsePush push = new ParsePush();
+                push.setMessage(FlashUser.getCurrentUser().getName() + " joined your flashmob!");
+                push.setQuery(pushQuery);
+                push.sendInBackground(new SendCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        if (e == null) {
+                            Log.d("com.parse.push", "Successfully informed user that we joined");
+                        } else {
+                            Log.e("com.parse.push", "failed to send join push notification ", e);
+                        }
+                    }
+                });
+
                 if (e != null) {
                     Log.d("Blah", e.toString());
                 }
