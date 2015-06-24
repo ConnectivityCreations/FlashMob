@@ -19,7 +19,6 @@ public class LauncherActivity extends Activity {
     protected void onPostResume() {
         super.onPostResume();
 
-
         ParseUser currentUser = ParseUser.getCurrentUser();
 
         Intent intent;

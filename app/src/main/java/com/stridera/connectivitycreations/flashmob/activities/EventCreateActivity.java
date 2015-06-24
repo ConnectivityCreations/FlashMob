@@ -51,6 +51,8 @@ import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
+import com.parse.ParsePush;
+import com.parse.SendCallback;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.stridera.connectivitycreations.flashmob.FlashmobApplication;
@@ -478,6 +480,7 @@ public class EventCreateActivity extends AppCompatActivity {
     data.saveFlashmob(title, minAttendees, maxAttendees, new EventCreateData.SaveCallback() {
       @Override
       public void onSuccess(Flashmob event) {
+        sendPushNotification(event.getTitle());
         progressItem.setVisible(false);
         finish();
         if (getIntent().getBooleanExtra(SHOW_DETAILS_POST_SAVE, true)) {
@@ -494,6 +497,21 @@ public class EventCreateActivity extends AppCompatActivity {
           Log.e(TAG, "Error saving model", ex);
         }
         Toast.makeText(EventCreateActivity.this, userError, Toast.LENGTH_LONG).show();
+      }
+    });
+  }
+
+  private void sendPushNotification(String title) {
+    ParsePush push = new ParsePush();
+    push.setMessage("New Flashmob nearby! " + title);
+    push.sendInBackground(new SendCallback() {
+      @Override
+      public void done(ParseException e) {
+        if (e == null) {
+          Log.d("com.parse.push", "successfully pushed to the broadcast channel.");
+        } else {
+          Log.e("com.parse.push", "failed to send push notification ", e);
+        }
       }
     });
   }

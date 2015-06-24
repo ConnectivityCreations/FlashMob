@@ -1,12 +1,16 @@
 package com.stridera.connectivitycreations.flashmob;
 
 import android.app.Application;
+import android.util.Log;
 
 import com.facebook.FacebookSdk;
 import com.parse.Parse;
+import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseInstallation;
 import com.parse.ParseObject;
+import com.parse.ParsePush;
+import com.parse.SaveCallback;
 import com.stridera.connectivitycreations.flashmob.models.Category;
 import com.stridera.connectivitycreations.flashmob.models.Comments;
 import com.stridera.connectivitycreations.flashmob.models.FlashUser;
@@ -41,5 +45,17 @@ public class FlashmobApplication extends Application {
 
         // Save current installation for push notifications.
         ParseInstallation.getCurrentInstallation().saveInBackground();
+
+        // Set this device up to receive Push Notifications
+        ParsePush.subscribeInBackground("", new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null) {
+                    Log.d("com.parse.push", "successfully subscribed to the broadcast channel.");
+                } else {
+                    Log.e("com.parse.push", "failed to subscribe for push", e);
+                }
+            }
+        });
     }
 }
