@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <org.apmem.tools.layouts.FlowLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="@android:color/white"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:id="@+id/textFlowLayout">
-  <View
-      android:layout_width="1dp"
-      android:layout_height="30dp"
-      android:alpha="0"/>
+    android:id="@+id/textFlowLayout"
+    style="@android:style/Widget.EditText"
+    android:focusable="false"
+    android:clickable="false">
+  <TextView
+      android:layout_width="fill_parent"
+      android:layout_height="wrap_content"
+      android:hint="@string/categories"
+      style="@style/Base.TextAppearance.AppCompat.Medium"
+      android:focusable="false"
+      android:clickable="false"/>
 </org.apmem.tools.layouts.FlowLayout>

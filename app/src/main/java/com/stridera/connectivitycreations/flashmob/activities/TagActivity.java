@@ -32,7 +32,6 @@ public class TagActivity extends AppCompatActivity {
   private static final String TAG = TagActivity.class.getSimpleName();
   public static final String CATEGORIES = "categories";
 
-  EditText categoryEditText;
   CategoryFragment categoryFragment;
   CategorySuggestionAdapter categoryAdapter;
 
@@ -41,18 +40,17 @@ public class TagActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_tag);
 
-    categoryEditText = (EditText) findViewById(R.id.categoryEditText);
     categoryAdapter = new CategorySuggestionAdapter(this);
     categoryFragment = (CategoryFragment) getSupportFragmentManager().findFragmentById(R.id.categoryFragment);
 
     initToolbar();
-    initEditText();
     initSuggestionsListView();
     initCategoryFragment();
     displayDefaultSuggestions();
   }
 
   private void initCategoryFragment() {
+    categoryFragment.setEditable(true);
     Category.findInBackground(Arrays.asList(getIntent().getStringArrayExtra(CATEGORIES)), new FindCallback<Category>() {
       @Override
       public void done(List<Category> list, ParseException e) {
@@ -65,22 +63,7 @@ public class TagActivity extends AppCompatActivity {
         categoryFragment.setSelectedCategories(list);
       }
     });
-  }
-
-  private void initSuggestionsListView() {
-    ListView suggestionsListView = (ListView) findViewById(R.id.suggestionsListView);
-    suggestionsListView.setAdapter(categoryAdapter);
-    suggestionsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-      @Override
-      public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        addCategory(categoryAdapter.getItem(position));
-        categoryEditText.setText(null);
-      }
-    });
-  }
-
-  private void initEditText() {
-    categoryEditText.addTextChangedListener(new TextWatcher() {
+    categoryFragment.addTextChangedListener(new TextWatcher() {
       @Override
       public void beforeTextChanged(CharSequence s, int start, int count, int after) {
       }
@@ -92,6 +75,18 @@ public class TagActivity extends AppCompatActivity {
       @Override
       public void afterTextChanged(Editable s) {
         updateSuggestions();
+      }
+    });
+  }
+
+  private void initSuggestionsListView() {
+    ListView suggestionsListView = (ListView) findViewById(R.id.suggestionsListView);
+    suggestionsListView.setAdapter(categoryAdapter);
+    suggestionsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+      @Override
+      public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        addCategory(categoryAdapter.getItem(position));
+        categoryFragment.setText(null);
       }
     });
   }
@@ -132,7 +127,7 @@ public class TagActivity extends AppCompatActivity {
   }
 
   private void updateSuggestions() {
-    final String current = categoryEditText.getText().toString().trim();
+    final String current = categoryFragment.getUserText();
     if (current.isEmpty()) {
       displayDefaultSuggestions();
       return;
