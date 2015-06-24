@@ -36,6 +36,8 @@ dependencies {
 
     // Picasso for remote image loading
     compile 'com.squareup.picasso:picasso:2.4.0'
+    compile 'com.squareup.okhttp:okhttp-urlconnection:2.4.0'
+    compile 'com.squareup.okhttp:okhttp:2.4.0'
 
     // Parse and Android Libraries for Data and Login
     compile 'com.parse.bolts:bolts-android:1.2.0'

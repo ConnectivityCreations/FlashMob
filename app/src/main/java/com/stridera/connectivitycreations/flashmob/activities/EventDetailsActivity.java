@@ -125,8 +125,8 @@ public class EventDetailsActivity extends ActionBarActivity {
             Picasso.with(this)
                     .load(event.getImage().getUrl())
                     .resize(800, 800)
-                    .placeholder(R.mipmap.ic_launcher)
-                    .error(R.mipmap.ic_launcher)
+                    .placeholder(R.drawable.default_event_image)
+                    .error(R.drawable.default_event_image)
                     .into(ivEventDetailsImage);
         } else {
             ivEventDetailsImage.setImageResource(R.mipmap.ic_launcher);
