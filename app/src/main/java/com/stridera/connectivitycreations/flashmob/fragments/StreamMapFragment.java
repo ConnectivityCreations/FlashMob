@@ -201,7 +201,7 @@ public class StreamMapFragment extends Fragment implements
         });
     }
 
-    private void getUpcomingEvents(double latitude, double longitude) {
+    private void getUpcomingEvents(final double latitude, final double longitude, final boolean useLocalDataStore) {
         if (latitude == 0.0f && longitude == 0.0f) return;
 
         LatLngBounds bounds = map.getProjection().getVisibleRegion().latLngBounds;
@@ -220,6 +220,7 @@ public class StreamMapFragment extends Fragment implements
         Flashmob.findNearbyEventsInBackground(
                 new ParseGeoPoint(latitude, longitude),
                 Math.round(disMiles),
+                useLocalDataStore,
                 new FindCallback<Flashmob>() {
                     @Override
                     public void done(List<Flashmob> list, ParseException e) {
@@ -244,12 +245,14 @@ public class StreamMapFragment extends Fragment implements
                                 Log.d("blah", "Skipped marker for " + flashmob.getTitle());
                             }
                         }
+
+                        if (useLocalDataStore) getUpcomingEvents(latitude, longitude, false);
                     }
                 });
     }
 
     @Override
     public void onCameraChange(CameraPosition cameraPosition) {
-        getUpcomingEvents(cameraPosition.target.latitude, cameraPosition.target.longitude);
+        getUpcomingEvents(cameraPosition.target.latitude, cameraPosition.target.longitude, true);
     }
 }
