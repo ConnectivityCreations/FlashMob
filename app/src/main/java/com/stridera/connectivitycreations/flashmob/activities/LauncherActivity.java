@@ -3,6 +3,7 @@ package com.stridera.connectivitycreations.flashmob.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 
 import com.parse.ParseException;
@@ -24,7 +25,7 @@ public class LauncherActivity extends Activity {
 
         ParseUser currentUser = ParseUser.getCurrentUser();
 
-        Intent intent;
+        final Intent intent;
         if (currentUser != null) {
             try {
                 currentUser.fetch();
@@ -53,6 +54,11 @@ public class LauncherActivity extends Activity {
         }
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
+        Handler h = new Handler();
+        h.postDelayed(new Runnable() {
+            public void run() {
+                startActivity(intent);
+            }
+        }, 2000);
     }
 }
