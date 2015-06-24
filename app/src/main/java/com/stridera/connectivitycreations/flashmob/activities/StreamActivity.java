@@ -16,10 +16,10 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
 
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
@@ -261,11 +261,13 @@ public class StreamActivity extends AppCompatActivity implements StreamListFragm
     }
 
     @Override
-    public void onFlashmobSelected(String flashmob_id, ImageView imageView) {
+    public void onFlashmobSelected(String flashmob_id, View imageView, View textView) {
         Intent i = new Intent(StreamActivity.this, EventDetailsActivity.class);
         Log.d(LOG_TAG, "Starting new event for event_id: " + flashmob_id);
         i.putExtra("event_id", flashmob_id);
-        ActivityOptions ao = ActivityOptions.makeSceneTransitionAnimation(this, imageView, "eventImage");
+        Pair<View, String> p1 = Pair.create(imageView, "eventImage");
+        Pair<View, String> p2 = Pair.create(textView, "eventTitle");
+        ActivityOptions ao = ActivityOptions.makeSceneTransitionAnimation(this, p1, p2);
         startActivity(i, ao.toBundle());
     }
 

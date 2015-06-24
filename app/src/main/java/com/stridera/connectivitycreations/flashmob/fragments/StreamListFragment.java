@@ -3,6 +3,7 @@ package com.stridera.connectivitycreations.flashmob.fragments;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
@@ -13,7 +14,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -79,7 +79,7 @@ public class StreamListFragment extends Fragment implements LocationSource.OnLoc
 
     public interface OnItemSelectedListener {
         public void onFlashmobSelected(String flashmob_id);
-        public void onFlashmobSelected(String flashmob_id, ImageView v);
+        public void onFlashmobSelected(String flashmob_id, View v, View t);
     }
 
     StreamAdapter arrayAdapter;
@@ -115,17 +115,22 @@ public class StreamListFragment extends Fragment implements LocationSource.OnLoc
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            final ImageView v = (ImageView) view.findViewById(R.id.ivStreamImage);
-            items.get(position).fetchIfNeededInBackground(new GetCallback<Flashmob>() {
-                @Override
-                public void done(final Flashmob flashmob, ParseException e) {
-                    flashmob.pinInBackground(new SaveCallback() {
-                        @Override
-                        public void done(ParseException e) {
-                            listener.onFlashmobSelected(flashmob.getObjectId(), v);
-                        }
-                    });
-                }
+                final View image = view.findViewById(R.id.ivStreamImage);
+                final View title = view.findViewById(R.id.tvStreamTitle);
+                items.get(position).fetchIfNeededInBackground(new GetCallback<Flashmob>() {
+                    @Override
+                    public void done(final Flashmob flashmob, ParseException e) {
+                        flashmob.pinInBackground(new SaveCallback() {
+                            @Override
+                            public void done(ParseException e) {
+                                if (image != null && Build.VERSION.SDK_INT >= 21) {
+                                    listener.onFlashmobSelected(flashmob.getObjectId(), image, title);
+                                } else {
+                                    listener.onFlashmobSelected(flashmob.getObjectId());
+                                }
+                            }
+                        });
+                    }
                 });
             }
         });
