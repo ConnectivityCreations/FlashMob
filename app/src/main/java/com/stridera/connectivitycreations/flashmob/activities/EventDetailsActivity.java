@@ -3,6 +3,7 @@ package com.stridera.connectivitycreations.flashmob.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -12,6 +13,16 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.melnykov.fab.FloatingActionButton;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
@@ -46,9 +57,15 @@ public class EventDetailsActivity extends ActionBarActivity {
 
     protected RelativeLayout rlMinMaxAttendees;
     protected TextView tvMinMaxAttendees;
+    protected View vLastDivider;
 
     protected Flashmob event;
     protected String eventId;
+
+    private EventCreateData data;
+
+    private GoogleMap googleMap;
+    private Marker locationMarker;
 
     protected ParseUser currentUser;
 
@@ -56,6 +73,7 @@ public class EventDetailsActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_details);
+        initToolbar();
         currentUser = FlashUser.getCurrentUser();
 
         getAllViews();
@@ -66,6 +84,8 @@ public class EventDetailsActivity extends ActionBarActivity {
             public void done(Flashmob flashmob, ParseException e) {
                 if (e == null) {
                     event = flashmob;
+                    data = EventCreateData.fromFlashmob(event, null);
+                    initMap();
                     setAllViews();
                 } else {
                     Log.d("Blah", "Error: " + e.getMessage());
@@ -115,10 +135,10 @@ public class EventDetailsActivity extends ActionBarActivity {
 
         rlMinMaxAttendees = (RelativeLayout) findViewById(R.id.rlMinMaxAttendees);
         tvMinMaxAttendees = (TextView) findViewById(R.id.tvMinMaxAttendees);
+        vLastDivider = findViewById(R.id.lastDivider);
     }
 
     private void setAllViews() {
-
         ParseFile eventPic = event.getImage();
 
         if (eventPic != null) {
@@ -132,15 +152,32 @@ public class EventDetailsActivity extends ActionBarActivity {
             ivEventDetailsImage.setImageResource(R.mipmap.ic_launcher);
         }
 
-        ivEventDetailsImage.setAlpha(90);
-
         updateAttendingCount();
-
         updateCommentsCount();
 
         tvEventName.setText(event.getTitle());
         tvEventTime.setText(event.getEventDate().toString());
         tvEventLocation.setText(event.getAddress());
+
+//        Flashmob.getMostLocalInBackground(eventId, new GetCallback<Flashmob>() {
+//            @Override
+//            public void done(Flashmob flashmob, ParseException e) {
+//                if (e == null) {
+//                    setData(EventCreateData.fromFlashmob(flashmob, data.userLocation));
+//                    ParseFile imageFile = flashmob.getImage();
+//                    if (imageFile != null) {
+//                        setEventImage(imageFile.getUrl());
+//                    }
+//                    nameEditText.setText(flashmob.getTitle());
+//                    setTextView(minAttendeesEditText, flashmob.getMinAttendees());
+//                    setTextView(maxAttendeesEditText, flashmob.getMaxAttendees());
+//                } else {
+//                    Log.e(TAG, "Error retrieving the event", e);
+//                    Toast.makeText(EventCreateActivity.this, "Unable to load your event", Toast.LENGTH_LONG).show();
+//                    finish();
+//                }
+//            }
+//        });
 
         if (currentUser == event.getOwner()) {
             fabJoinOrEdit.setImageResource(R.drawable.ic_edit_image_light);
@@ -184,8 +221,10 @@ public class EventDetailsActivity extends ActionBarActivity {
 
         if (minAttendees == null && maxAttendees == null) {
             rlMinMaxAttendees.setVisibility(View.GONE);
+            vLastDivider.setVisibility(View.GONE);
         } else {
             rlMinMaxAttendees.setVisibility(View.VISIBLE);
+            vLastDivider.setVisibility(View.VISIBLE);
             if (minAttendees != null && maxAttendees != null) {
                 tvMinMaxAttendees.setText("Min: " + minAttendees + "\t\t\t" + "Max: " + maxAttendees);
             } else if (minAttendees != null) {
@@ -241,6 +280,52 @@ public class EventDetailsActivity extends ActionBarActivity {
     public void onRestart() {
         super.onRestart();
         updateCommentsCount();
+    }
+
+    private void initToolbar() {
+        Toolbar toolbar = (Toolbar) findViewById(R.id.tool_bar);
+        toolbar.setTitle("Event Details");
+        setSupportActionBar(toolbar);
+    }
+
+    private void initMap() {
+        SupportMapFragment mapFragment = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapDetailsView));
+        mapFragment.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(GoogleMap googleMap) {
+                EventDetailsActivity.this.googleMap = googleMap;
+                updateGoogleMap();
+                googleMap.getUiSettings().setScrollGesturesEnabled(false);
+                googleMap.getUiSettings().setZoomControlsEnabled(true);
+            }
+        });
+    }
+
+    private void updateGoogleMap() {
+        if (googleMap == null) {
+            return;
+        }
+
+        // marker
+        LatLng latLng = data.getEventLatLng();
+        if (this.locationMarker == null) {
+            BitmapDescriptor defaultMarker =
+                    BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED);
+            locationMarker = googleMap.addMarker(new MarkerOptions().position(latLng).icon(defaultMarker));
+        } else {
+            locationMarker.setPosition(latLng);
+        }
+
+        // map camera
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
+        googleMap.animateCamera(cameraUpdate);
+    }
+
+    private void updateEventLocation() {
+        if ((data.getEventAddress() == null) || (data.getEventLatLng() == null)) {
+            return;
+        }
+        updateGoogleMap();
     }
 
 }
