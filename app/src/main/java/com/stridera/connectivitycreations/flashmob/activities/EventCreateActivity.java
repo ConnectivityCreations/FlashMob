@@ -106,7 +106,7 @@ public class EventCreateActivity extends AppCompatActivity {
     endTimeTextView = (TextView) findViewById(R.id.endTimeTextView);
     nameEditText = (EditText) findViewById(R.id.nameEditText);
     minAttendeesEditText = (EditText) findViewById(R.id.minAttendeesEditText);
-    maxAttendeesEditText = (EditText) findViewById(R.id.cetLocation);
+    maxAttendeesEditText = (EditText) findViewById(R.id.maxAttendeesEditText);
     photoImageView = (ImageView) findViewById(R.id.photoImageView);
     categoryFragment = (CategoryFragment) getSupportFragmentManager().findFragmentById(R.id.categoryFragment);
     fab = (FloatingActionButton) findViewById(R.id.fab);
