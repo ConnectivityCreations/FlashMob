@@ -105,7 +105,7 @@ public class CameraHelper {
       o.inJustDecodeBounds = true;
       BitmapFactory.decodeFile(path, o);
       // The new size we want to sxcale to
-      final int REQUIRED_SIZE = 64;
+      final int REQUIRED_SIZE = 800;
 
       // Find the correct scale value. It should be the power of 2.
       int scale = 1;
