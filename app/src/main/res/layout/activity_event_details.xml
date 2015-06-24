@@ -14,6 +14,7 @@
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="150dp"
+            android:transitionName="eventImage"
             android:id="@+id/ivEventDetailsImage"
             android:layout_alignParentTop="true"
             android:layout_alignParentLeft="true"

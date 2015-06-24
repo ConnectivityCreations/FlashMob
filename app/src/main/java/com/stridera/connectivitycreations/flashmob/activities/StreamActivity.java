@@ -1,6 +1,7 @@
 package com.stridera.connectivitycreations.flashmob.activities;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.location.Criteria;
@@ -18,6 +19,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
@@ -256,6 +258,15 @@ public class StreamActivity extends AppCompatActivity implements StreamListFragm
         Log.d(LOG_TAG, "Starting new event for event_id: " + flashmob_id);
         i.putExtra("event_id", flashmob_id);
         startActivity(i);
+    }
+
+    @Override
+    public void onFlashmobSelected(String flashmob_id, ImageView imageView) {
+        Intent i = new Intent(StreamActivity.this, EventDetailsActivity.class);
+        Log.d(LOG_TAG, "Starting new event for event_id: " + flashmob_id);
+        i.putExtra("event_id", flashmob_id);
+        ActivityOptions ao = ActivityOptions.makeSceneTransitionAnimation(this, imageView, "eventImage");
+        startActivity(i, ao.toBundle());
     }
 
 }

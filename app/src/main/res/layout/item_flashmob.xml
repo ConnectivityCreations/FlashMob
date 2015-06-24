@@ -27,6 +27,7 @@
                 android:layout_height="200dp"
                 android:id="@+id/ivStreamImage"
                 android:contentDescription="Profile Image"
+                android:transitionName="eventImage"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"

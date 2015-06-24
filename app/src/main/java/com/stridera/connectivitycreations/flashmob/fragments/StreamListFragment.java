@@ -13,7 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -28,7 +28,6 @@ import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
-import com.parse.ParseObject;
 import com.parse.SaveCallback;
 import com.stridera.connectivitycreations.flashmob.R;
 import com.stridera.connectivitycreations.flashmob.adapters.StreamAdapter;
@@ -80,6 +79,7 @@ public class StreamListFragment extends Fragment implements LocationSource.OnLoc
 
     public interface OnItemSelectedListener {
         public void onFlashmobSelected(String flashmob_id);
+        public void onFlashmobSelected(String flashmob_id, ImageView v);
     }
 
     StreamAdapter arrayAdapter;
@@ -115,16 +115,17 @@ public class StreamListFragment extends Fragment implements LocationSource.OnLoc
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                items.get(position).fetchIfNeededInBackground(new GetCallback<Flashmob>() {
-                  @Override
-                  public void done(final Flashmob flashmob, ParseException e) {
+            final ImageView v = (ImageView) view.findViewById(R.id.ivStreamImage);
+            items.get(position).fetchIfNeededInBackground(new GetCallback<Flashmob>() {
+                @Override
+                public void done(final Flashmob flashmob, ParseException e) {
                     flashmob.pinInBackground(new SaveCallback() {
-                      @Override
-                      public void done(ParseException e) {
-                        listener.onFlashmobSelected(flashmob.getObjectId());
-                      }
+                        @Override
+                        public void done(ParseException e) {
+                            listener.onFlashmobSelected(flashmob.getObjectId(), v);
+                        }
                     });
-                  }
+                }
                 });
             }
         });
