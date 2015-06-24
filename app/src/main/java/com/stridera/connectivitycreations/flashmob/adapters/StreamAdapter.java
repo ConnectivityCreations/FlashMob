@@ -7,7 +7,6 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,7 +16,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
 import com.github.curioustechizen.ago.RelativeTimeTextView;
 import com.google.android.gms.maps.model.LatLng;
 import com.parse.GetCallback;
@@ -25,6 +23,7 @@ import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseGeoPoint;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.RequestCreator;
 import com.stridera.connectivitycreations.flashmob.R;
 import com.stridera.connectivitycreations.flashmob.activities.EventCreateActivity;
 import com.stridera.connectivitycreations.flashmob.models.Flashmob;
@@ -132,8 +131,14 @@ public class StreamAdapter extends ArrayAdapter<Flashmob> {
         }
 
         ParseFile pfImage = flashmob.getImage();
-        String url = pfImage != null ? pfImage.getUrl() : null;
-        Picasso.with(getContext()).load(url).placeholder(null).resize(800, 800).into(viewHolder.ivImage);
+        Picasso picasso = Picasso.with(getContext());
+        RequestCreator load;
+        if (pfImage == null) {
+            load = picasso.load(R.drawable.default_event_image);
+        } else {
+            load = picasso.load(pfImage.getUrl());
+        }
+        load.placeholder(null).resize(800, 800).into(viewHolder.ivImage);
 
         viewHolder.tvTitle.setText(flashmob.getTitle());
         viewHolder.tvAddress.setText(flashmob.getAddress());
