@@ -56,14 +56,16 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/nameLayout"
-                    android:layout_marginTop="-40dp">
+                    android:layout_marginTop="-40dp"
+                    android:padding="15dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceMedium"
                         android:text="@string/event_name"
-                        android:id="@+id/eventNameLabel"/>
+                        android:id="@+id/eventNameLabel"
+                        style="@style/event_create_label"/>
 
                     <org.droidparts.widget.ClearableEditText
                         android:layout_width="match_parent"
@@ -78,14 +80,16 @@
                     android:orientation="vertical"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal">
+                    android:layout_gravity="center_horizontal"
+                    android:padding="15dp" >
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceMedium"
                         android:text="@string/when"
-                        android:id="@+id/whenLabel"/>
+                        android:id="@+id/whenLabel"
+                        style="@style/event_create_label"/>
 
                     <LinearLayout
                         android:orientation="horizontal"
@@ -125,14 +129,16 @@
                     android:orientation="vertical"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal">
+                    android:layout_gravity="center_horizontal"
+                    android:padding="15dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceMedium"
                         android:text="@string/where"
-                        android:id="@+id/whereLabel"/>
+                        android:id="@+id/whereLabel"
+                        style="@style/event_create_label"/>
 
                     <org.droidparts.widget.ClearableEditText
                         android:layout_width="match_parent"
@@ -152,13 +158,15 @@
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="top"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:padding="15dp">
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceMedium"
                         android:text="@string/categories"
-                        android:id="@+id/categoriesLabel" />
+                        android:id="@+id/categoriesLabel"
+                        style="@style/event_create_label"/>
                     <FrameLayout
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
@@ -176,13 +184,15 @@
                     android:orientation="vertical"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal">
+                    android:layout_gravity="center_horizontal"
+                    android:padding="15dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceMedium"
-                        android:text="@string/attendees" />
+                        android:text="@string/attendees"
+                        style="@style/event_create_label"/>
 
                     <LinearLayout
                         android:orientation="horizontal"

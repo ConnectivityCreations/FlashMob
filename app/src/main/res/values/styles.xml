@@ -98,6 +98,11 @@
         <item name="android:background">@color/primary</item>
     </style>
 
+    <style name="event_create_label">
+        <item name="android:textColor">@color/primary</item>
+        <item name="android:paddingBottom">5dp</item>
+    </style>
+
     <!-- =============================================================== -->
     <!-- Customize YOUR_CUSTOM_THEME Styles -->
     <!-- Define your own styles below. -->
