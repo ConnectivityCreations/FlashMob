@@ -13,13 +13,7 @@
       android:name="com.stridera.connectivitycreations.flashmob.fragments.CategoryFragment"
       android:id="@+id/categoryFragment"
       android:layout_width="fill_parent"
-      android:layout_height="wrap_content" />
-  <org.droidparts.widget.ClearableEditText
-      android:id="@+id/categoryEditText"
-      android:layout_height="wrap_content"
-      android:layout_width="fill_parent"
-      android:singleLine="true"
-      android:inputType="text"/>
+      android:layout_height="wrap_content"/>
   <ListView
       android:layout_width="fill_parent"
       android:layout_height="0dp"

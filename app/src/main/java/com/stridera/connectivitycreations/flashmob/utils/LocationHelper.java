@@ -13,6 +13,9 @@ public class LocationHelper {
   private static final String TAG = LocationHelper.class.getSimpleName();
 
   public static String addressToString(Address address) {
+    if (address == null) {
+      return "";
+    }
     StringBuilder addressStringBuilder = new StringBuilder();
     String divider = ", ";
     for (int i = 0; i < address.getMaxAddressLineIndex(); i++) {

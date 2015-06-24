@@ -49,26 +49,14 @@
               style="@style/fab_style" />
         </FrameLayout>
         <!-- Title -->
-        <LinearLayout
+        <org.droidparts.widget.ClearableEditText
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:id="@+id/nameLayout"
-            android:layout_marginTop="-40dp">
-          <TextView
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:text="@string/event_name"
-              style="@style/Base.TextAppearance.AppCompat.Medium"
-              android:padding="3dp"/>
-          <org.droidparts.widget.ClearableEditText
-              android:layout_width="fill_parent"
-              android:layout_height="wrap_content"
-              android:id="@+id/nameEditText"
-              android:hint="@string/your_event"
-              android:singleLine="true"
-              android:layout_weight="1" />
-        </LinearLayout>
+            android:layout_marginTop="-40dp"
+            android:id="@+id/nameEditText"
+            android:hint="@string/event_name"
+            android:singleLine="true"
+            android:layout_weight="1"/>
         <!-- Time -->
         <LinearLayout
             android:layout_width="fill_parent"
@@ -117,29 +105,17 @@
             android:layout_width="match_parent"
             android:layout_height="200dp"/>
         <!-- Categories -->
-        <LinearLayout
+        <FrameLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="top"
-            android:orientation="horizontal">
-          <TextView
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:text="@string/categories"
-              style="@style/Base.TextAppearance.AppCompat.Medium"
-              android:padding="3dp"/>
-          <FrameLayout
+            android:layout_weight="1"
+            android:id="@+id/categoryFrameLayout">
+          <fragment
+              android:name="com.stridera.connectivitycreations.flashmob.fragments.CategoryFragment"
+              android:id="@+id/categoryFragment"
               android:layout_width="fill_parent"
-              android:layout_height="wrap_content"
-              android:layout_weight="1"
-              android:id="@+id/categoryFrameLayout">
-            <fragment
-                android:name="com.stridera.connectivitycreations.flashmob.fragments.CategoryFragment"
-                android:id="@+id/categoryFragment"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"/>
-          </FrameLayout>
-        </LinearLayout>
+              android:layout_height="wrap_content"/>
+        </FrameLayout>
         <!-- Attendees -->
         <LinearLayout
             android:layout_width="fill_parent"

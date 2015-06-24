@@ -170,7 +170,6 @@ public class EventCreateActivity extends AppCompatActivity {
     findViewById(R.id.everythingOverlay).setOnTouchListener(new View.OnTouchListener() {
       @Override
       public boolean onTouch(View v, MotionEvent event) {
-        Log.d(TAG, v.toString() + " - " + actionMenu.isOpen());
         if (actionMenu.isOpen()) actionMenu.close(true);
         return false;
       }
