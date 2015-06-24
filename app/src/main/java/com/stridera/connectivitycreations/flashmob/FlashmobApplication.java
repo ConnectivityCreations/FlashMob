@@ -11,6 +11,8 @@ import com.parse.ParseObject;
 import com.parse.ParsePush;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
+import com.squareup.picasso.OkHttpDownloader;
+import com.squareup.picasso.Picasso;
 import com.stridera.connectivitycreations.flashmob.models.Category;
 import com.stridera.connectivitycreations.flashmob.models.Comments;
 import com.stridera.connectivitycreations.flashmob.models.FlashUser;
@@ -22,6 +24,9 @@ public class FlashmobApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        Picasso picasso = new Picasso.Builder(this).downloader(new OkHttpDownloader(this, Integer.MAX_VALUE)).build();
+        Picasso.setSingletonInstance(picasso);
 
         // Initilize the Facebook SDK
         FacebookSdk.sdkInitialize(getApplicationContext());

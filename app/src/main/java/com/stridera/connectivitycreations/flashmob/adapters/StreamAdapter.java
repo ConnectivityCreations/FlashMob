@@ -7,6 +7,7 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -131,12 +132,8 @@ public class StreamAdapter extends ArrayAdapter<Flashmob> {
         }
 
         ParseFile pfImage = flashmob.getImage();
-        if (pfImage != null) {
-            viewHolder.ivImage.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-            Picasso.with(getContext()).load(pfImage.getUrl()).resize(200, viewHolder.ivImage.getMeasuredWidth()).into(viewHolder.ivImage);
-        } else {
-            viewHolder.ivImage.setImageBitmap(null);
-        }
+        String url = pfImage != null ? pfImage.getUrl() : null;
+        Picasso.with(getContext()).load(url).placeholder(null).resize(800, 800).into(viewHolder.ivImage);
 
         viewHolder.tvTitle.setText(flashmob.getTitle());
         viewHolder.tvAddress.setText(flashmob.getAddress());
